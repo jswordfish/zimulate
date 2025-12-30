@@ -1,0 +1,12 @@
+<CompetencyTest>
+  <kbCompetencies>
+    <kbCompetencies>
+      <competency>Decision Making</competency>
+      <parentCompetency>Leadership</parentCompetency>
+      <questionsAskedInRandom>false</questionsAskedInRandom>
+      <noOfQuestionsToBeAsked>5</noOfQuestionsToBeAsked>
+      <questionType>MCQ</questionType>
+    </kbCompetencies>
+   
+  </kbCompetencies>
+</CompetencyTest>

@@ -1,0 +1,297 @@
+{
+  "table" : {
+    "tableName" : "Employees (including differently abled)",
+    "tableCategory" : "Details as at the end of Financial Year:",
+    "openEnded" : true,
+    "questions" : [ {
+      "@class" : "com.v2.bsrf.dtos.tables.Question",
+      "name" : "Serial",
+      "desc" : null,
+      "answerType" : "SERIAL",
+      "color" : null,
+      "input" : true,
+      "formula" : null,
+      "header" : false
+    }, {
+      "@class" : "com.v2.bsrf.dtos.tables.Question",
+      "name" : "Particulars",
+      "desc" : null,
+      "answerType" : "TEXT",
+      "color" : null,
+      "input" : true,
+      "formula" : null,
+      "header" : false
+    }, {
+      "@class" : "com.v2.bsrf.dtos.tables.Question",
+      "name" : "Total (A)",
+      "desc" : null,
+      "answerType" : "NUMBER",
+      "color" : null,
+      "input" : true,
+      "formula" : null,
+      "header" : false
+    }, {
+      "@class" : "com.v2.bsrf.dtos.tables.Header",
+      "name" : "Male",
+      "desc" : null,
+      "questions" : [ {
+        "@class" : "com.v2.bsrf.dtos.tables.Question",
+        "name" : "No. (B)",
+        "desc" : null,
+        "answerType" : "NUMBER",
+        "color" : null,
+        "input" : true,
+        "formula" : null,
+        "header" : false
+      }, {
+        "@class" : "com.v2.bsrf.dtos.tables.Question",
+        "name" : "% (B / A)",
+        "desc" : null,
+        "answerType" : "NUMBER",
+        "color" : null,
+        "input" : false,
+        "formula" : {
+          "operand1" : "Total (A)",
+          "operand2" : "No. (B)",
+          "operator" : "PERCENTAGE_OF"
+        },
+        "header" : false
+      } ],
+      "header" : true
+    }, {
+      "@class" : "com.v2.bsrf.dtos.tables.Header",
+      "name" : "Female",
+      "desc" : null,
+      "questions" : [ {
+        "@class" : "com.v2.bsrf.dtos.tables.Question",
+        "name" : "No. (C)",
+        "desc" : null,
+        "answerType" : "NUMBER",
+        "color" : null,
+        "input" : true,
+        "formula" : null,
+        "header" : false
+      }, {
+        "@class" : "com.v2.bsrf.dtos.tables.Question",
+        "name" : "% (C / A)",
+        "desc" : null,
+        "answerType" : "NUMBER",
+        "color" : null,
+        "input" : false,
+        "formula" : {
+          "operand1" : "Total (A)",
+          "operand2" : "No. (C)",
+          "operator" : "PERCENTAGE_OF"
+        },
+        "header" : false
+      } ],
+      "header" : true
+    } ]
+  },
+  "rows" : {
+    "rows" : [ {
+      "answers" : [ {
+        "answer" : 1,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Serial",
+          "desc" : null,
+          "answerType" : "SERIAL",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : "Permanent (D)",
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Particulars",
+          "desc" : null,
+          "answerType" : "TEXT",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 10000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Total (A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 6000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "No. (B)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 60.0,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "% (B / A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : false,
+          "formula" : {
+            "operand1" : "Total (A)",
+            "operand2" : "No. (B)",
+            "operator" : "PERCENTAGE_OF"
+          },
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 4000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "No. (C)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 40.0,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "% (C / A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : false,
+          "formula" : {
+            "operand1" : "Total (A)",
+            "operand2" : "No. (C)",
+            "operator" : "PERCENTAGE_OF"
+          },
+          "header" : false
+        },
+        "prePopulated" : null
+      } ]
+    }, {
+      "answers" : [ {
+        "answer" : 1,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Serial",
+          "desc" : null,
+          "answerType" : "SERIAL",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : "Other than Permanent (E)",
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Particulars",
+          "desc" : null,
+          "answerType" : "TEXT",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 20000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "Total (A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 16000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "No. (B)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 80.0,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "% (B / A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : false,
+          "formula" : {
+            "operand1" : "Total (A)",
+            "operand2" : "No. (B)",
+            "operator" : "PERCENTAGE_OF"
+          },
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 4000,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "No. (C)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : true,
+          "formula" : null,
+          "header" : false
+        },
+        "prePopulated" : null
+      }, {
+        "answer" : 20.0,
+        "question" : {
+          "@class" : "com.v2.bsrf.dtos.tables.Question",
+          "name" : "% (C / A)",
+          "desc" : null,
+          "answerType" : "NUMBER",
+          "color" : null,
+          "input" : false,
+          "formula" : {
+            "operand1" : "Total (A)",
+            "operand2" : "No. (C)",
+            "operator" : "PERCENTAGE_OF"
+          },
+          "header" : false
+        },
+        "prePopulated" : null
+      } ]
+    } ],
+    "noOfRows" : 2
+  }
+}

@@ -1,0 +1,24 @@
+package com.v2.competency.management.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResponseDto {
+	
+	Object data;
+	@Builder.Default
+	String status = "ok";
+	
+	@Builder.Default
+	String error = "";
+
+}

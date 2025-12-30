@@ -1,0 +1,124 @@
+<CompetencyTest>
+  <competencies>
+    <competencies>
+      <qid>1</qid>
+      <competency>Quality of Introduction</competency>
+      <parentCompetency>English Language</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups/>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Grammar, Depth of the Answer, Vocabulary</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+    <competencies>
+      <qid>2</qid>
+      <competency>Proficiency in Marketing Tools</competency>
+      <parentCompetency>Technical Skills</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups>
+        <followups>
+          <qid>21</qid>
+          <competency>Proficiency in Marketing Tools</competency>
+          <parentCompetency>Technical Skills</parentCompetency>
+          <proficiencyLevel>LEVEL3</proficiencyLevel>
+          <followups/>
+          <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+          <weightOfQuestion>1</weightOfQuestion>
+          <followup/>
+          <status></status>
+          <timeWhenQAsked/>
+          <instructions></instructions>
+        </followups>
+      </followups>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+    <competencies>
+      <qid>3</qid>
+      <competency>Proficiency in Marketing Tools</competency>
+      <parentCompetency>Content Management Systems (CMS)</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups/>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+    <competencies>
+      <qid>4</qid>
+      <competency>Proficiency in Marketing Tools</competency>
+      <parentCompetency>Microsoft Office Suite</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups/>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+    <competencies>
+      <qid>5</qid>
+      <competency>Excellent Time Management</competency>
+      <parentCompetency>Organizational &amp; Communication Skills</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups/>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+    <competencies>
+      <qid>6</qid>
+      <competency>Excellent Time Management</competency>
+      <parentCompetency>Organizational &amp; Communication Skills</parentCompetency>
+      <proficiencyLevel>LEVEL3</proficiencyLevel>
+      <followups>
+        <followups>
+          <qid>61</qid>
+          <competency>Excellent Time Management</competency>
+          <parentCompetency>Organizational &amp; Communication Skills</parentCompetency>
+          <proficiencyLevel>LEVEL3</proficiencyLevel>
+          <followups>
+            <followups>
+              <qid>611</qid>
+              <competency>Excellent Time Management</competency>
+              <parentCompetency>Organizational &amp; Communication Skills</parentCompetency>
+              <proficiencyLevel>LEVEL3</proficiencyLevel>
+              <followups/>
+              <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+              <weightOfQuestion>1</weightOfQuestion>
+              <followup/>
+              <status></status>
+              <timeWhenQAsked/>
+              <instructions></instructions>
+            </followups>
+          </followups>
+          <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+          <weightOfQuestion>1</weightOfQuestion>
+          <followup/>
+          <status></status>
+          <timeWhenQAsked/>
+          <instructions></instructions>
+        </followups>
+      </followups>
+      <evaluationParameters>Evaluate the user answer on following 4 parameters - Relevance to Question, Correctness, Depth of the Answer, Coverage to all areas of Question</evaluationParameters>
+      <weightOfQuestion>1</weightOfQuestion>
+      <followup/>
+      <status></status>
+      <timeWhenQAsked/>
+      <instructions></instructions>
+    </competencies>
+  </competencies>
+</CompetencyTest>
