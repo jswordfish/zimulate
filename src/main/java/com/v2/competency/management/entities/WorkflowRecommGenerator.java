@@ -8,5 +8,7 @@ public interface WorkflowRecommGenerator {
 	public boolean checkIfRecommCanBeGenerated(Long rolePlayAssessmentId, Long workflowSessionId);
 	
 	public String generateRecommendations(Long workflowSessionId) throws IOException;
+	
+	public String generateRecommendationsSync(Long workflowSessionId) throws IOException;
 
 }

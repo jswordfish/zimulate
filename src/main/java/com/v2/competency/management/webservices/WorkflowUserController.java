@@ -1,5 +1,6 @@
 package com.v2.competency.management.webservices;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +26,14 @@ import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.entities.VideoAgentSession;
 import com.v2.competency.management.entities.WorkflowNode;
 import com.v2.competency.management.entities.WorkflowNodeSession;
+import com.v2.competency.management.entities.WorkflowRecommGenerator;
 import com.v2.competency.management.entities.WorkflowSession;
 import com.v2.competency.management.entities.WorkflowSessionStatus;
 import com.v2.competency.management.entities.ZimulateWorkflow;
 import com.v2.competency.management.repos.VFRolePlayTestRepo;
+import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.repos.VideoAgentRepo;
+import com.v2.competency.management.repos.WorkflowSessionRepo;
 import com.v2.competency.management.repos.ZimulateWorkflowRepo;
 import com.v2.competency.management.service.VFRolePlayTestService;
 import com.v2.competency.management.service.VFRolePlayTestSessionService;
@@ -68,6 +72,15 @@ public class WorkflowUserController {
 	
 	@Autowired
 	VFRolePlayTestRepo vfRolePlayTestRepo;
+	
+	@Autowired
+	VFRolePlayTestSessionRepo rolePlayTestSessionRepo;
+	
+	@Autowired
+	WorkflowRecommGenerator workflowRecommGenerator;
+	
+	@Autowired
+	WorkflowSessionRepo workflowSessionRepo;
 	
 	@RequestMapping(value="assignWorkflowToUser",method=RequestMethod.POST) 
 	@CrossOrigin
@@ -350,7 +363,7 @@ public class WorkflowUserController {
 	
 	@RequestMapping(value="markRolePlayShowRecommendationsCompletion",method=RequestMethod.POST)  
 	@CrossOrigin
-    public ResponseEntity<?> markRolePlayShowRecommendationsCompletion( @RequestParam String token, @RequestParam String companyId, @RequestParam String email, @RequestParam Boolean showResults,  @RequestParam Integer position, @RequestParam Long workFlowId){
+    public ResponseEntity<?> markRolePlayShowRecommendationsCompletion( @RequestParam String token, @RequestParam String companyId, @RequestParam String email, @RequestParam Boolean showRecomm,  @RequestParam Integer position, @RequestParam Long workFlowId){
 		ZimulateWorkflow workflow = workflowRepo.findById(workFlowId).get();
 			if(workflow == null) {
 				return ResponseEntity.badRequest().body("Workflow Id does not exist "+workFlowId);
@@ -411,12 +424,29 @@ public class WorkflowUserController {
 		return ResponseEntity.ok(sessions);
 	}
 	
+	@RequestMapping(value="fetchWorkflowsSessionById",method=RequestMethod.GET) 
+	@CrossOrigin
+    public ResponseEntity<?> fetchWorkflowsSessionById( @RequestParam String token, @RequestParam Long workflowSessionId){
+		return ResponseEntity.ok(workflowSessionRepo.findById(workflowSessionId).get());
+	}
+	
 	@RequestMapping(value="fetchAllWorkflowNodesToAssignedToUser",method=RequestMethod.GET) 
 	@CrossOrigin
     public ResponseEntity<?> fetchAllWorkflowNodesToAssignedToUser( @RequestParam String token, @RequestParam String companyId, 
 	        @RequestParam String email, @RequestParam Long workflowId, @RequestParam Long workflowSessionId){
 		List<WorkflowNodeSession> nodeInstances =  workflowNodeSessionService.findAllWorkflowNodesByCompanyId(companyId, workflowId, workflowSessionId, email);
 		return ResponseEntity.ok(nodeInstances);
+	}
+	
+	@RequestMapping(value="testWorkflowInsightsGen",method=RequestMethod.GET) 
+	@CrossOrigin
+    public ResponseEntity<?> testWorkflowInsightsGen( @RequestParam String token, @RequestParam Long rolePlayTestSessionId) throws IOException{
+		VFRolePlayTestSession session = rolePlayTestSessionRepo.findById(rolePlayTestSessionId).get();
+		if(workflowRecommGenerator.checkIfRecommCanBeGenerated(session.getId(), session.getWorkflowSessionId())) {
+        	String json = workflowRecommGenerator.generateRecommendationsSync(session.getWorkflowSessionId());
+        	return ResponseEntity.ok(json);
+        }
+		return ResponseEntity.ok().build();
 	}
 	
 }

@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,6 +34,8 @@ public class VideoAgentMetaDataController {
 	
 	ObjectMapper objectMapper = new ObjectMapper();
 	
+	Logger logger = LoggerFactory.getLogger(VideoAgentMetaDataController.class);
+	
 	@RequestMapping(value = "/fetchOpeningStatementsForVideoAgent", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchOpeningStatementsForVideoAgent( @RequestParam String token, @RequestParam String companyId, @RequestParam String agentType,  @RequestParam String industry, 
 			@RequestParam String company, @RequestParam(required = false) String product) throws IOException{
@@ -53,12 +57,35 @@ public class VideoAgentMetaDataController {
    		 if(res.startsWith("json")) {
    			 res = res.substring("json".length(), res.length());
    		 }
-   		 System.out.println("res "+res);
+   		logger.info("res "+res);
    		List<String> list = objectMapper.readValue(
    	            res, 
    	            new TypeReference<List<String>>(){} // <--- This captures the generic type
    	        );
    	   return ResponseEntity.ok(list);
+        }
+	}
+	
+	public String fetchOneOpeningStatementsForVideoAgent( @RequestParam String agentType,  
+			String company, String product_service_skill) throws IOException{
+        String promptTemplate = readClasspathFile("openingStatementPrompt_return_1_option.txt");
+        String prompt = promptTemplate.replace("{{agent_type}}", agentType);
+        prompt = prompt.replace("{{company_name}}", company);
+        prompt = prompt.replace("{{product_name}}", product_service_skill==null?"Not Provided":product_service_skill);
+
+        try (VertexAI vertexAI = new VertexAI(config.getGeminiProjectId(), config.getGeminiLocation())) {
+   	      GenerativeModel model = new GenerativeModel(config.getGeminiModelName(), vertexAI);
+   	      GenerateContentResponse response = model.generateContent(
+   	    		  prompt
+   	      );
+   	    String res =  response.getCandidates(0).getContent().getParts(0).getText();
+   	    res = res.replace("`", "");
+   	    res = res.replace('\u00A0',' ');
+   		res = res.replace("'", " ");
+   		res = res.trim();
+   		logger.info("res "+res);
+   		
+   	   return res;
         }
 	}
 	
@@ -102,6 +129,28 @@ public class VideoAgentMetaDataController {
    	            new TypeReference<List<String>>(){} // <--- This captures the generic type
    	        );
    	   return ResponseEntity.ok(list);
+        }
+	}
+	
+	public String fetchPromptTemplate_1_VariantForVideoAgentKnowledgebase(  @RequestParam String agentType,   String product_service_skill) throws IOException{
+        String promptTemplate = readClasspathFile("knowledbasePromptHeyGen_fetchOnly1Option.txt");
+        String prompt = promptTemplate.replace("{{agent_type}}", agentType);
+        prompt = prompt.replace("{{company_name}}", "Not Applicable");
+        prompt = prompt.replace("{{product_name}}", product_service_skill==null?"Not Provided":product_service_skill);
+
+        try (VertexAI vertexAI = new VertexAI(config.getGeminiProjectId(), config.getGeminiLocation())) {
+   	      GenerativeModel model = new GenerativeModel(config.getGeminiModelName(), vertexAI);
+   	      GenerateContentResponse response = model.generateContent(
+   	    		  prompt
+   	      );
+   	    String res =  response.getCandidates(0).getContent().getParts(0).getText();
+   	    res = res.replace("`", "");
+   	    res = res.replace('\u00A0',' ');
+   		  res = res.replace("'", " ");
+   		 res = res.trim();
+   		
+   		 logger.info("res "+res);
+   		return res;
         }
 	}
 	

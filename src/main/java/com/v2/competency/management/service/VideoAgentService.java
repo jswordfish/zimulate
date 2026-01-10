@@ -18,6 +18,7 @@ public interface VideoAgentService {
 	public Page<VideoAgent> searchVideoAgents(String search,  String companyId, Pageable pageable);
 	
 	public List<String> findIndustries(String companyId);
-
+	
+	
 	
 }

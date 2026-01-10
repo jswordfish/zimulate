@@ -71,7 +71,6 @@ public class WorkflowNodeSessionServiceImpl implements WorkflowNodeSessionServic
 			node.setRolePlayAssessmentSession(null);
 			node.setResultsShown(false);
 			node.setRecommendationsShown(false);
-			node.setRecommendations(null);
 			return repo.save(node);
 		}
 		else if(node.getNodeType().equalsIgnoreCase(WorkflowNodeType.ROLEPLAY_TRAINING.getWorkflowNodeType())) {
@@ -84,7 +83,6 @@ public class WorkflowNodeSessionServiceImpl implements WorkflowNodeSessionServic
 			node.setRolePlayAssessmentSession(null);
 			node.setResultsShown(false);
 			node.setRecommendationsShown(false);
-			node.setRecommendations(null);
 			return repo.save(node);
 		}
 		else if(node.getNodeType().equalsIgnoreCase(WorkflowNodeType.ROLPLAY_ASSESSMENT.getWorkflowNodeType())) {
@@ -97,7 +95,6 @@ public class WorkflowNodeSessionServiceImpl implements WorkflowNodeSessionServic
 			node.setRolePlayAssessmentSession(rolePlayAssessmentSession);
 			node.setResultsShown(false);
 			node.setRecommendationsShown(false);
-			node.setRecommendations(null);
 			return repo.save(node);
 		}
 		else if(node.getNodeType().equalsIgnoreCase(WorkflowNodeType.SHOW_RESULTS.getWorkflowNodeType())) {
@@ -106,7 +103,6 @@ public class WorkflowNodeSessionServiceImpl implements WorkflowNodeSessionServic
 			node.setRolePlayTrainingSession(null);
 			node.setRolePlayAssessmentSession(null);
 			node.setRecommendationsShown(false);
-			node.setRecommendations(null);
 			return repo.save(node);
 		}
 		else if(node.getNodeType().equalsIgnoreCase(WorkflowNodeType.SHOW_TRAINING_RECOMMENDATIONS.getWorkflowNodeType())) {
@@ -115,7 +111,6 @@ public class WorkflowNodeSessionServiceImpl implements WorkflowNodeSessionServic
 			node.setRolePlayTrainingSession(null);
 			node.setRolePlayAssessmentSession(null);
 			node.setRecommendationsShown(true);
-			node.setRecommendations("Recommendations generation is progress"); // this should trigger recomm process
 			return repo.save(node);
 		}
 		

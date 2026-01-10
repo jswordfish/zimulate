@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,9 +40,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.googlecloud.vertex.ai.workflow.insights.dto.LearningInsightsDetail;
+import com.googlecloud.vertex.ai.workflow.insights.dto.Overall;
+import com.googlecloud.vertex.ai.workflow.insights.dto.SkillCategory;
+import com.v2.competency.management.dtos.AgentType;
 import com.v2.competency.management.dtos.HeyGenKnowledgeBaseResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.service.VideoAgentService;
+import com.v2.competency.management.service.impl.VideoAgentServiceImpl;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +69,11 @@ public class VideoAgentController {
     
     @Autowired
     VideoAgentService agentService;
+    
+    Logger logger = LoggerFactory.getLogger(VideoAgentController.class);
+    
+    @Autowired
+    VideoAgentMetaDataController videoAgentMetaDataController;
 	
 	@RequestMapping(value="createVideoAgentUsingFileKB",method=RequestMethod.POST,
 			consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })  
@@ -141,6 +154,18 @@ public class VideoAgentController {
         payloadMap.put("opening", openingStatement);
         // Truncate if necessary (HeyGen limit is roughly 20-40k chars depending on plan)
         payloadMap.put("prompt",  prompt+" --- \n\n" + extractedText);
+        String jsonBody = objectMapper.writeValueAsString(payloadMap);
+        // 3. Send to HeyGen API
+       return sendToHeyGen(jsonBody);
+	}
+	
+	private HeyGenResponseStatus createKnowledgeBase(String name, String industry, String contents, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+        Map<String, String> payloadMap = new HashMap<>();
+        payloadMap.put("name", name);
+        payloadMap.put("description", "Knowledge base uploaded via API for company " + companyId);
+        payloadMap.put("opening", openingStatement);
+        // Truncate if necessary (HeyGen limit is roughly 20-40k chars depending on plan)
+        payloadMap.put("prompt",  prompt+" --- \n\n" + contents);
         String jsonBody = objectMapper.writeValueAsString(payloadMap);
         // 3. Send to HeyGen API
        return sendToHeyGen(jsonBody);
@@ -232,6 +257,62 @@ public class VideoAgentController {
         
         return text;
     }
+    
+    
+	public List<VideoAgent> generateDynamicVideoAgents(String overAll, String companyId) {
+		try {
+			List<VideoAgent> agentsTraining = new ArrayList<>();
+			Overall insights = objectMapper.readValue(overAll.getBytes(), Overall.class);
+			for(SkillCategory category:  insights.getSkillGapsByCategory()) {
+				String skill = "";
+				String kbContents = "";
+				Integer count = 1;
+				for( LearningInsightsDetail learning :  category.getSkillGapDetails()) {
+					skill+= learning.getSkillGap()+",";
+					kbContents+= count+". Training contents for "+learning.getSkillGap()+" - "+System.lineSeparator();
+					kbContents += learning.getRecommendedLearningResources()+"."+System.lineSeparator();
+					kbContents +=  "----------------------------------------";
+					count++;
+				}
+				skill = skill.substring(0, skill.lastIndexOf(","));
+				String openingStatement =  videoAgentMetaDataController.fetchOneOpeningStatementsForVideoAgent(AgentType.TRAINER.getType(), "Not applicable", skill);
+				String prompt = videoAgentMetaDataController.fetchPromptTemplate_1_VariantForVideoAgentKnowledgebase(AgentType.TRAINER.getType(), skill);
+				
+				HeyGenResponseStatus heyGenResponseStatus =  createKnowledgeBase("Training on "+category.getCategory(), category.getCategory(), kbContents, companyId, openingStatement, prompt);
+					if(heyGenResponseStatus.isSuccess()) {
+						String objective = "The objective of this training is to help you master exactly what you need, right now. Based on your recent role-plays, we are a cerating a custom Video Agent designed specifically to help you strengthen your identified improvement areas ("+category.getCategory()+" - "+skill+").";
+						VideoAgent videoAgent = VideoAgent.builder()
+								.agentType(AgentType.TRAINER.getType())
+								.company("General")
+								.dynamicallyCreated(true)
+								.industry(category.getCategory())
+								.kbId(heyGenResponseStatus.getSuccessDesc().getData().getKnowledgeBaseId())
+								.image("heygen_avatar_4.webp")
+								.name("Training on "+category.getCategory())
+								.objective(objective)
+								.openingStatement(openingStatement)
+								.prompt(prompt)
+								.products("Identified Skill Gaps: "+category.getCategory()+" - "+skill)
+								.build();
+						videoAgent.setCompanyId(companyId);
+						videoAgent = agentService.saveOrUpdate(videoAgent);
+						agentsTraining.add(videoAgent);
+					}
+			}
+			
+			return agentsTraining;
+		} catch (IOException e) {
+			logger.error("Problems in converting Overall string to object", e);
+			throw new RuntimeException(e.getMessage());
+		} catch (InterruptedException e) {
+			logger.error("Problems in cerating HeyGen KB", e);
+			throw new RuntimeException(e.getMessage());
+		}
+		catch (Exception e) {
+			logger.error("Problems in cerating HeyGen KB", e);
+			throw new RuntimeException(e.getMessage());
+		}
+	}
 	
 }
 

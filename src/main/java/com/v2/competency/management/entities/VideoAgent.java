@@ -42,6 +42,8 @@ public class VideoAgent extends Base{
 	
 	String image;
 	
+	Boolean dynamicallyCreated;
+	
 
 	public String getName() {
 		return name;
@@ -124,7 +126,15 @@ public class VideoAgent extends Base{
 	public void setImage(String image) {
 		this.image = image;
 	}
-	
-	
 
+	public Boolean getDynamicallyCreated() {
+		return dynamicallyCreated;
+	}
+
+	public void setDynamicallyCreated(Boolean dynamicallyCreated) {
+		this.dynamicallyCreated = dynamicallyCreated;
+	}
+	
+	
+	
 }

@@ -540,7 +540,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	@Override
 	@Async
 	public void submitGoogleFullVideoForAnalysis(String persona, String email, String firstName, String lastName, String testName,
-			Integer attempt, String companyId, String googleBucketPath, String location, String model, String videoLink) {
+			Integer attempt, String companyId, String googleBucketPath, String location, String model, String videoLink, Long workflowSessionId) {
 		// TODO Auto-generated method stub
 		try {
 	        System.out.println("Submit Video method entered "+googleBucketPath);
@@ -550,6 +550,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        session.setVideoLink(googleBucketPath);
 		    session.setVideoUrl(videoLink);
 		    session.setRolePlayPersona(persona);
+		    session.setWorkflowSessionId(workflowSessionId); // change here
 	        session = rolePlayTestSessionService.saveOrUpdate(session);
 	        System.out.println("Sending video for insights **** ");
 	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);

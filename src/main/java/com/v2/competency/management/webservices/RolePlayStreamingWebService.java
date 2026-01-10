@@ -273,8 +273,8 @@ public class RolePlayStreamingWebService {
 	    @RequestParam Integer attempt,
 	    @RequestParam String companyId,
 	    @RequestParam String googleBucketPath, @RequestParam String token, @RequestParam(required = false) String location,
-	    @RequestParam(required = false) String model, @RequestParam(required = false) String videoLink) {
-		aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(persona, email, firstName, lastName, testName, attempt, companyId, googleBucketPath, location, model, videoLink);
+	    @RequestParam(required = false) String model, @RequestParam(required = false) String videoLink, @RequestParam(required = false) Long workflowSessionId) {
+		aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(persona, email, firstName, lastName, testName, attempt, companyId, googleBucketPath, location, model, videoLink, workflowSessionId);
 	    return new ResponseEntity<>(HttpStatus.OK);
 	}
 	

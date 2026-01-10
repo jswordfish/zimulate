@@ -50,8 +50,5 @@ public class WorkflowNodeSession extends Base{
 	
 	Boolean recommendationsShown;
 	
-	/**
-	 * training video avator
-	 */
-	String recommendations;
+	
 }

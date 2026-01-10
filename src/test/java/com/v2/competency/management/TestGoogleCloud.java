@@ -14,7 +14,12 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.cloud.video.transcoder.v1.AudioStream;
+import com.google.cloud.vertexai.VertexAI;
+import com.google.cloud.vertexai.api.GenerateContentResponse;
+import com.google.cloud.vertexai.api.GenerationConfig;
+import com.google.cloud.vertexai.generativeai.ContentMaker;
+import com.google.cloud.vertexai.generativeai.GenerativeModel;
+import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.google.cloud.video.transcoder.v1.CreateJobRequest;
 import com.google.cloud.video.transcoder.v1.EditAtom;
 import com.google.cloud.video.transcoder.v1.ElementaryStream;
@@ -25,7 +30,6 @@ import com.google.cloud.video.transcoder.v1.LocationName;
 import com.google.cloud.video.transcoder.v1.MuxStream;
 import com.google.cloud.video.transcoder.v1.TranscoderServiceClient;
 import com.google.cloud.video.transcoder.v1.VideoStream;
-import com.v2.competency.management.webservices.RolePlayAssessmentWebservice;
 public class TestGoogleCloud {
 	
 	
@@ -192,4 +196,6 @@ public class TestGoogleCloud {
 		public void testgetJobStatus() throws IOException {
 			getJobStatus(projectId, "asia-south1", "5786d5a3-b5d1-4947-8f65-205ab1faa6f6");
 		}
+		
+		
 }

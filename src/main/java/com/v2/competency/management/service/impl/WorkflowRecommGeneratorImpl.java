@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,10 @@ import org.springframework.stereotype.Service;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
-import com.googlecloud.vertex.ai.workflow.insights.dto.Overall;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
+import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.entities.WorkflowNode;
-import com.v2.competency.management.entities.WorkflowNodeSession;
 import com.v2.competency.management.entities.WorkflowRecommGenerator;
 import com.v2.competency.management.entities.WorkflowSession;
 import com.v2.competency.management.entities.ZimulateWorkflow;
@@ -30,6 +30,7 @@ import com.v2.competency.management.service.WorkflowNodeService;
 import com.v2.competency.management.service.WorkflowNodeSessionService;
 import com.v2.competency.management.service.WorkflowSessionService;
 import com.v2.competency.management.service.ZimulateWorkflowService;
+import com.v2.competency.management.webservices.VideoAgentController;
 @Service
 public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	
@@ -59,6 +60,9 @@ public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	
 	@Autowired
 	WorkflowNodeSessionRepo workflowNodeSessionRepo;
+	
+	@Autowired
+	VideoAgentController videoAgentController;
 
 	@Override
 	public boolean checkIfRecommCanBeGenerated(Long rolePlayAssessmentId, Long workflowSessionId) {
@@ -99,6 +103,9 @@ public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	@Async
 	public String generateRecommendations(Long workflowSessionId) throws IOException  {
 		List<VFRolePlayTestSession> sessions = rolePlayTestSessionRepo.findRoleplaySessionsByWorkflowSessionId(workflowSessionId);
+			if(sessions.size() == 0) {
+				return null;
+			}
 		String prompt = readClasspathFile("gapsAnalyzingPrompt.txt");
 		String scenarios = "";
 		Integer count = 1;
@@ -136,13 +143,17 @@ public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	   			 res = res.substring("json".length(), res.length());
 	   		 }
 	   		 System.out.println("res "+res);
-	   		WorkflowNodeSession recomm =  workflowNodeSessionService.findShowRecommNodeForWorkflowSession(workflowSessionId);
-	   		recomm.setRecommendations(res);
-	   		workflowNodeSessionRepo.save(recomm);
+	   		WorkflowSession workflowSession =  workflowSessionRepo.findById(workflowSessionId).get();
+	   		workflowSession.setRecommendations(res);
+	   		List<VideoAgent> agents =  videoAgentController.generateDynamicVideoAgents(res, sessions.get(0).getCompanyId());
+	   		List<String> ids = agents.stream()
+	   				.map(agent -> agent.getId().toString())
+	   				.collect(Collectors.toList());
+	   		String dynamicallyGen = String.join(",", ids);
+	   		workflowSession.setDynamicTrainingAgentIds(dynamicallyGen);
+	   		workflowSessionRepo.save(workflowSession);
+	   		return dynamicallyGen;
 	        }
-        
-		//Overall
-        return res;
 	}
 	
 	public String readClasspathFile(String fileName) throws IOException {
@@ -156,6 +167,11 @@ public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	        // 2. Use IOUtils to read the stream into a String
 	        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
 	    }
+	}
+
+	@Override
+	public String generateRecommendationsSync(Long workflowSessionId) throws IOException {
+		return generateRecommendations(workflowSessionId);
 	}
 
 }

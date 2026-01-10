@@ -56,7 +56,7 @@ public interface VFRolePlayTestSessionRepo extends JpaRepository<VFRolePlayTestS
 		        @Param("difficultyLevel") String difficultyLevel,
 		        Pageable pageable);
 	
-	@Query("select v from VFRolePlayTestSession v where v.workflowSessionId=:workflowSessionId)")
+	@Query("select v from VFRolePlayTestSession v where v.workflowSessionId=:workflowSessionId")
 	public List<VFRolePlayTestSession> findRoleplaySessionsByWorkflowSessionId(@Param("workflowSessionId") Long workflowSessionId);
 
 

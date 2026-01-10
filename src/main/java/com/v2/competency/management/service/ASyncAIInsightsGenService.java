@@ -29,5 +29,5 @@ public interface ASyncAIInsightsGenService {
 		    String companyId,
 		    String googleBucketPath, 
 		    String location,
-		    String model, String videoLink);
+		    String model, String videoLink, Long workflowSessionId);
 }

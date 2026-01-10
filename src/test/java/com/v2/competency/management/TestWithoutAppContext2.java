@@ -2,6 +2,7 @@ package com.v2.competency.management;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -321,6 +322,17 @@ ObjectMapper mapper = new ObjectMapper();
 		
 		System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto));
 		
+	}
+	
+	@Test
+	public void testGenUrlOnFly() {
+		String base = "https://zimulate.me/roleplayresult?companyId=";
+		
+		String resultPage = base+"LTI"+"&email="+URLEncoder.encode("sales@zimulate.me")+"&roleplay="
+		+URLEncoder.encode("Roleplay - Clarity & Transparency: Full Product Disclosure")+"&attempt="+"1"
+		+"&firstName="+URLEncoder.encode("Test")+"&lastName="+URLEncoder.encode("Last");
+		System.out.println(resultPage);
+
 	}
 
 }

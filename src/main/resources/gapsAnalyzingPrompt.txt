@@ -11,7 +11,7 @@ We will use your analysis to programmatically generate "Video Training Agents." 
    - Frequency: How often do these gaps appear across different scenarios?
    - Severity: Which scores are the lowest?
 4. **Curate Detailed Resources:** For each skill gap, do **not** provide links. Instead, write a detailed instructional block containing:
-   - **The Concept:** A brief explanation of the correct principle.
+   - **The Concept:** A detailed explanation of the correct principle.
    - **The Scenario for Agent:** A specific mini-script or situation the Video Agent should use.
    - **The "Wrong Way":** A summary of how the user currently handles it (based on the analysis).
    - **The "Right Way":** The ideal script or behavior the Agent should teach.

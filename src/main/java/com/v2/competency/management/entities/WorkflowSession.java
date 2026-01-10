@@ -1,5 +1,7 @@
 package com.v2.competency.management.entities;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -23,5 +25,15 @@ public class WorkflowSession extends Base{
 	ZimulateWorkflow workflow;
 	
 	String status = WorkflowSessionStatus.NOT_STARTED.getStatus();
+	
+	/**
+	 * Overall json as we get from Gemini
+	 */
+	String recommendations;
+	
+	/**
+	 * A comma separated Video agent ids
+	 */
+	String dynamicTrainingAgentIds;
 
 }
