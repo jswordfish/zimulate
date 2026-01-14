@@ -334,5 +334,11 @@ ObjectMapper mapper = new ObjectMapper();
 		System.out.println(resultPage);
 
 	}
+	
+	@Test
+	public void testGenLongJson() throws JsonProcessingException {
+		List<Long> ids = Arrays.asList(100l, 200l, 33l);
+		System.out.println(mapper.writeValueAsString(ids));
+	}
 
 }

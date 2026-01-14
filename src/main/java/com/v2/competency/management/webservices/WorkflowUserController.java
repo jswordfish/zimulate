@@ -105,6 +105,7 @@ public class WorkflowUserController {
 					session.setEmail(email);
 					session.setWorkflow(flow);
 					session.setStatus(WorkflowSessionStatus.NOT_STARTED.getStatus());
+					session.setPositon(0);
 					workflowSessionService.saveOrUpdate(session);
 					WorkflowAssignmentToUserStatusDesc st = WorkflowAssignmentToUserStatusDesc.builder().assignmentDesc("Assigned")
 							.email(email)
@@ -174,8 +175,9 @@ public class WorkflowUserController {
 				 * Step 4 - Update Workflow Session with status flag if applicable
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.IN_PROGRESS.getStatus());
-				workflowSessionService.saveOrUpdate(workflowSession);
 			}
+			workflowSession.setPositon(position);
+			workflowSessionService.saveOrUpdate(workflowSession);
 		
 		return ResponseEntity.ok("ok");
 	}
@@ -238,8 +240,9 @@ public class WorkflowUserController {
 				 * Step 4 - Update Workflow Session with status flag if applicable
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.IN_PROGRESS.getStatus());
-				workflowSessionService.saveOrUpdate(workflowSession);
 			}
+			workflowSession.setPositon(position);
+			workflowSessionService.saveOrUpdate(workflowSession);
 		
 		return ResponseEntity.ok("ok");
 		
@@ -303,8 +306,9 @@ public class WorkflowUserController {
 				 * Step 4 - Update Workflow Session with status flag if applicable
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.IN_PROGRESS.getStatus());
-				workflowSessionService.saveOrUpdate(workflowSession);
 			}
+			workflowSession.setPositon(position);
+			workflowSessionService.saveOrUpdate(workflowSession);
 		
 		return ResponseEntity.ok("ok");
 		
@@ -354,8 +358,9 @@ public class WorkflowUserController {
 				 * Step 4 - Update Workflow Session with status flag if applicable
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.IN_PROGRESS.getStatus());
-				workflowSessionService.saveOrUpdate(workflowSession);
 			}
+			workflowSession.setPositon(position);
+			workflowSessionService.saveOrUpdate(workflowSession);
 		
 		return ResponseEntity.ok("ok");
 		
@@ -406,8 +411,9 @@ public class WorkflowUserController {
 				 * Step 4 - Update Workflow Session with status flag if applicable
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.COMPLETE.getStatus());
-				workflowSessionService.saveOrUpdate(workflowSession);
 			}
+			workflowSession.setPositon(position);
+			workflowSessionService.saveOrUpdate(workflowSession);
 		
 		return ResponseEntity.ok("ok");
 		

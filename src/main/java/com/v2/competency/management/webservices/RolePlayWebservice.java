@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
@@ -34,13 +35,16 @@ import com.google.cloud.vertexai.generativeai.ResponseHandler;
 import com.v2.competency.management.dtos.GreetingDto;
 import com.v2.competency.management.dtos.InitRolePlayTestDTO;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
+import com.v2.competency.management.dtos.RoleplayTestSessionMetaData;
 import com.v2.competency.management.entities.RolePlayQuestionAnswer;
 import com.v2.competency.management.entities.RolePlayQuestionFollowUpLevel;
 import com.v2.competency.management.entities.RoleplayDifficultyLevel;
 import com.v2.competency.management.entities.User;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
+import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.repos.RolePlayQuestionAnswerRepo;
+import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.service.ASyncAIInsightsGenService;
 import com.v2.competency.management.service.GeminiAudioVideoService;
 import com.v2.competency.management.service.RelevancyCheckerService;
@@ -89,6 +93,9 @@ public class RolePlayWebservice {
 	@Autowired
 	QueueManager queueManager; 
 	
+	@Autowired
+	VFRolePlayTestSessionRepo vfRolePlayTestSessionRepo;
+	
 	ObjectMapper map = new ObjectMapper();
 	
 	
@@ -112,6 +119,27 @@ public class RolePlayWebservice {
 			+ "  \"greetingResponse\" : null\r\n"
 			+ "}";
     
+	
+	@RequestMapping(value = "/fetchRoleplayAssessmentsIdsByNames", method = RequestMethod.POST)
+	public ResponseEntity<?> fetchRoleplayAssessmentsIdsByNames( @RequestParam String token, @RequestParam String email,  @RequestParam String companyId, @RequestBody List<RoleplayTestSessionMetaData> tests
+			) throws IOException{
+		List<Long> sessions = new ArrayList<>();
+			for(RoleplayTestSessionMetaData dto : tests) {
+				VFRolePlayTestSession sess =  rolePlayTestSessionService.findVFRolePlayTestSessionByEmail(email, companyId, dto.getTestIdentifier(), dto.getAttempt());
+				sessions.add(sess.getId());
+			}
+		return ResponseEntity.ok(sessions);
+	}
+	
+	@RequestMapping(value = "/fetchRoleplayAssessmentsByIds", method = RequestMethod.POST)
+	public ResponseEntity<?> fetchRoleplayAssessmentsByIds( @RequestParam String token, @RequestParam String companyId, @RequestBody List<Long> ids
+			) throws IOException{
+		List<VFRolePlayTestSession> sessions = new ArrayList<>();
+			for(Long id : ids) {
+				sessions.add(vfRolePlayTestSessionRepo.findById(id).get());
+			}
+		return ResponseEntity.ok(sessions);
+	}
     
     @PostMapping("/allRolePlayAnswersForRolePlayTestForUser")
 	public List<RolePlayQuestionAnswer> initRolePlayRestQues(@RequestParam String email,

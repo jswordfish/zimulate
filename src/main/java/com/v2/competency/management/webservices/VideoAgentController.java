@@ -46,6 +46,7 @@ import com.googlecloud.vertex.ai.workflow.insights.dto.SkillCategory;
 import com.v2.competency.management.dtos.AgentType;
 import com.v2.competency.management.dtos.HeyGenKnowledgeBaseResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
+import com.v2.competency.management.repos.VideoAgentRepo;
 import com.v2.competency.management.service.VideoAgentService;
 import com.v2.competency.management.service.impl.VideoAgentServiceImpl;
 
@@ -74,6 +75,9 @@ public class VideoAgentController {
     
     @Autowired
     VideoAgentMetaDataController videoAgentMetaDataController;
+    
+    @Autowired
+    VideoAgentRepo videoAgentRepo;
 	
 	@RequestMapping(value="createVideoAgentUsingFileKB",method=RequestMethod.POST,
 			consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })  
@@ -177,6 +181,16 @@ public class VideoAgentController {
 	        @RequestParam(defaultValue = "10") int size) throws IOException{
 		Pageable pageable = PageRequest.of(page, size);
 		List<VideoAgent> agents = agentService.searchVideoAgents(search, companyId, pageable).getContent();
+		return ResponseEntity.ok(agents);
+	}
+	
+	@RequestMapping(value = "/fetchVideoAgentsByIds", method = RequestMethod.POST)
+	public ResponseEntity<?> fetchVideoAgentsByIds( @RequestParam String token, @RequestParam String companyId, @RequestBody List<Long> ids
+			) throws IOException{
+		List<VideoAgent> agents = new ArrayList<>();
+			for(Long id : ids) {
+				agents.add(videoAgentRepo.findById(id).get());
+			}
 		return ResponseEntity.ok(agents);
 	}
 	

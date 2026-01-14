@@ -1,7 +1,5 @@
 package com.v2.competency.management.entities;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -35,5 +33,7 @@ public class WorkflowSession extends Base{
 	 * A comma separated Video agent ids
 	 */
 	String dynamicTrainingAgentIds;
+	
+	Integer positon;
 
 }

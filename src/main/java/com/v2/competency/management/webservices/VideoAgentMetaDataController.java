@@ -39,6 +39,7 @@ public class VideoAgentMetaDataController {
 	@RequestMapping(value = "/fetchOpeningStatementsForVideoAgent", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchOpeningStatementsForVideoAgent( @RequestParam String token, @RequestParam String companyId, @RequestParam String agentType,  @RequestParam String industry, 
 			@RequestParam String company, @RequestParam(required = false) String product) throws IOException{
+		System.out.println("Env Var: " + System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
         String promptTemplate = readClasspathFile("openingStatementPrompt.txt");
         String prompt = promptTemplate.replace("{{agent_type}}", agentType);
         prompt = prompt.replace("{{company_name}}", company);
