@@ -1,6 +1,12 @@
 package com.v2.competency.management.service.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +31,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.v2.competency.management.elevanlabs.dtos.Root;
 import com.v2.competency.management.service.AgentService;
 @Service
 public class ElevenLabsAgentService implements AgentService{
@@ -33,6 +40,8 @@ public class ElevenLabsAgentService implements AgentService{
 PropertyConfig config;
 
 private static RestTemplate restTemplate;
+
+private final HttpClient httpClient = HttpClient.newHttpClient();
 
 	@PostConstruct
 	public void init() {
@@ -289,6 +298,36 @@ private static RestTemplate restTemplate;
             System.err.println("❌ Agent List Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
         }
         return null;
+    }
+
+	@Override
+	public String createOrUpdateAgent(Root root, String agentId) {
+		 HttpHeaders headers = new HttpHeaders();
+	        headers.set("xi-api-key", config.getElevenLabsKey());
+	        headers.setContentType(MediaType.APPLICATION_JSON);
+	    String updateOrCreateUrl =  agentId == null?config.getElevenLabsApiUrl()+"/create":config.getElevenLabsApiUrl()+"/"+agentId;
+	    System.out.println(updateOrCreateUrl);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(updateOrCreateUrl))
+                .header("xi-api-key", config.getElevenLabsKey())
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(root.toString(), StandardCharsets.UTF_8))
+                .build();
+        
+        return sendRequest(request);
+	}
+	
+	private String sendRequest(HttpRequest request) throws RuntimeException {
+        HttpResponse<String> response;
+		try {
+			response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+		} catch (IOException | InterruptedException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException("API Error: " + response.statusCode() + " - " + response.body());
+        }
+        return response.body();
     }
 
 }

@@ -74,6 +74,11 @@ String email;
 	ObjectMapper mapper = new ObjectMapper();
 	
 	Long workflowSessionId;
+	
+	@Transient
+	String error;
+	
+	
 
 	public VFRolePlayTestSession() {
 	
@@ -353,8 +358,18 @@ String email;
 
 
 
-	
-	
+	public String getError() {
+		return error;
+	}
+
+
+
+	public void setError(String error) {
+		this.error = error;
+	}
+
+
+
 	
 	
 

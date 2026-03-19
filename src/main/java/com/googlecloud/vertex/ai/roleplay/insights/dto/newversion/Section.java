@@ -10,6 +10,10 @@ public class Section{
 	
 	String description;
 	
+	public Section() {
+		
+	}
+	
 	public Section(String header, String description) {
 		super();
 		this.header = header;

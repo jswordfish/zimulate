@@ -23,6 +23,7 @@ import com.googlecloud.vertex.ai.workflow.insights.dto.Overall;
 import com.googlecloud.vertex.ai.workflow.insights.dto.SkillCategory;
 import com.v2.competency.management.dtos.AgentType;
 import com.v2.competency.management.dtos.GreetingDto;
+import com.v2.competency.management.dtos.RoleplayTestSessionMetaData;
 import com.v2.competency.management.dtos.SalesPersona;
 import com.v2.competency.management.dtos.WorkFlowDto;
 import com.v2.competency.management.dtos.WorkflowAssignmentDto;
@@ -339,6 +340,18 @@ ObjectMapper mapper = new ObjectMapper();
 	public void testGenLongJson() throws JsonProcessingException {
 		List<Long> ids = Arrays.asList(100l, 200l, 33l);
 		System.out.println(mapper.writeValueAsString(ids));
+	}
+	
+	@Test
+	public void testGenRoleplayTestSessionMetaDataJson() throws JsonProcessingException{
+		List<RoleplayTestSessionMetaData> list = Arrays.asList(RoleplayTestSessionMetaData.builder()
+				.attempt(1)
+				.testIdentifier("Role Play - Explaining the 'Why': Basis of Recommendation").build(),
+				RoleplayTestSessionMetaData.builder()
+				.attempt(1)
+				.testIdentifier("Roleplay - BMW Prospect Follow-Up on Sedan Purchase").build()
+				);
+		System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(list));
 	}
 
 }

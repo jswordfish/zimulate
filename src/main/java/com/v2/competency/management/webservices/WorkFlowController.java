@@ -286,6 +286,8 @@ public class WorkFlowController {
 				return ResponseEntity.badRequest().body("Position value passed "+currentPosition+" does not match with the actual positon of the node "+node.getPosition());
 			}
 			
+		nodeRepo.delete(node);
+			
 		List<WorkflowNode> nodesAfterCurentPosition = nodeRepo.findAllWorkflowNodesAfterPosition(companyId, workflowId, currentPosition);
 			for(WorkflowNode nd : nodesAfterCurentPosition) {
 				nd.setPosition(nd.getPosition() - 1);

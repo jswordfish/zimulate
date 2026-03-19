@@ -37,6 +37,9 @@ public interface VFRolePlayTestSessionService {
 	public List<VFRolePlayTestSession> seatchEmailUserSessionsForTest(String testIdentifier, String companyId,  String containsText);
 	
 	public List<VFRolePlayTestSession> findRoleplaySessionsByWorkflowId(Long workflowSessionId);
+	
+	 public List<VFRolePlayTestSession> searchAssessmentsForRoleplay( String companyId, String testIdentifier, String search, Pageable pageable);
+
 
 
 }

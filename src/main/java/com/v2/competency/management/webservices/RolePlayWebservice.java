@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,15 +27,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
 import com.google.cloud.vertexai.api.GenerationConfig;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.ResponseHandler;
+import com.googlecloud.vertex.ai.roleplay.insights.dto.RolePlayInsightsDto;
+import com.googlecloud.vertex.ai.roleplay.insights.dto.newversion.NewRolePlayInsightsDto;
 import com.v2.competency.management.dtos.GreetingDto;
 import com.v2.competency.management.dtos.InitRolePlayTestDTO;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
+import com.v2.competency.management.dtos.RolePlaySessionContainerDto;
 import com.v2.competency.management.dtos.RoleplayTestSessionMetaData;
 import com.v2.competency.management.entities.RolePlayQuestionAnswer;
 import com.v2.competency.management.entities.RolePlayQuestionFollowUpLevel;
@@ -97,6 +103,7 @@ public class RolePlayWebservice {
 	VFRolePlayTestSessionRepo vfRolePlayTestSessionRepo;
 	
 	ObjectMapper map = new ObjectMapper();
+	
 	
 	
     
@@ -175,7 +182,8 @@ public class RolePlayWebservice {
     public ResponseEntity<List<String>> getSCIRolePlays(@RequestParam String token){
     	List<String> rolePlays = Arrays.asList("Role Play - BASIC FINANCIAL PLANNING Training", "Role Play - BASIC FINANCIAL PLANNING Assessment",
     			"Role Play - Fact Finding by Agent", "Role Play - Conducting a Customer Knowledge Assessment (CKA) with a potential customer",
-    			"Role Play - Explaining the 'Why': Basis of Recommendation", "Roleplay - Clarity & Transparency: Full Product Disclosure");
+    			"Role Play - Explaining the 'Why': Basis of Recommendation", "Roleplay - Clarity & Transparency: Full Product Disclosure",
+    			"Roleplay - Singlife ILP product Training", "Roleplay - Singlife ILP product pitch");
     	
     	return ResponseEntity.ok(rolePlays);	
     }
@@ -657,8 +665,6 @@ public class RolePlayWebservice {
 	                                      @RequestParam Integer attempt,
 	                                      @RequestParam String companyId,
 	                                      @RequestParam String token) throws IOException {
-		
-		
 		VFRolePlayTestSession session = rolePlayTestSessionService.findVFRolePlayTestSessionByEmail(email, companyId, testName, attempt);
 		if (session == null) {
 	        return "-100"; // Invalid session
@@ -682,6 +688,82 @@ public class RolePlayWebservice {
 	    }
 
 	    return waitForInsights(session);
+	}
+	
+	@GetMapping("/searchRolePlayAssessments")
+	public RolePlaySessionContainerDto searchRolePlayAssessments(
+	                                      @RequestParam String rolePlayTestName,
+	                                      @RequestParam String companyId,
+	                                      @RequestParam String token,
+	                                      @RequestParam(required = false) String search, @RequestParam(defaultValue = "0") Integer pageNumber) throws IOException {
+		if(pageNumber == null) {
+			pageNumber = 0;
+		}
+		List<VFRolePlayTestSession> list =  rolePlayTestSessionService.searchAssessmentsForRoleplay(companyId, rolePlayTestName, search, PageRequest.of(pageNumber, 15));
+		RolePlaySessionContainerDto containerDto = RolePlaySessionContainerDto.builder().success(new ArrayList<>()).failed(new ArrayList<>()).build();
+			for(VFRolePlayTestSession session : list) {
+				boolean fail = false;
+				if(session.getVideoInsightsJson() == null) {
+					fail = true;
+				}
+				else {
+					
+					try {
+						map.readValue(session.getVideoInsightsJson(), NewRolePlayInsightsDto.class);
+					} catch (Exception e) {
+						try {
+							map.readValue(session.getVideoInsightsJson(), RolePlayInsightsDto.class);
+						} catch (Exception e1) {
+							e1.printStackTrace();
+							fail = true;
+							session.setError(e1.getMessage());
+						} 
+					} 
+					if(fail) {
+						containerDto.getFailed().add(session);
+					}
+					else {
+						containerDto.getSuccess().add(session);
+					}
+				}
+				
+			}
+		return containerDto;
+	}
+	
+	
+	@RequestMapping(value = "/updateVideoInsights", method = RequestMethod.POST)
+	public ResponseEntity<?> updateVideoInsights( @RequestParam String token, @RequestParam Long rolePlaySessionId, @RequestBody String videoInsightsJson)
+			 throws IOException{
+		boolean fail = false;
+		VFRolePlayTestSession session = rolePlayTestSessionService.findVFRolePlayTestSessionById(rolePlaySessionId);
+		
+			Exception emain = null;
+			try {
+				map.readValue(videoInsightsJson, NewRolePlayInsightsDto.class);
+				session.setVideoInsightsJson(videoInsightsJson);
+				vfRolePlayTestSessionRepo.save(session);
+			} catch (Exception e) {
+				emain = e;
+				try {
+					map.readValue(videoInsightsJson, RolePlayInsightsDto.class);
+					session.setVideoInsightsJson(videoInsightsJson);
+					vfRolePlayTestSessionRepo.save(session);
+				} catch (Exception e1) {
+					//e1.printStackTrace();
+					emain = e1;
+					fail = true;
+					session.setError(e1.getMessage());
+				} 
+			} 
+			if(fail) {
+				return ResponseEntity.badRequest().body(emain.getMessage());
+			}
+			else {
+				return ResponseEntity.ok("ok");
+			}
+		
+		
 	}
 	
 	private String waitForInsights(VFRolePlayTestSession session) {

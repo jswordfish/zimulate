@@ -19,7 +19,9 @@ import com.github.dozermapper.core.Mapper;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.RoleplayAnalysisStructure;
 import com.v2.competency.management.entities.VFRolePlayTest;
+import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.repos.VFRolePlayTestRepo;
+import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.service.VFRolePlayTestService;
 
 @Service
@@ -30,6 +32,8 @@ public class VFRolePlayTestServiceImpl implements VFRolePlayTestService{
 	VFRolePlayTestRepo repo;
 	
 	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	
+
 
 //	@Override
 //	public VFRolePlayTest findUniqueRecord(String testName, String competency, String parentCompetency,
@@ -229,4 +233,6 @@ public class VFRolePlayTestServiceImpl implements VFRolePlayTestService{
 	public Page<VFRolePlayTest> searchAssessmentRolePlays(String companyId,  Pageable pageable) {
 		return repo.searchAssessmentRolePlays(companyId, pageable);
 	}
+
+	
 }

@@ -30,4 +30,18 @@ public interface ASyncAIInsightsGenService {
 		    String googleBucketPath, 
 		    String location,
 		    String model, String videoLink, Long workflowSessionId);
+	
+	public void submitGoogleFullVideoForAnalysisSync(
+			String persona,
+		    String email,
+		    String firstName,
+		    String lastName,
+		    String testName,
+		    Integer attempt,
+		    String companyId,
+		    String googleBucketPath, 
+		    String location,
+		    String model, String videoLink, Long workflowSessionId);
+	
+	
 }

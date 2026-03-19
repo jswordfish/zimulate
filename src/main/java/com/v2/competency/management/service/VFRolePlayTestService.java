@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VFRolePlayTest;
+import com.v2.competency.management.entities.VFRolePlayTestSession;
 
 public interface VFRolePlayTestService {
 	
@@ -37,5 +38,7 @@ public interface VFRolePlayTestService {
 	 public Page<VFRolePlayTest> searchTrainingRolePlays( String companyId,  Pageable pageable);
 	 
 	 public Page<VFRolePlayTest> searchAssessmentRolePlays( String companyId,   Pageable pageable);
+	 
+	
 	 
 }

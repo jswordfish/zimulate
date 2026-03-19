@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public enum TrainerPersona {
 	
-	The_Relatable_StoryTeller("The Relatable Storyteller", TrainerPersonaDescription.The_Relatable_StoryTeller, "mbL34QDB5FptPamlgvX5"), 
+	The_Relatable_StoryTeller("The Relatable Storyteller", TrainerPersonaDescription.The_Relatable_StoryTeller, "BHyvQU4czkhWdOZH4Rdq"), 
 	The_Precision_Architect("The Precision Architect", TrainerPersonaDescription.The_Precision_Architect, "A7AUsa1uITCDpK29MG3m");
 	
 	String persona;

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public enum SCI_CustomerPersona {
 	
-	Tech_Savvy_Family_Protector("Tech-Savvy Family Protector", TrainerPersonaDescription.Tech_Savvy_Family_Protector, "mbL34QDB5FptPamlgvX5"), 
+	Tech_Savvy_Family_Protector("Tech-Savvy Family Protector", TrainerPersonaDescription.Tech_Savvy_Family_Protector, "BHyvQU4czkhWdOZH4Rdq"), 
 	Community_Focused_Investor ("Community-Focused Investor", TrainerPersonaDescription.Community_Focused_Investor, "A7AUsa1uITCDpK29MG3m"),
 	Budget_Concious_Pragmatic_Planner ("Budget-Conscious Pragmatic Planner", TrainerPersonaDescription.Budget_Concious_Pragmatic_Planner, "7QwDAfHpHjPD14XYTSiq"),
 	Convenience_Driven_Busy_Parent ("Convenience-Driven Busy Parent", TrainerPersonaDescription.Convenience_Driven_Busy_Parent, "u7bRcYbD7visSINTyAT8"),

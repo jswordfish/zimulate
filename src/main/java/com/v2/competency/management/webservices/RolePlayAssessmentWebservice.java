@@ -42,6 +42,7 @@ import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
+import com.v2.competency.management.common.util.PersonaCache;
 import com.v2.competency.management.dtos.IndiaFirstSalesPersona;
 import com.v2.competency.management.dtos.IndustryRolePlayMappingDto;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
@@ -197,6 +198,28 @@ Map<String, List<String>> map = new HashMap<>();
 			}
 	}
 	
+	@RequestMapping(value="saveRolePlay",method=RequestMethod.POST)  
+	 public ResponseEntity<?> saveRolePlay( @RequestBody RolePlayTestDto rolePlayDto,  @RequestParam String companyId,
+	           HttpSession session, @RequestParam String token) throws Exception{
+		
+		List<VFRolePlayTest> list = convert(Arrays.asList(rolePlayDto));
+		VFRolePlayTest r = list.get(0);
+		r.setTestName(r.getTestName().trim());
+		r.setCompanyId(r.getCompanyId().trim());
+		r.setQuestionText(r.getQuestionText().trim());
+		
+		if(!companyId.equals(r.getCompanyId())) {
+			throw new RuntimeException("Invalid Company Id "+r.getCompanyId());
+		}
+		r.setCompanyId(companyId);
+		
+		String publicUrl = propertyConfig.getAiRolePlayTestUrl();
+		publicUrl = publicUrl.replace("$[COMPANY_ID]", companyId);
+		publicUrl = publicUrl.replace("$[TEST_NAME]", r.getTestName());
+		r.setPublicTestLink(publicUrl);
+		r = rolePlayTestService.saveOrUpdate(r)	;
+		return ResponseEntity.ok(r.getId());
+	 }
 	
 	@RequestMapping(value="uploadRolePlayTests",method=RequestMethod.POST)  
     public ResponseEntity<?> uploadRoles( @RequestParam MultipartFile file,  @RequestParam String companyId,
@@ -663,6 +686,12 @@ Map<String, List<String>> map = new HashMap<>();
 		    }
 		  }
 	
+	
+	@RequestMapping(value="personasBasedOnTypes",method=RequestMethod.GET)  
+    public ResponseEntity<?> personasBasedOnTypes(
+           HttpSession session, @RequestParam String token, @RequestParam String type) throws Exception{  
+		return ResponseEntity.ok(PersonaCache.getPersonas(type));
+	}
 	
 	@RequestMapping(value="salesPersonas",method=RequestMethod.GET)  
     public ResponseEntity<?> salesPersonas(

@@ -94,14 +94,23 @@ public class AdminController {
 	           HttpSession session, @RequestParam String token) throws Exception{  
 		 
 		 try {
-			 
-			 if(!tenantService.isCompanyIdExisting(companyId)) {
+			 Tenant tenant = tenantService.findTenantByCompanyId(companyId);
+			 if(tenant == null) {
 				 return ResponseEntity.badRequest().body("Invalid Company Id "+companyId);
 			 }
 			 
 			List<OrgHierarchy> levels = Poiji.fromExcel(file.getInputStream(), PoijiExcelType.XLSX, OrgHierarchy.class);
 				System.out.println("Printing List Data: " +levels);
 				for(OrgHierarchy level : levels) {
+					level.setCompanyId(level.getCompanyId().trim());
+					level.setRoleOrDesig(level.getRoleOrDesig().trim());
+					level.setCompanyName(level.getCompanyName() == null?tenant.getCompanyName(): level.getCompanyName().trim());
+					level.setLevel(level.getLevel().trim());
+					String parentRoleOrDesig = level.getParentRoleOrDesig();
+						if(parentRoleOrDesig != null) {
+							level.setParentRoleOrDesig(level.getParentRoleOrDesig().trim());
+						}
+					
 					String parent = level.getParentRoleOrDesig();
 					if(!companyId.equals(level.getCompanyId())) {
 						throw new RuntimeException("Non Existent Company Id "+level.getCompanyId());

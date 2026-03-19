@@ -11,6 +11,9 @@ public class SectionResult {
 	
 	List<RoleplayInsightsDetail> list = new ArrayList<>();
 	
+	public SectionResult() {
+		
+	}
 	
 
 	public SectionResult(Section section, List<RoleplayInsightsDetail> list) {

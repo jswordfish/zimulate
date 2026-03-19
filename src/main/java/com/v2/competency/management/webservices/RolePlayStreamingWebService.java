@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -274,7 +275,26 @@ public class RolePlayStreamingWebService {
 	    @RequestParam String companyId,
 	    @RequestParam String googleBucketPath, @RequestParam String token, @RequestParam(required = false) String location,
 	    @RequestParam(required = false) String model, @RequestParam(required = false) String videoLink, @RequestParam(required = false) Long workflowSessionId) {
+		System.out.println("in submit-video-google ");
 		aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(persona, email, firstName, lastName, testName, attempt, companyId, googleBucketPath, location, model, videoLink, workflowSessionId);
+	    return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@PostMapping("/submit-video-google-in-sync-mode")
+	public ResponseEntity<String> submitGoogleFullVideoForAnalysisInSyncMode(
+		@RequestParam String persona,
+	    @RequestParam String email,
+	    @RequestParam String firstName,
+	    @RequestParam String lastName,
+	    @RequestParam String testName,
+	    @RequestParam Integer attempt,
+	    @RequestParam String companyId,
+	    @RequestParam String googleBucketPath, @RequestParam String token, @RequestParam(required = false) String location,
+	    @RequestParam(required = false) String model, @RequestParam(required = false) String videoLink, @RequestParam(required = false) Long workflowSessionId) {
+		System.out.println("in submit-video-google ****** "+googleBucketPath);
+		googleBucketPath = URLDecoder.decode(googleBucketPath);
+		System.out.println("in submit-video-google 2"+googleBucketPath);
+		aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysisSync(persona, email, firstName, lastName, testName, attempt, companyId, googleBucketPath, location, model, videoLink, workflowSessionId);
 	    return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
