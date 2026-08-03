@@ -50,11 +50,14 @@ import com.v2.competency.management.dtos.RolePlayTestDto;
 import com.v2.competency.management.dtos.SAPCustomerPersona;
 import com.v2.competency.management.dtos.SCI_CustomerPersona;
 import com.v2.competency.management.dtos.SalesPersona;
+import com.v2.competency.management.dtos.SalesPersonaDTO;
 import com.v2.competency.management.dtos.TrainerPersona;
+import com.v2.competency.management.entities.RolePlayPersonaMapping;
 import com.v2.competency.management.entities.RoleplayAnalysisStructure;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.service.CompetencyService;
 import com.v2.competency.management.service.GeminiAudioVideoService;
+import com.v2.competency.management.service.RolePlayPersonaMappingService;
 import com.v2.competency.management.service.TenantService;
 import com.v2.competency.management.service.VFRolePlayTestService;
 import com.v2.competency.management.service.impl.PropertyConfig;
@@ -80,6 +83,9 @@ public class RolePlayAssessmentWebservice {
 	
 	@Autowired
 	PropertyConfig config;
+	
+	@Autowired
+	RolePlayPersonaMappingService rolePlayPersonaMappingService;
 	
 	Logger logger = LoggerFactory.getLogger(RolePlayAssessmentWebservice.class);
 	
@@ -198,7 +204,7 @@ Map<String, List<String>> map = new HashMap<>();
 			}
 	}
 	
-	@RequestMapping(value="saveRolePlay",method=RequestMethod.POST)  
+	@RequestMapping(value="addRolePlay",method=RequestMethod.POST)  
 	 public ResponseEntity<?> saveRolePlay( @RequestBody RolePlayTestDto rolePlayDto,  @RequestParam String companyId,
 	           HttpSession session, @RequestParam String token) throws Exception{
 		
@@ -220,6 +226,31 @@ Map<String, List<String>> map = new HashMap<>();
 		r = rolePlayTestService.saveOrUpdate(r)	;
 		return ResponseEntity.ok(r.getId());
 	 }
+	
+	@RequestMapping(value="checkRolePlayTestNameExists",method=RequestMethod.GET)  
+    public ResponseEntity<?> checkRolePlayTestNameExists(  @RequestParam String testIdentifier,  @RequestParam String companyId,
+           HttpSession session, @RequestParam String token) throws Exception{  
+		VFRolePlayTest test =  rolePlayTestService.findRolePlayTestsByTestName(companyId, testIdentifier);
+			if(test == null) {
+				return ResponseEntity.ok("Does not Exist");
+			}
+			else {
+				return ResponseEntity.ok("Exists");
+			}
+		
+	}
+	
+	@RequestMapping(value="addRolePlayPersona",method=RequestMethod.POST)  
+	 public ResponseEntity<?> addRolePlayPersona( @RequestBody RolePlayPersonaMapping persona, 
+	           HttpSession session, @RequestParam String token) throws Exception{
+		return ResponseEntity.ok(rolePlayPersonaMappingService.addRolePlayPersonaMapping(persona));
+	}
+	
+	@RequestMapping(value="updateRolePlayPersona",method=RequestMethod.POST)  
+	 public ResponseEntity<?> updateRolePlayPersona( @RequestBody RolePlayPersonaMapping persona, 
+	           HttpSession session, @RequestParam String token) throws Exception{
+		return ResponseEntity.ok(rolePlayPersonaMappingService.updateRolePlayPersonaMapping(persona));
+	}
 	
 	@RequestMapping(value="uploadRolePlayTests",method=RequestMethod.POST)  
     public ResponseEntity<?> uploadRoles( @RequestParam MultipartFile file,  @RequestParam String companyId,
@@ -273,7 +304,7 @@ Map<String, List<String>> map = new HashMap<>();
 	 if(pageNumber == null) {
 			pageNumber = 0;
 		}
-	 Page<VFRolePlayTest> tests = rolePlayTestService.getRolePlayTestsByCompanyId(companyId, PageRequest.of(pageNumber, 15));
+	 Page<VFRolePlayTest> tests = rolePlayTestService.getRolePlayTestsByCompanyId(companyId, PageRequest.of(pageNumber, 35));
 	 
 	
 	 	
@@ -293,7 +324,7 @@ Map<String, List<String>> map = new HashMap<>();
 		 if(pageNumber == null) {
 				pageNumber = 0;
 			}
-		 Page<VFRolePlayTest> tests = rolePlayTestService.searchTrainingRolePlays(companyId, PageRequest.of(pageNumber, 15));
+		 Page<VFRolePlayTest> tests = rolePlayTestService.searchTrainingRolePlays(companyId, PageRequest.of(pageNumber, 35));
 		 PaginatedResponseDto res = new PaginatedResponseDto();
 		 res.setRecordsFrom(tests.getNumber());
 		 res.setRecordsTo(tests.getNumberOfElements());
@@ -309,7 +340,7 @@ Map<String, List<String>> map = new HashMap<>();
 		 if(pageNumber == null) {
 				pageNumber = 0;
 			}
-		 Page<VFRolePlayTest> tests = rolePlayTestService.searchAssessmentRolePlays(companyId, PageRequest.of(pageNumber, 15));
+		 Page<VFRolePlayTest> tests = rolePlayTestService.searchAssessmentRolePlays(companyId, PageRequest.of(pageNumber, 35));
 		 PaginatedResponseDto res = new PaginatedResponseDto();
 		 res.setRecordsFrom(tests.getNumber());
 		 res.setRecordsTo(tests.getNumberOfElements());
@@ -569,6 +600,8 @@ Map<String, List<String>> map = new HashMap<>();
 			industryTests.add(dummy);
 		}
 		return industryTests;
+		
+		//
 	}
 	
 	@RequestMapping(value="createFolderStructureForRoleplayVideo",method=RequestMethod.POST)  
@@ -691,6 +724,24 @@ Map<String, List<String>> map = new HashMap<>();
     public ResponseEntity<?> personasBasedOnTypes(
            HttpSession session, @RequestParam String token, @RequestParam String type) throws Exception{  
 		return ResponseEntity.ok(PersonaCache.getPersonas(type));
+	}
+	//
+	@RequestMapping(value="personasBasedOnTypesAndCompanyId",method=RequestMethod.GET)  
+    public ResponseEntity<?> personasBasedOnTypesAndCompanyId(
+           HttpSession session, @RequestParam String token, @RequestParam String type, @RequestParam String companyId) throws Exception{  
+		List<RolePlayPersonaMapping> list =  rolePlayPersonaMappingService.findPersonasForTypeAndCompanyId(type, companyId);
+		List<SalesPersonaDTO> list2 = new ArrayList<>();
+			for(RolePlayPersonaMapping mapping : list) {
+				SalesPersonaDTO dto = SalesPersonaDTO.builder().persona(mapping.getPersona())
+										.personaDesc(mapping.getPersonaDescription())
+										.voiceId(mapping.getVoiceId())
+										.build();
+				list2.add(dto);
+			}
+		if(list2.size() == 0) {
+			return ResponseEntity.ok(PersonaCache.getPersonas(type));
+		}
+		return ResponseEntity.ok(list2);
 	}
 	
 	@RequestMapping(value="salesPersonas",method=RequestMethod.GET)  

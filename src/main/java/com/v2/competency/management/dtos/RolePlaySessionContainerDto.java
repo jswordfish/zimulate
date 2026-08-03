@@ -20,5 +20,16 @@ public class RolePlaySessionContainerDto {
 	List<VFRolePlayTestSession> success;
 	
 	List<VFRolePlayTestSession> failed;
+	
+	Integer recordsFrom;
+	
+	Integer recordsTo;
+	
+	Integer totalNumberOfPages;
+	
+	Integer selectedPage;
+	 
+	
+	
 
 }

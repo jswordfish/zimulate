@@ -273,7 +273,7 @@ public class AI_Platform_AssessmentMapperWebService {
 	            .filter(s -> !s.isEmpty())
 	            .collect(Collectors.toList());
 
-	    List<String> testNameList = Arrays.stream(testNames.split(","))
+	    List<String> testNameList = Arrays.stream(testNames.split("###"))
 	            .map(String::trim)
 	            .filter(s -> !s.isEmpty())
 	            .collect(Collectors.toList());
@@ -287,14 +287,14 @@ public class AI_Platform_AssessmentMapperWebService {
 	    for (String email : emailList) {
 	        for (String testName : testNameList) {
 
-	            VFRolePlayTest test = rolePlayTestService.findRolePlayTestsByTestName(companyId, testName);
+	            VFRolePlayTest test = rolePlayTestService.findRolePlayTestsByTestName(companyId, testName.trim());
 	            if (test == null) {
 	                continue; // skip invalid test
 	            }
 
 	            String url = config.getAitestPrivateUrl();
 	            url = url.replace("$[COMPANY_ID]", URLEncoder.encode(companyId, StandardCharsets.UTF_8));
-	            url = url.replace("$[EMAIL]", URLEncoder.encode(email, StandardCharsets.UTF_8));
+	            url = url.replace("$[EMAIL]", URLEncoder.encode(email.trim(), StandardCharsets.UTF_8));
 
 	            String testLink = url;
 	            generatedLinks.add(testLink);

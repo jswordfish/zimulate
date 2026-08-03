@@ -699,8 +699,13 @@ public class RolePlayWebservice {
 		if(pageNumber == null) {
 			pageNumber = 0;
 		}
-		List<VFRolePlayTestSession> list =  rolePlayTestSessionService.searchAssessmentsForRoleplay(companyId, rolePlayTestName, search, PageRequest.of(pageNumber, 15));
+		Page<VFRolePlayTestSession> list =  rolePlayTestSessionService.searchAssessmentsForRoleplay(companyId, rolePlayTestName, search, PageRequest.of(pageNumber, 15));
 		RolePlaySessionContainerDto containerDto = RolePlaySessionContainerDto.builder().success(new ArrayList<>()).failed(new ArrayList<>()).build();
+		containerDto.setRecordsFrom(list.getNumber());
+		containerDto.setTotalNumberOfPages(list.getTotalPages());
+		containerDto.setRecordsTo(list.getNumberOfElements());
+		containerDto.setSelectedPage(pageNumber+1);
+		
 			for(VFRolePlayTestSession session : list) {
 				boolean fail = false;
 				if(session.getVideoInsightsJson() == null) {

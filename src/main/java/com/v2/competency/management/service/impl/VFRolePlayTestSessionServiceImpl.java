@@ -113,7 +113,7 @@ public class VFRolePlayTestSessionServiceImpl implements VFRolePlayTestSessionSe
 	}
 
 	@Override
-	public List<VFRolePlayTestSession> searchAssessmentsForRoleplay(String companyId, String testIdentifier,
+	public Page<VFRolePlayTestSession> searchAssessmentsForRoleplay(String companyId, String testIdentifier,
 			String search, Pageable pageable) {
 		return repo.searchAssessmentsForRoleplay(companyId, testIdentifier, search, pageable);
 	}

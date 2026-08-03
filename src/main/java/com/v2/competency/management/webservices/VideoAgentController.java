@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.servlet.http.HttpSession;
 
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,7 +45,8 @@ import com.v2.competency.management.dtos.HeyGenKnowledgeBaseResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.repos.VideoAgentRepo;
 import com.v2.competency.management.service.VideoAgentService;
-import com.v2.competency.management.service.impl.VideoAgentServiceImpl;
+import com.v2.liveavatar.dto.Request;
+import com.v2.liveavatar.dto.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,12 +58,14 @@ import lombok.Setter;
 @CrossOrigin
 public class VideoAgentController {
 
-	
+	private final String NEW_LIVE_AVATAT_API_KEY = "220c5c06-e931-11f0-a99e-066a7fa2e369";
 	private static final String API_KEY = "MTU4YmU1NmZjY2QwNGI5MmE4MDA4MmNhNWQxZDlhMDEtMTc1Nzc0ODM2MQ==";
 	private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     
     private final String KNOWLEDGE_BASE_CREATION_API_HEYGEN_ENDPOINT = "https://api.heygen.com/v1/streaming/knowledge_base/create";
+    
+    private final String CONTEXT_KNOWLEDGE_BASE_CREATION_API_INTERACTIVE_AVATAR_ENDPOINT = "https://api.liveavatar.com/v1/contexts";
     //https://api.heygen.com/v1/streaming/knowledge_base/create
     
     @Autowired
@@ -78,6 +78,8 @@ public class VideoAgentController {
     
     @Autowired
     VideoAgentRepo videoAgentRepo;
+    
+    
 	
 	@RequestMapping(value="createVideoAgentUsingFileKB",method=RequestMethod.POST,
 			consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })  
@@ -88,17 +90,24 @@ public class VideoAgentController {
 		VideoAgent videoAgent =   objectMapper.readValue(agent.getInputStream(), VideoAgent.class);
 		
 		validate(videoAgent);
-		HeyGenResponseStatus status = createKnowledgeBase(videoAgent.getName(), videoAgent.getIndustry(),  file, fileType, companyId, videoAgent.getOpeningStatement(), videoAgent.getPrompt());
+//		HeyGenResponseStatus status = createKnowledgeBase(videoAgent.getName(), videoAgent.getIndustry(),  file, fileType, companyId, videoAgent.getOpeningStatement(), videoAgent.getPrompt());
+//		if(!status.isSuccess()) {
+//			return ResponseEntity.badRequest().body(status.getErrorDesc());
+//		}
+//		else {
+//			videoAgent.setKbId(status.getSuccessDesc().getData().getKnowledgeBaseId());
+//			agentService.saveOrUpdate(videoAgent);
+//			return ResponseEntity.ok(status);
+//		}
+		LiveAvatarResponseStatus status = createKnowledgeBaseOrContextLiveAvator(videoAgent.getName(), videoAgent.getIndustry(),  file, fileType, companyId, videoAgent.getOpeningStatement(), videoAgent.getPrompt());
 		if(!status.isSuccess()) {
 			return ResponseEntity.badRequest().body(status.getErrorDesc());
 		}
 		else {
-			videoAgent.setKbId(status.getSuccessDesc().getData().getKnowledgeBaseId());
+			videoAgent.setKbId(status.getResponse().getData().getId());
 			agentService.saveOrUpdate(videoAgent);
-			return ResponseEntity.ok(status);
 		}
-		
-		
+		return ResponseEntity.ok(status);
 	}
 	
 	private String validate(VideoAgent videoAgent) {
@@ -137,30 +146,32 @@ public class VideoAgentController {
 			return ResponseEntity.badRequest().body(st);
 		}
 		String data = extractTextFromUrl(websiteForKB);
-		HeyGenResponseStatus status = createKnowledgeBaseFromWebsite(videoAgent.getName(), videoAgent.getIndustry(), data, companyId, videoAgent.getOpeningStatement(), videoAgent.getPrompt());
+		
+		
+		LiveAvatarResponseStatus status = createKnowledgeBaseOrContextFromWebsiteLiveAvator(videoAgent.getName(), videoAgent.getIndustry(), data, companyId, videoAgent.getOpeningStatement(), videoAgent.getPrompt());
 		if(!status.isSuccess()) {
 			return ResponseEntity.badRequest().body(status.getErrorDesc());
 		}
 		else {
-			videoAgent.setKbId(status.getSuccessDesc().getData().getKnowledgeBaseId());
+			videoAgent.setKbId(status.getResponse().getData().getId());
 			agentService.saveOrUpdate(videoAgent);
-			return ResponseEntity.ok(status);
 		}
-		
-		
+		return ResponseEntity.ok(status);
 	}
 	
-	private HeyGenResponseStatus createKnowledgeBase(String name, String industry, MultipartFile file, String fileType, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+	public LiveAvatarResponseStatus createKnowledgeBaseOrContextLiveAvator(String name, String industry, MultipartFile file, String fileType, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
 		String extractedText = extractTextFromFile(file, fileType);
-        Map<String, String> payloadMap = new HashMap<>();
-        payloadMap.put("name", name);
-        payloadMap.put("description", "Knowledge base uploaded via API for company " + companyId);
-        payloadMap.put("opening", openingStatement);
+		 prompt += " --- \n\n" + extractedText;
+		Request request = Request.builder()
+				.name(name)
+				.openingText(openingStatement)
+				.prompt(prompt)
+				.links(new ArrayList<>())
+				.build();
         // Truncate if necessary (HeyGen limit is roughly 20-40k chars depending on plan)
-        payloadMap.put("prompt",  prompt+" --- \n\n" + extractedText);
-        String jsonBody = objectMapper.writeValueAsString(payloadMap);
+        String jsonBody = objectMapper.writeValueAsString(request);
         // 3. Send to HeyGen API
-       return sendToHeyGen(jsonBody);
+       return sendToLiveAvatar(jsonBody);
 	}
 	
 	private HeyGenResponseStatus createKnowledgeBase(String name, String industry, String contents, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
@@ -174,6 +185,8 @@ public class VideoAgentController {
         // 3. Send to HeyGen API
        return sendToHeyGen(jsonBody);
 	}
+	
+	
 	
 	@RequestMapping(value = "/searchVideoAgents", method = RequestMethod.GET)
 	public ResponseEntity<?> searchVideoAgents( @RequestParam String token, @RequestParam String companyId, @RequestParam String search,
@@ -194,6 +207,22 @@ public class VideoAgentController {
 		return ResponseEntity.ok(agents);
 	}
 	
+	public LiveAvatarResponseStatus createKnowledgeBaseOrContextFromWebsiteLiveAvator(String name, String industry, String websiteScrappedData, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
+		prompt += prompt+" --- \n\nOther details - \n" + websiteScrappedData;
+		Request request = Request.builder()
+				.name(name)
+				.openingText(openingStatement)
+				.prompt(prompt)
+				.links(new ArrayList<>())
+				.build();
+		
+       
+        // Truncate if necessary (HeyGen limit is roughly 20-40k chars depending on plan)
+		 String jsonBody = objectMapper.writeValueAsString(request);
+        // 3. Send to HeyGen API
+       return sendToLiveAvatar(jsonBody);
+	}
+	
 	private HeyGenResponseStatus createKnowledgeBaseFromWebsite(String name, String industry, String websiteScrappedData, String companyId, String openingStatement, String prompt) throws JsonParseException, JsonMappingException, IOException, InterruptedException {
 		
         Map<String, String> payloadMap = new HashMap<>();
@@ -205,6 +234,27 @@ public class VideoAgentController {
         String jsonBody = objectMapper.writeValueAsString(payloadMap);
         // 3. Send to HeyGen API
        return sendToHeyGen(jsonBody);
+	}
+	//220c5c06-e931-11f0-a99e-066a7fa2e369
+	
+	private LiveAvatarResponseStatus sendToLiveAvatar(String jsonBody) throws IOException, InterruptedException {
+		 HttpRequest request = HttpRequest.newBuilder()
+	                .uri(URI.create(CONTEXT_KNOWLEDGE_BASE_CREATION_API_INTERACTIVE_AVATAR_ENDPOINT))
+	                .header("Content-Type", "application/json")
+	                .header("X-API-KEY", NEW_LIVE_AVATAT_API_KEY) // Using the token passed in param
+	                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+	                .build();
+
+	        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+	        if (response.statusCode() == 200) {
+	        	Response res = objectMapper.readValue(response.body(), Response.class);
+	        	LiveAvatarResponseStatus status = LiveAvatarResponseStatus.builder().success(true).response(res).build();
+	        	return status;
+	        } else {
+	        	LiveAvatarResponseStatus status = LiveAvatarResponseStatus.builder().success(false).errorDesc(response.body()).build();
+	        	return status;
+	        }
 	}
 	
 	private HeyGenResponseStatus sendToHeyGen(String jsonBody) throws IOException, InterruptedException {
@@ -292,7 +342,7 @@ public class VideoAgentController {
 				String openingStatement =  videoAgentMetaDataController.fetchOneOpeningStatementsForVideoAgent(AgentType.TRAINER.getType(), "Not applicable", skill);
 				String prompt = videoAgentMetaDataController.fetchPromptTemplate_1_VariantForVideoAgentKnowledgebase(AgentType.TRAINER.getType(), skill);
 				
-				HeyGenResponseStatus heyGenResponseStatus =  createKnowledgeBase("Training on "+category.getCategory(), category.getCategory(), kbContents, companyId, openingStatement, prompt);
+				LiveAvatarResponseStatus heyGenResponseStatus =  createKnowledgeBaseOrContextFromWebsiteLiveAvator("Training on "+category.getCategory(), category.getCategory(), kbContents, companyId, openingStatement, prompt);
 					if(heyGenResponseStatus.isSuccess()) {
 						String objective = "The objective of this training is to help you master exactly what you need, right now. Based on your recent role-plays, we are a cerating a custom Video Agent designed specifically to help you strengthen your identified improvement areas ("+category.getCategory()+" - "+skill+").";
 						VideoAgent videoAgent = VideoAgent.builder()
@@ -300,7 +350,7 @@ public class VideoAgentController {
 								.company("General")
 								.dynamicallyCreated(true)
 								.industry(category.getCategory())
-								.kbId(heyGenResponseStatus.getSuccessDesc().getData().getKnowledgeBaseId())
+								.kbId(heyGenResponseStatus.response.getData().getId())
 								.image("heygen_avatar_4.webp")
 								.name("Training on "+category.getCategory())
 								.objective(objective)
@@ -341,5 +391,19 @@ class HeyGenResponseStatus{
 	String errorDesc;
 	
 	HeyGenKnowledgeBaseResponseDto successDesc;
+	
+}
+
+@Builder
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+class LiveAvatarResponseStatus{
+	boolean success;
+	
+	String errorDesc;
+	
+	Response response;
 	
 }

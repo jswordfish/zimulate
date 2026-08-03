@@ -60,7 +60,7 @@ public interface VFRolePlayTestSessionRepo extends JpaRepository<VFRolePlayTestS
 	public List<VFRolePlayTestSession> findRoleplaySessionsByWorkflowSessionId(@Param("workflowSessionId") Long workflowSessionId);
 	
 	@Query("select v from VFRolePlayTestSession v where v.companyId=:companyId and v.testIdentifier=:testIdentifier and (LOWER(v.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(v.lastName) LIKE LOWER(CONCAT('%', :search, '%')) )")
-	public List<VFRolePlayTestSession> searchAssessmentsForRoleplay( @Param("companyId")  String companyId, @Param("testIdentifier")  String testIdentifier, @Param("search") String search, Pageable pageable);
+	public Page<VFRolePlayTestSession> searchAssessmentsForRoleplay( @Param("companyId")  String companyId, @Param("testIdentifier")  String testIdentifier, @Param("search") String search, Pageable pageable);
 	
 
 

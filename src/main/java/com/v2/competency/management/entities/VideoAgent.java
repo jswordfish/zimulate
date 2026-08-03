@@ -44,6 +44,8 @@ public class VideoAgent extends Base{
 	
 	Boolean dynamicallyCreated;
 	
+	Boolean dummy;
+	
 
 	public String getName() {
 		return name;
@@ -133,6 +135,14 @@ public class VideoAgent extends Base{
 
 	public void setDynamicallyCreated(Boolean dynamicallyCreated) {
 		this.dynamicallyCreated = dynamicallyCreated;
+	}
+
+	public Boolean getDummy() {
+		return dummy;
+	}
+
+	public void setDummy(Boolean dummy) {
+		this.dummy = dummy;
 	}
 	
 	

@@ -447,8 +447,11 @@ public class WorkflowUserController {
 	@RequestMapping(value="testWorkflowInsightsGen",method=RequestMethod.GET) 
 	@CrossOrigin
     public ResponseEntity<?> testWorkflowInsightsGen( @RequestParam String token, @RequestParam Long rolePlayTestSessionId) throws IOException{
+		System.out.println("In testWorkflowInsightsGen "+rolePlayTestSessionId);
 		VFRolePlayTestSession session = rolePlayTestSessionRepo.findById(rolePlayTestSessionId).get();
-		if(workflowRecommGenerator.checkIfRecommCanBeGenerated(session.getId(), session.getWorkflowSessionId())) {
+		boolean check = workflowRecommGenerator.checkIfRecommCanBeGenerated(session.getId(), session.getWorkflowSessionId());
+		System.out.println("check is "+check);
+		if(check) {
         	String json = workflowRecommGenerator.generateRecommendationsSync(session.getWorkflowSessionId());
         	return ResponseEntity.ok(json);
         }

@@ -102,6 +102,7 @@ public class WorkflowRecommGeneratorImpl implements WorkflowRecommGenerator{
 	@Override
 	@Async
 	public String generateRecommendations(Long workflowSessionId) throws IOException  {
+		System.out.println("in generateRecommendations "+workflowSessionId);
 		List<VFRolePlayTestSession> sessions = rolePlayTestSessionRepo.findRoleplaySessionsByWorkflowSessionId(workflowSessionId);
 			if(sessions.size() == 0) {
 				return null;
