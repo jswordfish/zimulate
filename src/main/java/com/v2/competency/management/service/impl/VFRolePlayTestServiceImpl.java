@@ -234,5 +234,85 @@ public class VFRolePlayTestServiceImpl implements VFRolePlayTestService{
 		return repo.searchAssessmentRolePlays(companyId, pageable);
 	}
 
+	@Override
+	public PaginatedResponseDto searchTrainingRolePlays(
+	        String companyId,
+	        String search,
+	        int page,
+	        int size) {
+
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("id").descending()
+	    );
+
+	    Page<VFRolePlayTest> tests =
+	            repo.searchTrainingRolePlays(
+	                    companyId,
+	                    search,
+	                    pageable
+	            );
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+
+	    int recordsFrom = tests.getTotalElements() == 0
+	            ? 0
+	            : (page * size) + 1;
+
+	    int recordsTo = Math.min(
+	            (page + 1) * size,
+	            (int) tests.getTotalElements()
+	    );
+
+	    dto.setRecordsFrom(recordsFrom);
+	    dto.setRecordsTo(recordsTo);
+	    dto.setTotalNumberOfRecords((int) tests.getTotalElements());
+	    dto.setTotalNumberOfPages(tests.getTotalPages());
+	    dto.setSelectedPage(page);
+	    dto.setList(tests.getContent());
+
+	    return dto;
+	}
 	
+	@Override
+	public PaginatedResponseDto searchAssessmentRolePlays(
+	        String companyId,
+	        String search,
+	        int page,
+	        int size) {
+
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("id").descending()
+	    );
+
+	    Page<VFRolePlayTest> tests =
+	            repo.searchAssessmentRolePlays(
+	                    companyId,
+	                    search,
+	                    pageable
+	            );
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+
+	    int recordsFrom = tests.getTotalElements() == 0
+	            ? 0
+	            : (page * size) + 1;
+
+	    int recordsTo = Math.min(
+	            (page + 1) * size,
+	            (int) tests.getTotalElements()
+	    );
+
+	    dto.setRecordsFrom(recordsFrom);
+	    dto.setRecordsTo(recordsTo);
+	    dto.setTotalNumberOfRecords((int) tests.getTotalElements());
+	    dto.setTotalNumberOfPages(tests.getTotalPages());
+	    dto.setSelectedPage(page);
+	    dto.setList(tests.getContent());
+
+	    return dto;
+	}
 }

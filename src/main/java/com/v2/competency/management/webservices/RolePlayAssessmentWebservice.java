@@ -318,36 +318,44 @@ Map<String, List<String>> map = new HashMap<>();
 	 return ResponseEntity.ok(res);
 	}
 	
-	@RequestMapping(value="fetchTrainingRolePlays",method=RequestMethod.GET)  
-    public ResponseEntity<?> fetchTrainingRolePlays( @RequestParam(name= "page", required = false) Integer pageNumber, @RequestParam String companyId, 
-           HttpSession session, @RequestParam String token) throws Exception{ 
-		 if(pageNumber == null) {
-				pageNumber = 0;
-			}
-		 Page<VFRolePlayTest> tests = rolePlayTestService.searchTrainingRolePlays(companyId, PageRequest.of(pageNumber, 35));
-		 PaginatedResponseDto res = new PaginatedResponseDto();
-		 res.setRecordsFrom(tests.getNumber());
-		 res.setRecordsTo(tests.getNumberOfElements());
-		 res.setTotalNumberOfPages(tests.getTotalPages());
-		 res.setSelectedPage(pageNumber + 1);
-		 res.setList(tests.getContent());
-		 return ResponseEntity.ok(res);
+	@RequestMapping(value = "fetchTrainingRolePlays", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchTrainingRolePlays(
+	        @RequestParam String companyId,
+	        @RequestParam String token,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        HttpSession session) throws Exception {
+
+	    PaginatedResponseDto paginatedResponse =
+	            rolePlayTestService.searchTrainingRolePlays(
+	                    companyId,
+	                    search,
+	                    page,
+	                    size
+	            );
+
+	    return ResponseEntity.ok(paginatedResponse);
 	}
 	
-	@RequestMapping(value="fetchAssessmentRolePlays",method=RequestMethod.GET)  
-    public ResponseEntity<?> fetchAssessmentRolePlays( @RequestParam(name= "page", required = false) Integer pageNumber, @RequestParam String companyId, 
-           HttpSession session, @RequestParam String token) throws Exception{ 
-		 if(pageNumber == null) {
-				pageNumber = 0;
-			}
-		 Page<VFRolePlayTest> tests = rolePlayTestService.searchAssessmentRolePlays(companyId, PageRequest.of(pageNumber, 35));
-		 PaginatedResponseDto res = new PaginatedResponseDto();
-		 res.setRecordsFrom(tests.getNumber());
-		 res.setRecordsTo(tests.getNumberOfElements());
-		 res.setTotalNumberOfPages(tests.getTotalPages());
-		 res.setSelectedPage(pageNumber + 1);
-		 res.setList(tests.getContent());
-		 return ResponseEntity.ok(res);
+	@RequestMapping(value = "fetchAssessmentRolePlays", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchAssessmentRolePlays(
+	        @RequestParam String companyId,
+	        @RequestParam String token,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        HttpSession session) throws Exception {
+
+	    PaginatedResponseDto paginatedResponse =
+	            rolePlayTestService.searchAssessmentRolePlays(
+	                    companyId,
+	                    search,
+	                    page,
+	                    size
+	            );
+
+	    return ResponseEntity.ok(paginatedResponse);
 	}
 	
 	

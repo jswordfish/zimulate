@@ -1,6 +1,5 @@
 package com.v2.competency.management.service.impl;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -10,13 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
-import com.googlecloud.vertex.ai.workflow.insights.dto.Overall;
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.repos.VideoAgentRepo;
 import com.v2.competency.management.service.VideoAgentService;
@@ -69,5 +70,44 @@ public class VideoAgentServiceImpl implements VideoAgentService{
 	}
 
 	
+	@Override
+	public PaginatedResponseDto searchVideoAgents(
+	        String search,
+	        String companyId,
+	        int page,
+	        int size) {
 
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("id").descending()
+	    );
+
+	    Page<VideoAgent> agents =
+	            agentRepo.searchVideoAgents(
+	                    search,
+	                    companyId,
+	                    pageable
+	            );
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+
+	    int recordsFrom = agents.getTotalElements() == 0
+	            ? 0
+	            : (page * size) + 1;
+
+	    int recordsTo = Math.min(
+	            (page + 1) * size,
+	            (int) agents.getTotalElements()
+	    );
+
+	    dto.setRecordsFrom(recordsFrom);
+	    dto.setRecordsTo(recordsTo);
+	    dto.setTotalNumberOfRecords((int) agents.getTotalElements());
+	    dto.setTotalNumberOfPages(agents.getTotalPages());
+	    dto.setSelectedPage(page);
+	    dto.setList(agents.getContent());
+
+	    return dto;
+	}
 }

@@ -25,4 +25,6 @@ public class ZimulateWorkflow extends Base{
 	String image;
 	
 	Boolean complete;
+	
+	Boolean navigationBack;
 }

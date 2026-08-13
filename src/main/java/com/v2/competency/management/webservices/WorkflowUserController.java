@@ -176,8 +176,12 @@ public class WorkflowUserController {
 				 */
 				workflowSession.setStatus(WorkflowSessionStatus.IN_PROGRESS.getStatus());
 			}
-			workflowSession.setPositon(position);
-			workflowSessionService.saveOrUpdate(workflowSession);
+			
+			if(workflowSession.getPositon() > position) {
+				workflowSession.setPositon(position);
+				workflowSessionService.saveOrUpdate(workflowSession);
+			}
+			
 		
 		return ResponseEntity.ok("ok");
 	}

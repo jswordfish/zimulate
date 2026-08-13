@@ -63,6 +63,9 @@ public class PropertyConfig {
 	
 	@Value("${elevenlabs.api.base.url}")
 	String elevenLabsApiUrl;
+	
+	@Value("${live.count.limit}")
+	Integer liveCountLimit;
 
 	public String getGeminiProjectId() {
 		return geminiProjectId;
@@ -206,6 +209,14 @@ public class PropertyConfig {
 
 	public void setElevenLabsApiUrl(String elevenLabsApiUrl) {
 		this.elevenLabsApiUrl = elevenLabsApiUrl;
+	}
+
+	public Integer getLiveCountLimit() {
+		return liveCountLimit;
+	}
+
+	public void setLiveCountLimit(Integer liveCountLimit) {
+		this.liveCountLimit = liveCountLimit;
 	}
 	
 	

@@ -22,8 +22,6 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,6 +40,7 @@ import com.googlecloud.vertex.ai.workflow.insights.dto.Overall;
 import com.googlecloud.vertex.ai.workflow.insights.dto.SkillCategory;
 import com.v2.competency.management.dtos.AgentType;
 import com.v2.competency.management.dtos.HeyGenKnowledgeBaseResponseDto;
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.repos.VideoAgentRepo;
 import com.v2.competency.management.service.VideoAgentService;
@@ -189,12 +188,22 @@ public class VideoAgentController {
 	
 	
 	@RequestMapping(value = "/searchVideoAgents", method = RequestMethod.GET)
-	public ResponseEntity<?> searchVideoAgents( @RequestParam String token, @RequestParam String companyId, @RequestParam String search,
-			@RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) throws IOException{
-		Pageable pageable = PageRequest.of(page, size);
-		List<VideoAgent> agents = agentService.searchVideoAgents(search, companyId, pageable).getContent();
-		return ResponseEntity.ok(agents);
+	public ResponseEntity<?> searchVideoAgents(
+	        @RequestParam String token,
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) throws IOException {
+
+	    PaginatedResponseDto paginatedResponse =
+	            agentService.searchVideoAgents(
+	                    search,
+	                    companyId,
+	                    page,
+	                    size
+	            );
+
+	    return ResponseEntity.ok(paginatedResponse);
 	}
 	
 	@RequestMapping(value = "/fetchVideoAgentsByIds", method = RequestMethod.POST)

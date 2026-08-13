@@ -6,12 +6,13 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
-import com.v2.competency.management.entities.Question;
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.ZimulateWorkflow;
 import com.v2.competency.management.repos.ZimulateWorkflowRepo;
 import com.v2.competency.management.service.ZimulateWorkflowService;
@@ -47,6 +48,31 @@ public class ZimulateWorkflowServiceImpl implements ZimulateWorkflowService{
 	@Override
 	public Page<ZimulateWorkflow> findAllWorkflows(String companyId, Pageable pageable) {
 		return repo.findAllWorkflows(companyId, pageable);
+	}
+	
+	@Override
+	public PaginatedResponseDto findAllWorkflows(
+	        String companyId,
+	        String search,
+	        int page,
+	        int size) {
+
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<ZimulateWorkflow> workflowPage = repo.findAllWorkflows(companyId, search, pageable);
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+	    
+	    int recordsFrom = workflowPage.getTotalElements() == 0 ? 0 : (page * size) + 1;
+	    int recordsTo = Math.min((page + 1) * size, (int) workflowPage.getTotalElements());
+
+	    dto.setRecordsFrom(recordsFrom);
+	    dto.setRecordsTo(recordsTo);
+	    dto.setTotalNumberOfRecords((int) workflowPage.getTotalElements());
+	    dto.setTotalNumberOfPages(workflowPage.getTotalPages());
+	    dto.setSelectedPage(page);
+	    dto.setList(workflowPage.getContent());
+
+	    return dto;
 	}
 
 }

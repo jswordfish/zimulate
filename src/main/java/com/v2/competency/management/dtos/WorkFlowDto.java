@@ -19,5 +19,7 @@ public class WorkFlowDto {
 	String companyId;
 	
 	Boolean complete;
+	
+	Boolean navigationBack;
 
 }

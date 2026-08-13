@@ -17,5 +17,19 @@ public interface ZimulateWorkflowRepo extends CrudRepository<ZimulateWorkflow, L
 	 @Query("select w from ZimulateWorkflow w where w.companyId=:companyId")
 	 Page<ZimulateWorkflow> findAllWorkflows(@Param("companyId")  String companyId, Pageable pageable);
 	 
+	 
+	 @Query("SELECT w FROM ZimulateWorkflow w " +
+		       "WHERE w.companyId = :companyId " +
+		       "AND (" +
+		       ":search IS NULL OR :search = '' OR " +
+		       "LOWER(w.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "LOWER(w.objective) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "LOWER(w.industry) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		       ")")
+		Page<ZimulateWorkflow> findAllWorkflows(
+		        @Param("companyId") String companyId,
+		        @Param("search") String search,
+		        Pageable pageable);
+	 
 
 }

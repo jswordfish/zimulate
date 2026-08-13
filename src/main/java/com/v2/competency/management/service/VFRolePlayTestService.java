@@ -39,6 +39,18 @@ public interface VFRolePlayTestService {
 	 
 	 public Page<VFRolePlayTest> searchAssessmentRolePlays( String companyId,   Pageable pageable);
 	 
+	 PaginatedResponseDto searchTrainingRolePlays(
+		        String companyId,
+		        String search,
+		        int page,
+		        int size);
+	 
+	 PaginatedResponseDto searchAssessmentRolePlays(
+		        String companyId,
+		        String search,
+		        int page,
+		        int size);
+	 
 	
 	 
 }

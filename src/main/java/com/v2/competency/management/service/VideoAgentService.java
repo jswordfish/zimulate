@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VideoAgent;
 
 public interface VideoAgentService {
@@ -18,6 +19,12 @@ public interface VideoAgentService {
 	public Page<VideoAgent> searchVideoAgents(String search,  String companyId, Pageable pageable);
 	
 	public List<String> findIndustries(String companyId);
+	
+	PaginatedResponseDto searchVideoAgents(
+	        String search,
+	        String companyId,
+	        int page,
+	        int size);
 	
 	
 	

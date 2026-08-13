@@ -64,5 +64,61 @@ public interface VFRolePlayTestRepo extends JpaRepository<VFRolePlayTest, Long> 
 	 @Query("SELECT DISTINCT v.industry FROM VFRolePlayTest v WHERE v.industry IS NOT NULL AND v.companyId = :companyId")
 	    List<String> findDistinctIndustriesByCompanyId(@Param("companyId") String companyId);
 	 
+	 @Query("SELECT v FROM VFRolePlayTest v " +
+		       "WHERE v.companyId = :companyId " +
+		       "AND v.published IS NOT NULL " +
+		       "AND v.published = true " +
+		       "AND (LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', 'sales', '%')) " +
+		       "OR LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', 'train', '%'))) " +
+		       "AND (:search IS NULL OR TRIM(:search) = '' " +
+		       "OR LOWER(v.testName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.questionText) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.productInfo) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.competitionInfo) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.publicTestLink) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.competency) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.parentCompetency) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.industry) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.defaultQuestionPrompt) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.rolePlayLabelForUI) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.agentId) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.knowledgebaseId) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.reportVersion) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.userPersona) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.rolePlayType) LIKE LOWER(CONCAT('%', :search, '%')))")
+		Page<VFRolePlayTest> searchTrainingRolePlays(
+		        @Param("companyId") String companyId,
+		        @Param("search") String search,
+		        Pageable pageable);
+	 
+	 @Query("SELECT v FROM VFRolePlayTest v " +
+		       "WHERE v.companyId = :companyId " +
+		       "AND v.published IS NOT NULL " +
+		       "AND v.published = true " +
+		       "AND (LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', 'evaluator', '%')) " +
+		       "OR LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', 'customer', '%'))) " +
+		       "AND (:search IS NULL OR TRIM(:search) = '' " +
+		       "OR LOWER(v.testName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.questionText) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.productInfo) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.competitionInfo) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.publicTestLink) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.competency) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.parentCompetency) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.industry) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.defaultQuestionPrompt) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.rolePlayLabelForUI) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.agentId) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.knowledgebaseId) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.reportVersion) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.userPersona) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.aiPersona) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(v.rolePlayType) LIKE LOWER(CONCAT('%', :search, '%')))")
+		Page<VFRolePlayTest> searchAssessmentRolePlays(
+		        @Param("companyId") String companyId,
+		        @Param("search") String search,
+		        Pageable pageable);
+	 
 
 }

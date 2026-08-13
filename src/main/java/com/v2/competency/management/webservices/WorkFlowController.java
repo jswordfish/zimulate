@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.dozermapper.core.DozerBeanMapper;
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.dtos.WorkFlowDto;
 import com.v2.competency.management.dtos.WorkflowNodeDto;
 import com.v2.competency.management.dtos.WorkflowNodeType;
@@ -101,11 +99,16 @@ public class WorkFlowController {
 	}
 	
 	@RequestMapping(value = "/findAllWorkflows", method = RequestMethod.GET)
-	public ResponseEntity<?> findAllWorkflows( @RequestParam String token, @RequestParam String companyId, @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) throws IOException{
-		Pageable pageable = PageRequest.of(page, size);
-		List<ZimulateWorkflow> flows = workflowService.findAllWorkflows(companyId, pageable).getContent();
-		return ResponseEntity.ok(convert(flows));
+	public ResponseEntity<PaginatedResponseDto> findAllWorkflows(
+	        @RequestParam String token,
+	        @RequestParam String companyId,
+	        @RequestParam(required = false) String search,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) throws IOException {
+
+	    PaginatedResponseDto paginatedResponse = workflowService.findAllWorkflows(companyId, search, page, size);
+
+	    return ResponseEntity.ok(paginatedResponse);
 	}
 	
 	private WorkflowNode validateAndTransform(WorkflowNodeDto workflowNode) {
