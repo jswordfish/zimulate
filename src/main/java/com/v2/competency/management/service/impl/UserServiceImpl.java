@@ -2,18 +2,28 @@ package com.v2.competency.management.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
+import com.mailjet.client.ClientOptions;
+import com.mailjet.client.MailjetClient;
+import com.mailjet.client.errors.MailjetException;
+import com.mailjet.client.transactional.SendContact;
+import com.mailjet.client.transactional.SendEmailsRequest;
+import com.mailjet.client.transactional.TransactionalEmail;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.OrgHierarchy;
 import com.v2.competency.management.entities.User;
@@ -347,6 +357,85 @@ public class UserServiceImpl implements UserService{
 	    }
 
 	    return "Manager: " + managerUser.getFirstName() + " is assigned to users: " + String.join(", ", updatedUsers);
+	}
+
+	@Override
+	public Long findUserIdByEmail(String email, String companyId) {
+		// TODO Auto-generated method stub
+		User user = repo.findByEmail(email, companyId);
+		if(user==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not exist with the email : "+email);
+		}
+		return user.getId();
+	}
+
+	@Override
+	public void sendForgotPasswordEmail(String email, String companyId) {
+
+	    User user = repo.findByEmail(email, companyId);
+
+	    if (user == null) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "User does not exist with the email : " + email
+	        );
+	    }
+
+	    Long userId = user.getId();
+
+	    String link = "https://zimulate.me/forgotPassword" + "?userId=" + userId;
+
+	    ClientOptions options = ClientOptions.builder()
+	            .apiKey("8259d51f87852f8c7b9f6b08e627f94d")
+	            .apiSecretKey("184fc8e67edae36b2b5ad191e8bd2e53")
+	            .build();
+
+	    MailjetClient client = new MailjetClient(options);
+
+	    Map<String, String> variables = new HashMap<>();
+	    variables.put("link", link);
+
+	    TransactionalEmail emailMessage = TransactionalEmail.builder()
+	            .to(List.of(new SendContact(email)))
+	            
+	            
+	            .from(new SendContact("sales@zimulate.me", "Zimulate"))
+	            .subject("Reset Your Password")
+	            .templateID(8276239L)
+	            .templateLanguage(true)
+	            .variables(variables)
+	            .build();
+
+	    SendEmailsRequest request = SendEmailsRequest.builder()
+	            .message(emailMessage)
+	            .build();
+
+	    try {
+
+	        request.sendWith(client);
+
+	    } catch (MailjetException e) {
+
+	        throw new RuntimeException(
+	                "Failed to send forgot password email",
+	                e
+	        );
+	    }
+	}
+
+	@Override
+	@Transactional
+	public void resetPassword(Long userId, String newPassword) {
+
+	    User user = repo.findById(userId)
+	            .orElseThrow(() -> new ResponseStatusException(
+	                    HttpStatus.BAD_REQUEST,
+	                    "User does not exist."
+	            ));
+
+	    user.setPassword(newPassword);
+
+	    repo.save(user);
 	}
 
 }
