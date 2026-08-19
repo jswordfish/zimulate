@@ -66,6 +66,9 @@ public class PropertyConfig {
 	
 	@Value("${live.count.limit}")
 	Integer liveCountLimit;
+	
+	@Value("${path.to.custom.properties}")
+	String customPropertiesPath;
 
 	public String getGeminiProjectId() {
 		return geminiProjectId;
@@ -217,6 +220,14 @@ public class PropertyConfig {
 
 	public void setLiveCountLimit(Integer liveCountLimit) {
 		this.liveCountLimit = liveCountLimit;
+	}
+
+	public String getCustomPropertiesPath() {
+		return customPropertiesPath;
+	}
+
+	public void setCustomPropertiesPath(String customPropertiesPath) {
+		this.customPropertiesPath = customPropertiesPath;
 	}
 	
 	

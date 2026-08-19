@@ -1,8 +1,12 @@
 package com.v2.competency.management.service.impl;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.v2.competency.management.config.ApiKeyProperties;
 import com.v2.competency.management.dtos.GenericApiRequest;
 import com.v2.competency.management.entities.ApiProvider;
+import com.v2.competency.management.service.MiscellaneousService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 public class GenericApiProxyService {
 
     private final RestTemplate restTemplate;
-    private final ApiKeyProperties apiKeyProperties;
+    
+    @Autowired
+    PropertyConfig config;
+    
+    @Autowired
+    MiscellaneousService miscellaneousService;
 
     public ResponseEntity<Object> callExternalApi(GenericApiRequest request) {
 
@@ -43,7 +53,7 @@ public class GenericApiProxyService {
         }
 
         // 3. Get the stored API key for this provider
-        String apiKey = apiKeyProperties.getKeys().get(provider.name());
+        String apiKey = miscellaneousService.getValue(provider.name());
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("No API key configured for provider: " + provider);
         }

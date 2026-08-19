@@ -1,5 +1,8 @@
 package com.v2.competency.management.webservices;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +30,8 @@ public class MiscellaneousWebService {
 	
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	
 
 	
 	@GetMapping

@@ -33,11 +33,15 @@ import org.springframework.web.client.RestTemplate;
 
 import com.v2.competency.management.elevanlabs.dtos.Root;
 import com.v2.competency.management.service.AgentService;
+import com.v2.competency.management.service.MiscellaneousService;
 @Service
 public class ElevenLabsAgentService implements AgentService{
 	
 @Autowired	
 PropertyConfig config;
+
+@Autowired
+MiscellaneousService miscellaneousService;
 
 private static RestTemplate restTemplate;
 
@@ -303,7 +307,9 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	@Override
 	public String createOrUpdateAgent(Root root, String agentId) {
 		 HttpHeaders headers = new HttpHeaders();
-	        headers.set("xi-api-key", config.getElevenLabsKey());
+	       // headers.set("xi-api-key", config.getElevenLabsKey());
+		 headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));  // making custom properties external
+		 	headers.set("xi-api-key", config.getElevenLabsKey());
 	        headers.setContentType(MediaType.APPLICATION_JSON);
 	    String updateOrCreateUrl =  agentId == null?config.getElevenLabsApiUrl()+"/create":config.getElevenLabsApiUrl()+"/"+agentId;
 	    System.out.println(updateOrCreateUrl);
