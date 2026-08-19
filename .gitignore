@@ -1,2 +1,9 @@
 /target/
 /LTI_af38d1rt_7096_rt.wav
+/prompt_eg.txt
+/logs/
+/interviews/
+/.classpath
+/.DS_Store
+/src/main/.DS_Store
+/.settings/org.eclipse.wst.common.component

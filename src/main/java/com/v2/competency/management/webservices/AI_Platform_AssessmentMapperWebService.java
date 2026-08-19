@@ -260,7 +260,8 @@ public class AI_Platform_AssessmentMapperWebService {
 	                                                              @RequestParam String companyId,
 	                                                              @RequestParam String emails,    
 	                                                              @RequestParam String testNames,
-	                                                              @RequestParam String managerEmail)  
+	                                                              @RequestParam String managerEmail
+	                                                              )  
 	        throws Exception {
 
 	    Tenant tenant = tenantService.findTenantByCompanyId(companyId);
@@ -318,6 +319,7 @@ public class AI_Platform_AssessmentMapperWebService {
 	                    .typePath3("NA")
 	                    .typePath4("NA")
 	                    .typePath5("NA")
+	                    .aiPersonaType(test.getAiPersona())
 	                    .build();
 
 	            assessmentMapper.setCompanyId(companyId);

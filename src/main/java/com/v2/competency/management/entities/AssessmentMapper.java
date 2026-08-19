@@ -79,4 +79,6 @@ public class AssessmentMapper extends Base{
 	
 	String assignedBy;
 	
+	String aiPersonaType;
+	
 }
