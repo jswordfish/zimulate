@@ -44,11 +44,17 @@ public interface UserService {
 	        int page
 	    );
 	
+	public Long findUserIdByEmail(String email, String companyId);
+	
 	public Page<User> searchUsersFinal(String search, String managerEmail, Boolean external, String companyId, int page, int size);
 	
 	public User getManagerByEmployee(String email, String companyId);
 	
 	String assignManagerToUsers(List<String> userEmails, String companyId, String managerEmail);
+	
+	void sendForgotPasswordEmail(String email, String companyId);
+
+    void resetPassword(Long userId, String newPassword);
 	
 
 }

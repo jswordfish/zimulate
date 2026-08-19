@@ -152,6 +152,40 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
     
+    @PostMapping("/forgot-password")
+	public ResponseEntity<String> forgotPassword(
+	        @RequestParam String email,
+	        @RequestParam String companyId,
+	        @RequestParam String token
+	) {
+
+	    service.sendForgotPasswordEmail(
+	            email,
+	            companyId
+	    );
+
+	    return ResponseEntity.ok(
+	            "Password reset link has been sent to your email."
+	    );
+	}
+    
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestParam Long userId,
+            @RequestParam String newPassword,
+            @RequestParam String token
+    ) {
+
+        service.resetPassword(
+                userId,
+                newPassword
+        );
+
+        return ResponseEntity.ok(
+                "Password has been reset successfully."
+        );
+    }
+    
     @PostMapping("/search users general")
     public ResponseEntity<PaginatedResponseDto> searchUsersGeneral(
             @RequestParam(required = false) String name,
