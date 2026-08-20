@@ -52,8 +52,16 @@ public class GenericApiProxyService {
             throw new IllegalArgumentException("Unsupported HTTP method: " + request.getMethod());
         }
 
-        // 3. Get the stored API key for this provider
+     // 3. Get the stored API key for this provider
         String apiKey = miscellaneousService.getValue(provider.name());
+
+        // TODO(REMOVE BEFORE PROD): temporary hardcoded fallback for local testing only,
+        // since the properties file key isn't set up in this environment yet.
+        if ((apiKey == null || apiKey.isEmpty()) && provider == ApiProvider.ELEVEN_LABS) {
+            log.warn("Using HARDCODED ElevenLabs API key for testing — remove this before deploying!");
+            apiKey = config.getElevenLabsKey();
+        }
+
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("No API key configured for provider: " + provider);
         }

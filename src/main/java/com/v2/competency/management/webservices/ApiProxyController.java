@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.v2.competency.management.dtos.GenericApiRequest;
@@ -22,7 +23,7 @@ public class ApiProxyController {
     private final GenericApiProxyService genericApiProxyService;
 
     @PostMapping("/call")
-    public ResponseEntity<Object> callExternalApi(@Valid @RequestBody GenericApiRequest request) {
+    public ResponseEntity<Object> callExternalApi(@Valid @RequestBody GenericApiRequest request, @RequestParam String token) {
         return genericApiProxyService.callExternalApi(request);
     }
 }

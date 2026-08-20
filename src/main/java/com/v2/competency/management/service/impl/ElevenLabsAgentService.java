@@ -82,7 +82,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	
 	private String findKnowledgeBaseIdByName(String name) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
@@ -115,7 +115,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	private String uploadKnowledgeBaseFromPdf(String filePath, String kbName) {
         File pdfFile = new File(filePath);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -141,7 +141,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	private String updateKnowledgeBaseFromPdf(String kbId, String filePath, String kbName) {
         File pdfFile = new File(filePath);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -172,7 +172,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	
 	private String updateAgent(String agentId, String name, String prompt, String knowledgeBaseId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> promptConfig = new HashMap<>();
@@ -222,7 +222,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 
     private String sendAgentPayload(String agentId, String name, String prompt, String knowledgeBaseId, boolean isUpdate) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> promptConfig = new HashMap<>();
@@ -274,7 +274,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
     
     private String findAgentIdByName(String name) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", config.getElevenLabsKey());
+        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
@@ -309,13 +309,13 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 		 HttpHeaders headers = new HttpHeaders();
 	       // headers.set("xi-api-key", config.getElevenLabsKey());
 		 headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));  // making custom properties external
-		 	headers.set("xi-api-key", config.getElevenLabsKey());
+//		 	headers.set("xi-api-key", config.getElevenLabsKey());
 	        headers.setContentType(MediaType.APPLICATION_JSON);
 	    String updateOrCreateUrl =  agentId == null?config.getElevenLabsApiUrl()+"/create":config.getElevenLabsApiUrl()+"/"+agentId;
 	    System.out.println(updateOrCreateUrl);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(updateOrCreateUrl))
-                .header("xi-api-key", config.getElevenLabsKey())
+                .header("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"))
                 .header("Content-Type", "application/json")
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(root.toString(), StandardCharsets.UTF_8))
                 .build();
