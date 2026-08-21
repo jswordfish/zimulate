@@ -1,8 +1,5 @@
 package com.v2.competency.management.webservices;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.v2.competency.management.dtos.LiveCountResponse;
 import com.v2.competency.management.dtos.LiveCountStatusResponse;
+import com.v2.competency.management.service.MiscellaneousService;
 import com.v2.competency.management.service.impl.PropertyConfig;
 
 @RestController
@@ -31,13 +29,14 @@ public class MiscellaneousWebService {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	
+	@Autowired
+	MiscellaneousService service;
 
 	
 	@GetMapping
 	public String getElevenLabsApiKey(@RequestParam String token) {
 		
-		String key = config.getElevenLabsKey();
+		String key = service.getValue("elevenlabs.api.key");
 		
 		return key;
 		
@@ -48,7 +47,7 @@ public class MiscellaneousWebService {
 	        @RequestParam String token,
 	        @RequestParam(required = false) String agentId) {
 
-	    String key = config.getElevenLabsKey();
+	    String key = service.getValue("elevenlabs.api.key");
 
 	    UriComponentsBuilder builder = UriComponentsBuilder
 	            .fromHttpUrl("https://api.elevenlabs.io/v1/convai/analytics/live-count");

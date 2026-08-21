@@ -67,7 +67,7 @@ public class PropertyConfig {
 	@Value("${live.count.limit}")
 	Integer liveCountLimit;
 	
-	@Value("${path.to.custom.external.properties}")
+	@Value("${path.to.custom.properties}")
 	String customPropertiesPath;
 
 	public String getGeminiProjectId() {
