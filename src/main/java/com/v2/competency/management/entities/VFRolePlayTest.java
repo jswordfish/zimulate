@@ -7,8 +7,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 
-import com.poiji.annotation.ExcelCellName;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -80,4 +78,8 @@ public class VFRolePlayTest extends Base{
 	String aiPersona;
 	
 	String rolePlayType;
+	
+	Boolean notShowCustomPersona;
+	
+	
 }
