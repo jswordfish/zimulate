@@ -1,10 +1,6 @@
 package com.v2.competency.management.dtos;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.poiji.annotation.ExcelCellName;
-import com.v2.competency.management.entities.RolePlayPersonaMapping;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -91,5 +87,5 @@ public class RolePlayTestDto {
 	@ExcelCellName(value = "Roleplay Type")
 	String rolePlayType;
 	
-
+	Boolean notShowCustomPersona;
 }

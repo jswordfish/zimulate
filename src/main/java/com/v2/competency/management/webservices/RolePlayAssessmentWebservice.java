@@ -183,6 +183,7 @@ Map<String, List<String>> map = new HashMap<>();
 			test.setAiPersona(dto.getAiPersona());
 			test.setUserPersona(dto.getUserPersona());
 			test.setRolePlayType(dto.getRolePlayType());
+			test.setNotShowCustomPersona(dto.getNotShowCustomPersona());
 			tests.add(test);
 		}
 		return tests; 

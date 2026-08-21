@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
@@ -21,13 +23,16 @@ import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.dtos.WorkFlowDto;
 import com.v2.competency.management.dtos.WorkflowNodeDto;
 import com.v2.competency.management.dtos.WorkflowNodeType;
+import com.v2.competency.management.dtos.WorkflowUpdateStatusDto;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.entities.WorkflowNode;
+import com.v2.competency.management.entities.WorkflowSession;
 import com.v2.competency.management.entities.ZimulateWorkflow;
 import com.v2.competency.management.repos.VFRolePlayTestRepo;
 import com.v2.competency.management.repos.VideoAgentRepo;
 import com.v2.competency.management.repos.WorkflowNodeRepo;
+import com.v2.competency.management.repos.WorkflowSessionRepo;
 import com.v2.competency.management.repos.ZimulateWorkflowRepo;
 import com.v2.competency.management.service.WorkflowNodeService;
 import com.v2.competency.management.service.ZimulateWorkflowService;
@@ -52,6 +57,9 @@ public class WorkFlowController {
 	
 	@Autowired
 	WorkflowNodeRepo nodeRepo;
+	
+	@Autowired
+	WorkflowSessionRepo workflowSessionRepo;
 	
 	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
 	
@@ -100,17 +108,38 @@ public class WorkFlowController {
 		return ResponseEntity.ok(convert(workflowService.saveOrUpdate(flow)));
 	}
 	
-	@RequestMapping(value = "/findAllWorkflows", method = RequestMethod.GET)
+	@RequestMapping(
+	        value = "/findAllWorkflows",
+	        method = RequestMethod.GET
+	)
 	public ResponseEntity<PaginatedResponseDto> findAllWorkflows(
-	        @RequestParam String token,
-	        @RequestParam String companyId,
-	        @RequestParam(required = false) String search,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size) throws IOException {
 
-	    PaginatedResponseDto paginatedResponse = workflowService.findAllWorkflows(companyId, search, page, size);
+	        @RequestParam
+	        String token,
 
-	    return ResponseEntity.ok(paginatedResponse);
+	        @RequestParam
+	        String companyId,
+
+	        @RequestParam(required = false)
+	        String search,
+
+	        @RequestParam(defaultValue = "0")
+	        int page,
+
+	        @RequestParam(defaultValue = "10")
+	        int size) throws IOException {
+
+	    PaginatedResponseDto paginatedResponse =
+	            workflowService.findAllWorkflows(
+	                    companyId,
+	                    search,
+	                    page,
+	                    size
+	            );
+
+	    return ResponseEntity.ok(
+	            paginatedResponse
+	    );
 	}
 	
 	@GetMapping("/canUpdateOrDeleteWorkFlow")
@@ -149,6 +178,33 @@ public class WorkFlowController {
                 "Workflow deleted successfully"
         );
     }
+    
+	@RequestMapping(value = "/checkWorkflowEditStatus", method = RequestMethod.GET)
+	public ResponseEntity<WorkflowUpdateStatusDto> checkWorkflowEditStatus(@RequestParam String token,
+	        @RequestParam Long workflowId){
+			
+		ZimulateWorkflow workflow =  workflowRepo.findById(workflowId).get();
+		if(workflow==null) {
+			throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Workflow not found"
+            );
+		}
+		WorkflowUpdateStatusDto dto = WorkflowUpdateStatusDto.builder().build();
+//		boolean canUpdate = false;
+			if(workflow.getComplete() == null || (!workflow.getComplete()) ) {
+				dto.setCanBeUpdated(true);
+			}
+			else dto.setCanBeUpdated(false);
+			
+			List<WorkflowSession> session = workflowSessionRepo.findByWorkflowIdAndCompanyId(workflowId, workflow.getCompanyId());
+			dto.setCanBeDeleted(session.isEmpty());
+			//add delete check
+		return ResponseEntity.ok(dto);
+		
+	}
+	
+	///deleet api add
 	
 	private WorkflowNode validateAndTransform(WorkflowNodeDto workflowNode) {
 		WorkflowNode actual =   WorkflowNode.builder().build();

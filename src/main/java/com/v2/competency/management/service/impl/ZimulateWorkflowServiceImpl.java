@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
+import com.v2.competency.management.dtos.WorkFlowDto;
 import com.v2.competency.management.entities.Tenant;
 import com.v2.competency.management.entities.ZimulateWorkflow;
 import com.v2.competency.management.repos.ZimulateWorkflowRepo;
@@ -115,13 +116,7 @@ public class ZimulateWorkflowServiceImpl implements ZimulateWorkflowService{
         }
 
         
-        if (Boolean.TRUE.equals(workflow.get().getComplete())) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Completed workflow cannot be deleted"
-            );
-        }
+        
 
         repo.delete(workflow.get());
     }
@@ -139,19 +134,45 @@ public class ZimulateWorkflowServiceImpl implements ZimulateWorkflowService{
 	        int size) {
 
 	    Pageable pageable = PageRequest.of(page, size);
-	    Page<ZimulateWorkflow> workflowPage = repo.findAllWorkflows(companyId, search, pageable);
 
-	    PaginatedResponseDto dto = new PaginatedResponseDto();
-	    
-	    int recordsFrom = workflowPage.getTotalElements() == 0 ? 0 : (page * size) + 1;
-	    int recordsTo = Math.min((page + 1) * size, (int) workflowPage.getTotalElements());
+	    Page<WorkFlowDto> workflowPage =
+	            repo.findAllWorkflowsDto(
+	                    companyId,
+	                    search,
+	                    pageable
+	            );
+
+	    PaginatedResponseDto dto =
+	            new PaginatedResponseDto();
+
+	    int recordsFrom =
+	            workflowPage.getTotalElements() == 0
+	                    ? 0
+	                    : (page * size) + 1;
+
+	    int recordsTo =
+	            Math.min(
+	                    (page + 1) * size,
+	                    (int) workflowPage.getTotalElements()
+	            );
 
 	    dto.setRecordsFrom(recordsFrom);
+
 	    dto.setRecordsTo(recordsTo);
-	    dto.setTotalNumberOfRecords((int) workflowPage.getTotalElements());
-	    dto.setTotalNumberOfPages(workflowPage.getTotalPages());
+
+	    dto.setTotalNumberOfRecords(
+	            (int) workflowPage.getTotalElements()
+	    );
+
+	    dto.setTotalNumberOfPages(
+	            workflowPage.getTotalPages()
+	    );
+
 	    dto.setSelectedPage(page);
-	    dto.setList(workflowPage.getContent());
+
+	    dto.setList(
+	            workflowPage.getContent()
+	    );
 
 	    return dto;
 	}

@@ -1,5 +1,7 @@
 package com.v2.competency.management.repos;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +14,12 @@ public interface WorkflowSessionRepo extends CrudRepository<WorkflowSession, Lon
 	
 	@Query("select w from WorkflowSession w where w.companyId=:companyId  and w.workflow.id=:workFlowId and w.email=:email")
 	public WorkflowSession findUniqueWorkflowSession( @Param("workFlowId") Long workFlowId, @Param("email")  String email,  @Param("companyId")  String companyId);
+	
+	@Query("select w from WorkflowSession w where w.companyId=:companyId and w.workflow.id=:workFlowId")
+	public List<WorkflowSession> findByWorkflowIdAndCompanyId(
+	    @Param("workFlowId") Long workFlowId, 
+	    @Param("companyId") String companyId
+	);
 	
 	@Query("select w from WorkflowSession w where w.companyId=:companyId")
 	public Page<WorkflowSession> findAllWorkflowSessionByCompanyId(@Param("companyId") String companyId, Pageable pageable);
