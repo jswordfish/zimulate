@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -110,6 +112,43 @@ public class WorkFlowController {
 
 	    return ResponseEntity.ok(paginatedResponse);
 	}
+	
+	@GetMapping("/canUpdateOrDeleteWorkFlow")
+    public ResponseEntity<Boolean> canUpdateOrDeleteWorkflow(
+
+            @RequestParam Long workflowId,
+
+            @RequestParam String companyId,
+
+            @RequestParam String token) {
+
+        return ResponseEntity.ok(
+        		workflowService.canUpdateOrDeleteWorkflow(
+                        workflowId,
+                        companyId
+                )
+        );
+    }
+
+
+    @DeleteMapping("/workflow-delete")
+    public ResponseEntity<?> deleteWorkflow(
+
+            @RequestParam Long workflowId,
+
+            @RequestParam String companyId,
+
+            @RequestParam String token) {
+
+    	workflowService.deleteWorkflow(
+                workflowId,
+                companyId
+        );
+
+        return ResponseEntity.ok(
+                "Workflow deleted successfully"
+        );
+    }
 	
 	private WorkflowNode validateAndTransform(WorkflowNodeDto workflowNode) {
 		WorkflowNode actual =   WorkflowNode.builder().build();

@@ -19,5 +19,18 @@ public interface ZimulateWorkflowService {
 		        String search,
 		        int page,
 		        int size);
+	 
+	 
+
+	 boolean canUpdateOrDeleteWorkflow(
+	            Long workflowId,
+	            String companyId
+	    );
+
+	    void deleteWorkflow(
+	            Long workflowId,
+	            String companyId
+	    );
+		
 
 }

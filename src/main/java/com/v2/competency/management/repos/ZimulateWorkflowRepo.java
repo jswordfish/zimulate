@@ -1,12 +1,13 @@
 package com.v2.competency.management.repos;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import com.v2.competency.management.entities.Question;
 import com.v2.competency.management.entities.ZimulateWorkflow;
 
 public interface ZimulateWorkflowRepo extends CrudRepository<ZimulateWorkflow, Long> {
@@ -30,6 +31,11 @@ public interface ZimulateWorkflowRepo extends CrudRepository<ZimulateWorkflow, L
 		        @Param("companyId") String companyId,
 		        @Param("search") String search,
 		        Pageable pageable);
+	 
+	 Optional<ZimulateWorkflow> findByIdAndCompanyId(
+	            Long id,
+	            String companyId
+	    );
 	 
 
 }
