@@ -1,10 +1,7 @@
 package com.v2.competency.management.service.impl;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -17,7 +14,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.v2.competency.management.config.ApiKeyProperties;
 import com.v2.competency.management.dtos.GenericApiRequest;
 import com.v2.competency.management.entities.ApiProvider;
 import com.v2.competency.management.service.MiscellaneousService;
@@ -59,7 +55,6 @@ public class GenericApiProxyService {
         // since the properties file key isn't set up in this environment yet.
         if ((apiKey == null || apiKey.isEmpty()) && provider == ApiProvider.ELEVEN_LABS) {
             log.warn("Using HARDCODED ElevenLabs API key for testing — remove this before deploying!");
-            apiKey = config.getElevenLabsKey();
         }
 
         if (apiKey == null || apiKey.isEmpty()) {

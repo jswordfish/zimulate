@@ -58,9 +58,6 @@ public class PropertyConfig {
 	@Value("${roleplay.result.url}")
 	String rolePlayResultBaseUrl;;
 	
-	@Value("${elevenlabs.api.key}")
-	String elevenLabsKey;
-	
 	@Value("${elevenlabs.api.base.url}")
 	String elevenLabsApiUrl;
 	
@@ -198,13 +195,6 @@ public class PropertyConfig {
 		this.rolePlayResultBaseUrl = rolePlayResultBaseUrl;
 	}
 
-	public String getElevenLabsKey() {
-		return elevenLabsKey;
-	}
-
-	public void setElevenLabsKey(String elevenLabsKey) {
-		this.elevenLabsKey = elevenLabsKey;
-	}
 
 	public String getElevenLabsApiUrl() {
 		return elevenLabsApiUrl;
