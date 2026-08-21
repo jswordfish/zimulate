@@ -19,6 +19,7 @@ import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.dtos.WorkFlowDto;
 import com.v2.competency.management.dtos.WorkflowNodeDto;
 import com.v2.competency.management.dtos.WorkflowNodeType;
+import com.v2.competency.management.dtos.WorkflowUpdateStatusDto;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.entities.WorkflowNode;
@@ -110,6 +111,24 @@ public class WorkFlowController {
 
 	    return ResponseEntity.ok(paginatedResponse);
 	}
+	
+	@RequestMapping(value = "/checkWorkflowEditStatus", method = RequestMethod.GET)
+	public ResponseEntity<WorkflowUpdateStatusDto> checkWorkflowEditStatus(@RequestParam String token,
+	        @RequestParam Long workflowId){
+			
+		ZimulateWorkflow workflow =  workflowRepo.findById(workflowId).get();
+		WorkflowUpdateStatusDto dto = WorkflowUpdateStatusDto.builder().build();
+		boolean canUpdate = false;
+			if(workflow.getComplete() == null || (!workflow.getComplete()) ) {
+				dto.setCanBeUpdated(true);
+			}
+			
+			//add delete check
+		return null;
+		
+	}
+	
+	///deleet api add
 	
 	private WorkflowNode validateAndTransform(WorkflowNodeDto workflowNode) {
 		WorkflowNode actual =   WorkflowNode.builder().build();
