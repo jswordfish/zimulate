@@ -24,13 +24,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.googlecloud.vertex.ai.roleplay.insights.dto.RolePlayInsightsDto;
-import com.googlecloud.vertex.ai.roleplay.insights.dto.RoleplayInsightsDetail;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.repos.RolePlayQuestionAnswerRepo;
+import com.v2.competency.management.repos.VFRolePlayTestRepo;
 import com.v2.competency.management.service.ASyncAIInsightsGenService;
 import com.v2.competency.management.service.GeminiAudioVideoService;
 import com.v2.competency.management.service.RelevancyCheckerService;
@@ -79,7 +78,8 @@ public class RolePlayStreamingWebService {
 	@Autowired
 	QueueManager queueManager; 
 	
-	
+	@Autowired
+	VFRolePlayTestRepo testRepo;
 	
 	String unifiedRolePlayInsightsPrompt = 
 		    "You are provided with a role play interview for a Customer Service Executive, which includes both a **video recording** and its **transcript**." + System.lineSeparator() +
@@ -266,17 +266,64 @@ public class RolePlayStreamingWebService {
 	//videoLink stats with 'https' while googleBucketPath starts with 'gs..'
 	@PostMapping("/submit-video-google")
 	public ResponseEntity<String> submitGoogleFullVideoForAnalysis(
-		@RequestParam String persona,
-	    @RequestParam String email,
-	    @RequestParam String firstName,
-	    @RequestParam String lastName,
-	    @RequestParam String testName,
-	    @RequestParam Integer attempt,
-	    @RequestParam String companyId,
-	    @RequestParam String googleBucketPath, @RequestParam String token, @RequestParam(required = false) String location,
-	    @RequestParam(required = false) String model, @RequestParam(required = false) String videoLink, @RequestParam(required = false) Long workflowSessionId) {
-		System.out.println("in submit-video-google ");
-		aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(persona, email, firstName, lastName, testName, attempt, companyId, googleBucketPath, location, model, videoLink, workflowSessionId);
+
+	        @RequestParam String persona,
+	        @RequestParam String email,
+	        @RequestParam String firstName,
+	        @RequestParam String lastName,
+	        @RequestParam String testName,
+	        @RequestParam Integer attempt,
+	        @RequestParam String companyId,
+	        @RequestParam String googleBucketPath,
+	        @RequestParam String token,
+	        @RequestParam(required = false) String location,
+	        @RequestParam(required = false) String model,
+	        @RequestParam(required = false) String videoLink,
+	        @RequestParam(required = false) Long workflowSessionId,
+	        @RequestParam(required = false) String transcript) {
+
+	    System.out.println("in submit-video-google ");
+
+	    VFRolePlayTest test = testRepo.findUniqueRecord(testName, companyId);
+
+	    if (test == null) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "Test not found");
+	    }
+
+	    if (Boolean.TRUE.equals(test.getIsTranscriptBasedAnalysis())) {
+
+	        aSyncAIInsightsGenService.submitGoogleFullTranscriptForAnalysis(
+	                persona,
+	                email,
+	                firstName,
+	                lastName,
+	                testName,
+	                attempt,
+	                companyId,
+	                location,
+	                model,
+	                transcript,
+	                workflowSessionId);
+
+	    } else {
+
+	        aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(
+	                persona,
+	                email,
+	                firstName,
+	                lastName,
+	                testName,
+	                attempt,
+	                companyId,
+	                googleBucketPath,
+	                location,
+	                model,
+	                videoLink,
+	                workflowSessionId);
+	    }
+
 	    return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
@@ -304,7 +351,7 @@ public class RolePlayStreamingWebService {
 	    @RequestParam String testName,
 	    @RequestParam Integer attempt,
 	    @RequestParam String companyId,
-	    @RequestParam String token) {
+	    @RequestParam (required = false) String token) {
 		VFRolePlayTestSession session =  rolePlayTestSessionService.findVFRolePlayTestSessionByEmail(email, companyId, testName, attempt);
 			if(session != null) {
 				return ResponseEntity.ok(session);

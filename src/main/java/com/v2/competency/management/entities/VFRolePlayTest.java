@@ -62,6 +62,8 @@ public class VFRolePlayTest extends Base{
 	
 	Boolean published;
 	
+	Boolean isTranscriptBasedAnalysis;
+	
 	@Column(name = "default_question_prompt", length = 2500)
 	String defaultQuestionPrompt;
 	

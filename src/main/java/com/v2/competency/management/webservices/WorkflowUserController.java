@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -429,7 +430,7 @@ public class WorkflowUserController {
     		@RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "10") int size, 
 	        @RequestParam String email){
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 		List<WorkflowSession> sessions =  workflowSessionService.findAllWorkflowSessionForUserByCompanyId(companyId, email, pageable).getContent();
 		return ResponseEntity.ok(sessions);
 	}

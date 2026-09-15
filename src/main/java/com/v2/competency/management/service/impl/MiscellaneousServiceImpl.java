@@ -28,6 +28,8 @@ public class MiscellaneousServiceImpl implements MiscellaneousService{
 	@Override
 	public String getValue(String key) {
 		
+		System.out.println("custom properties path : " + config.getCustomPropertiesPath().toString());
+		
 		if(customPropertiesMap.size() == 0) {
 			try {
 				List<String> lines = FileUtils.readLines(new File(config.getCustomPropertiesPath()), StandardCharsets.UTF_8);

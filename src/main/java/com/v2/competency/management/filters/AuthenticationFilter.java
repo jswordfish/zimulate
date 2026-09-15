@@ -100,6 +100,11 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("fetch-roleplay-results")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    System.out.println("url is "+url);	
 		    String token = httpRequest.getParameter("token");
 		    Enumeration<String> headerNames = httpRequest.getHeaderNames();

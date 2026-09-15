@@ -261,7 +261,7 @@ public class AI_Platform_AssessmentMapperWebService {
 	                                                              @RequestParam String emails,    
 	                                                              @RequestParam String testNames,
 	                                                              @RequestParam String managerEmail
-	                                                              )  
+	                                                              )
 	        throws Exception {
 
 	    Tenant tenant = tenantService.findTenantByCompanyId(companyId);

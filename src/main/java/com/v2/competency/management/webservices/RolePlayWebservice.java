@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
@@ -42,13 +40,14 @@ import com.v2.competency.management.dtos.InitRolePlayTestDTO;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.dtos.RolePlaySessionContainerDto;
 import com.v2.competency.management.dtos.RoleplayTestSessionMetaData;
+import com.v2.competency.management.dtos.SystemPromptGenerationResponse;
+import com.v2.competency.management.dtos.UpdateSystemPromptRequest;
 import com.v2.competency.management.entities.RolePlayQuestionAnswer;
 import com.v2.competency.management.entities.RolePlayQuestionFollowUpLevel;
 import com.v2.competency.management.entities.RoleplayDifficultyLevel;
 import com.v2.competency.management.entities.User;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
-import com.v2.competency.management.entities.VideoAgent;
 import com.v2.competency.management.repos.RolePlayQuestionAnswerRepo;
 import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.service.ASyncAIInsightsGenService;
@@ -146,6 +145,65 @@ public class RolePlayWebservice {
 				sessions.add(vfRolePlayTestSessionRepo.findById(id).get());
 			}
 		return ResponseEntity.ok(sessions);
+	}
+	
+	@GetMapping("/roleplay-attempts")
+	public ResponseEntity<PaginatedResponseDto> getRolePlayAttempts(
+
+	        @RequestParam String companyId,
+
+	        @RequestParam(required = false) String email,
+
+	        @RequestParam String testName,
+
+	        @RequestParam(required = false) String search,
+
+	        @RequestParam String token,
+
+	        @RequestParam(defaultValue = "0") int page,
+
+	        @RequestParam(defaultValue = "10") int size) {
+
+	    return ResponseEntity.ok(
+	    		rolePlayTestSessionService.getLatestRolePlayAttempts(
+	                    companyId,
+	                    email,
+	                    testName,
+	                    search,
+	                    page,
+	                    size
+	            )
+	    );
+	}
+	
+	@PostMapping("/update-system-prompt")
+	public ResponseEntity<SystemPromptGenerationResponse> updateSystemPrompt(
+	        @RequestBody UpdateSystemPromptRequest request,
+	        @RequestParam String token) {
+
+	    System.out.println("in update-system-prompt");
+
+	    CompletableFuture<String> updatedPromptFuture =
+	            CompletableFuture.supplyAsync(() ->
+	                    aSyncAIInsightsGenService.updateSystemPrompt(
+	                            request.getCurrentSystemPrompt(),
+	                            request.getUserFeedback()));
+
+	    CompletableFuture<String> oppositionPromptFuture =
+	            CompletableFuture.supplyAsync(() ->
+	                    aSyncAIInsightsGenService.generateOppositionAgentPrompt(
+	                            request.getCurrentSystemPrompt(),
+	                            request.getUserPersona(),
+	                            request.getRolePlayObjective()));
+
+	    CompletableFuture.allOf(updatedPromptFuture, oppositionPromptFuture).join();
+
+	    SystemPromptGenerationResponse response =
+	            new SystemPromptGenerationResponse(
+	                    updatedPromptFuture.join(),
+	                    oppositionPromptFuture.join());
+
+	    return ResponseEntity.ok(response);
 	}
     
     @PostMapping("/allRolePlayAnswersForRolePlayTestForUser")

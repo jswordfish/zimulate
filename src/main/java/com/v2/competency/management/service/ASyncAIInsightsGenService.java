@@ -19,6 +19,15 @@ public interface ASyncAIInsightsGenService {
 	
 	public void generateInsightsForRolePlayBasedAssessmentWithUnifiedPromptInAsyncDJ(String testName, String email, String companyId, VFRolePlayTestSession rolePlayTestSession, String mergedVideoPath);
 	
+	String updateSystemPrompt(
+	        String currentSystemPrompt,
+	        String userFeedback);
+	
+	String generateOppositionAgentPrompt(
+			String primaryAgentSystemPrompt,
+			String userPersona,
+			String rolePlayObjective);
+	
 	public void submitGoogleFullVideoForAnalysis(
 			String persona,
 		    String email,
@@ -30,6 +39,19 @@ public interface ASyncAIInsightsGenService {
 		    String googleBucketPath, 
 		    String location,
 		    String model, String videoLink, Long workflowSessionId);
+	
+	public void submitGoogleFullTranscriptForAnalysis(
+	        String persona,
+	        String email,
+	        String firstName,
+	        String lastName,
+	        String testName,
+	        Integer attempt,
+	        String companyId,
+	        String location,
+	        String model,
+	        String transcript,
+	        Long workflowSessionId);
 	
 	public void submitGoogleFullVideoForAnalysisSync(
 			String persona,

@@ -62,13 +62,18 @@ public class MailJetEmailService implements EmailService{
         }
         
     	Map<String, String> variables = new HashMap<>();
-    	String resultPage = config.getRolePlayResultBaseUrl()+companyId+"&email="+URLEncoder.encode(email)+"&roleplay="+URLEncoder.encode(roleplay)+"&attempt="+attempt
-    			+"&firstName="+URLEncoder.encode(firstName)+"&lastName="+URLEncoder.encode(lastName);
+    	String rawParams = companyId + "&email=" + URLEncoder.encode(email) + "&roleplay=" + URLEncoder.encode(roleplay) + "&attempt=" + attempt
+    	        + "&firstName=" + URLEncoder.encode(firstName) + "&lastName=" + URLEncoder.encode(lastName);
+
+    	String encodedParams = java.util.Base64.getUrlEncoder().encodeToString(rawParams.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+    	String resultPage = config.getRolePlayResultBaseUrl() + encodedParams;
     			
         variables.put("result_url", resultPage);
         variables.put("firstname", firstName);
         variables.put("roleplay", roleplay);
         variables.put("attempt", ""+attempt);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
         variables.put("time", dateFormat.format(new Date()));
         variables.put("persona", persona);
         

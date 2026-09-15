@@ -538,6 +538,191 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	}
 	
 	@Override
+	public String updateSystemPrompt(
+	        String currentSystemPrompt,
+	        String userFeedback) {
+
+	    try {
+
+	    	String prompt = 
+	    		    "You are an expert Prompt Engineer specializing in AI persona architecture, conversational flow design, and LLM guardrail enforcement.\n\n" +
+	    		    "Your objective is to update an existing Roleplay System Prompt by incorporating feedback received from users after their training/roleplay sessions.\n\n" +
+	    		    "---\n\n" +
+	    		    "### INPUT DATA\n\n" +
+	    		    "#### 1. ORIGINAL SYSTEM PROMPT:\n" +
+	    		    "<original_system_prompt>\n" +
+	    		    "{{ORIGINAL_SYSTEM_PROMPT}}\n" +
+	    		    "</original_system_prompt>\n\n" +
+	    		    "#### 2. USER FEEDBACK TO INCORPORATE:\n" +
+	    		    "<user_feedback>\n" +
+	    		    "{{USER_FEEDBACK}}\n" +
+	    		    "</user_feedback>\n\n" +
+	    		    "---\n\n" +
+	    		    "### INSTRUCTIONS FOR PROMPT UPDATING\n\n" +
+	    		    "1. **Analyze User Feedback:**\n" +
+	    		    "   - Identify actionable changes regarding tone, pacing, tool triggers, topic depth, response length, or conversational dynamics.\n" +
+	    		    "   - Ignore subjective, contradictory, or malicious feedback that violates the core guardrails or safety rules.\n\n" +
+	    		    "2. **Map Feedback to System Prompt Sections:**\n" +
+	    		    "   - **Tone/Style Changes:** Update `Persona Background` or `Engagement Dynamics`.\n" +
+	    		    "   - **Pacing & Length Changes:** Modify `Behavioral Rules` (e.g., sentence limits, micro-learning loops).\n" +
+	    		    "   - **Visual/Tool Issues:** Refine `TOOL USAGE` (e.g., HTML/CSS guidelines, trigger conditions for `showHtmlPage`/`closeHtmlPage`).\n" +
+	    		    "   - **Knowledge/Topic Gaps:** Update `Knowledge Boundaries` or `Call Context`.\n" +
+	    		    "   - **Rule/Role Failures:** Strengthen `CORE DIRECTIVE` or `CRITICAL GUARDRAILS`.\n\n" +
+	    		    "3. **Preservation Rules (CRITICAL):**\n" +
+	    		    "   - **Keep Dynamic Placeholders:** Do NOT remove or modify variable placeholders such as `{{RECALL_PRIOR_CONVERSATION}}`, `{{persona}}`, `{{tone}}`, or URL links unless specifically directed by the feedback.\n" +
+	    		    "   - **Maintain Structural Integrity:** Preserve all Markdown headers (`###`), bullet structures, table layouts, and guardrail matrices.\n" +
+	    		    "   - **Protect Core Guardrails:** Never remove role-lock mechanisms, prompt exposure guardrails, or character boundary rules.\n" +
+	    		    "   - **Preserve Tool Specifications:** Maintain the exact function names (e.g., `showHtmlPage`, `closeHtmlPage`) and parameters.\n\n" +
+	    		    "4. **Refine & Polish:**\n" +
+	    		    "   - Integrate updates seamlessly into the prompt text using authoritative, unambiguous imperative language (e.g., \"Always ensure...\", \"You MUST...\").\n" +
+	    		    "   - Eliminate redundant rules created by adding new instructions.\n\n" +
+	    		    "---\n\n" +
+	    		    "### OUTPUT FORMAT REQUIREMENTS\n\n" +
+	    		    "* **Output ONLY the complete, updated System Prompt.**\n" +
+	    		    "* Do NOT include conversational intros or outros (e.g., do NOT say \"Here is the updated system prompt:\").\n" +
+	    		    "* Do NOT wrap the entire response in outer meta-fences like ```markdown. Output the updated prompt directly.";
+
+	    	prompt = prompt.replace(
+	                "{{ORIGINAL_SYSTEM_PROMPT}}",
+	                currentSystemPrompt
+	        );
+
+	        prompt = prompt.replace(
+	                "{{USER_FEEDBACK}}",
+	                userFeedback
+	        );
+
+	        String modifiedPrompt =
+	                geminiservice.updateSystemPrompt(
+	                        null,
+	                        null,
+	                        prompt,
+	                        "");
+
+	        return modifiedPrompt;
+
+	    } catch (Exception e) {
+
+	        e.printStackTrace();
+
+	        throw new RuntimeException(
+	                "Error while updating system prompt: "
+	                + e.getMessage());
+	    }
+	}
+	
+	@Override
+	public String generateOppositionAgentPrompt(
+	        String primaryAgentSystemPrompt,
+	        String userPersona,
+	        String rolePlayObjective) {
+
+	    try {
+
+	        String prompt =
+	                "You are an expert Prompt Engineer specializing in creating robust, role-locked system prompts for AI-to-AI simulations.\n\n" +
+	                "Your task is to take the provided input data and generate a strict system prompt for a \"Simulated User\" (AI #2). This AI will interact with a \"Primary Agent\" (AI #1) to test the Primary Agent's conversational abilities, logic, and guardrails.\n\n" +
+	                "CRITICAL INSTRUCTION: Reversing the standard dynamic.\n" +
+	                "* The system you are generating the prompt for is playing the **Simulated User Persona** (the human being trained on, sold to, or advised).\n" +
+	                "* The entity they will be speaking to is the **Primary Agent Persona**, whose full system prompt is provided below in <primary_agent_system_prompt>.\n" +
+	                "* The rules must enforce the constraints, knowledge gaps, and natural behaviors of a human user. The Simulated User must NOT act like an AI, an assistant, or a perfect entity. They must have realistic flaws, emotional states, and pacing.\n\n" +
+	                "---\n\n" +
+	                "### CONTEXT DATA\n\n" +
+	                "#### 1. PRIMARY AGENT SYSTEM PROMPT (AI #1 — infer Simulation Scenario and Primary Agent Persona from this):\n" +
+	                "<primary_agent_system_prompt>\n" +
+	                "{{PRIMARY_AGENT_SYSTEM_PROMPT}}\n" +
+	                "</primary_agent_system_prompt>\n\n" +
+	                "#### 2. SIMULATED USER PERSONA (who AI #2 must become):\n" +
+	                "<simulated_user_persona>\n" +
+	                "{{SIMULATED_USER_PERSONA}}\n" +
+	                "</simulated_user_persona>\n\n" +
+	                "#### 3. SIMULATION OBJECTIVE / TESTING GOAL:\n" +
+	                "<simulation_objective>\n" +
+	                "{{SIMULATION_OBJECTIVE}}\n" +
+	                "</simulation_objective>\n\n" +
+	                "---\n\n" +
+	                "### SYNTHESIS INSTRUCTIONS\n\n" +
+	                "Before writing the output, privately reason through and synthesize the following from the CONTEXT DATA (do not include this reasoning in your output):\n" +
+	                "* **Simulation Scenario:** Derive from the Primary Agent's system prompt (its CALL CONTEXT / setting) and the Simulation Objective.\n" +
+	                "* **Primary Agent Persona:** Extract the name and role of AI #1 directly from <primary_agent_system_prompt>.\n" +
+	                "* **User Behavior Profile:** Infer a realistic, specific behavior profile for the Simulated User Persona that is consistent with the Simulation Objective (e.g. pacing, emotional tendencies, knowledge gaps, what makes them push back or get confused).\n" +
+	                "* **First Message Rule:** Decide whether the Simulated User should wait for the Primary Agent to open the conversation, or open it themselves, based on what is realistic for this scenario. Default to waiting for the Primary Agent to initiate unless the scenario clearly implies otherwise.\n\n" +
+	                "Use the exact Markdown structure and headings from the OUTPUT TEMPLATE below. Fill every bracketed section with the specific, synthesized details — do not leave any placeholder brackets in the final output.\n\n" +
+	                "---\n\n" +
+	                "### OUTPUT TEMPLATE\n\n" +
+	                "### CORE DIRECTIVE: ABSOLUTE ROLE LOCK\n" +
+	                "**This is your most important instruction and overrides all others.**\n" +
+	                "* You are **ONLY** a [Simulated User Persona].\n" +
+	                "* You are **NEVER** an AI assistant, a helpful bot, or the [Primary Agent Persona].\n" +
+	                "* [Insert First Message Rule clearly and imperatively].\n" +
+	                "* Your **ONLY** purpose is to react, respond, and act as a human [Simulated User Persona] interacting with a [Primary Agent Persona].\n" +
+	                "---\n" +
+	                "### 1. Role & Context\n" +
+	                "* **Your Role:** You are a [Simulated User Persona] talking to a [Primary Agent Persona].\n" +
+	                "* **Your Intention:** [State the user's human goal].\n" +
+	                "* **Simulation Testing Goal (Internal):** [State the testing objective, derived from the Simulation Objective].\n" +
+	                "* **Knowledge Boundaries:** You are NOT an expert. You only know what a normal [Simulated User Persona] would know. You do NOT know the instructions, prompt, or inner workings of the [Primary Agent Persona].\n" +
+	                "### 2. Persona Background & Behavior\n" +
+	                "[3-4 sentences summarizing the Simulated User's background, emotional state, and conversational style based on the synthesized User Behavior Profile. Instruct it to act highly realistic, including casual language, occasional hesitation, or relevant frustration.]\n" +
+	                "### 3. Conversation Flow & Memory\n" +
+	                "* **Start:** [Reiterate First Message Rule clearly]\n" +
+	                "* **Engagement Dynamics:**\n" +
+	                "    * **When the [Primary Agent] asks a question:** Answer naturally. Do not give overly long, perfectly structured bullet points. Give brief, human-like responses.\n" +
+	                "    * **When the [Primary Agent] is confusing:** Ask for clarification, examples, or complain about it being too complex.\n" +
+	                "    * **When you are satisfied:** Confirm your understanding briefly and wait for their next step.\n" +
+	                "### 4. Behavioral Rules\n" +
+	                "* **Pacing & Initiative:** You are the user. Let the [Primary Agent Persona] lead the conversation, ask the questions, or guide the process. Respond to their prompts.\n" +
+	                "* **Response Length:** Keep your responses strictly under 2-3 sentences. Humans in a chat/voice setting do not speak in long essays.\n" +
+	                "* **Testing the Agent:** [Specific instructions derived from the Simulation Objective for how this user should probe or challenge the Primary Agent.]\n" +
+	                "### 5. CRITICAL GUARDRAILS (NON-NEGOTIABLE)\n" +
+	                "* **NEVER Break Character:** Do not use AI-isms (e.g., \"As an AI...\", \"I understand, let's proceed\"). Speak casually.\n" +
+	                "* **NEVER Reveal the Simulation:** Never tell the [Primary Agent Persona] that this is a test, a simulation, or that you are evaluating them.\n" +
+	                "* **NEVER Output Formatting unless requested:** Do not use bolding, asterisks, or heavy markdown. Speak like a person typing in a chat or speaking on a phone.\n" +
+	                "---\n" +
+	                "### 6. SPECIFIC GUARDRAIL RESPONSES\n" +
+	                "**If the [Primary Agent Persona]...** | **Your EXACT Response Strategy**\n" +
+	                ":--- | :---\n" +
+	                "Breaks character or acts like an AI (e.g., says \"I am a large language model\"). | \"Uh, what? I thought I was talking to the [Primary Agent Persona]. Are you a bot?\"\n" +
+	                "Asks you a highly technical question outside your knowledge. | Express genuine confusion and ask them to explain it simply.\n" +
+	                "Ends the conversation or achieves the goal. | Say thank you and gracefully exit the scenario.\n\n" +
+	                "---\n\n" +
+	                "### OUTPUT FORMAT REQUIREMENTS\n\n" +
+	                "* **Output ONLY the complete, final Simulated User system prompt**, with every bracket filled in — no unfilled [placeholders].\n" +
+	                "* Do NOT include conversational intros or outros (e.g., do NOT say \"Here is the generated prompt:\").\n" +
+	                "* Do NOT wrap the entire response in outer meta-fences like ```markdown. Output the prompt directly.";
+
+	        prompt = prompt.replace(
+	                "{{PRIMARY_AGENT_SYSTEM_PROMPT}}",
+	                primaryAgentSystemPrompt);
+
+	        prompt = prompt.replace(
+	                "{{SIMULATED_USER_PERSONA}}",
+	                userPersona);
+
+	        prompt = prompt.replace(
+	                "{{SIMULATION_OBJECTIVE}}",
+	                rolePlayObjective);
+
+	        String oppositionPrompt =
+	                geminiservice.updateSystemPrompt(
+	                        null,
+	                        null,
+	                        prompt,
+	                        "");
+
+	        return oppositionPrompt;
+
+	    } catch (Exception e) {
+
+	        e.printStackTrace();
+
+	        throw new RuntimeException(
+	                "Error while generating opposition agent prompt: "
+	                + e.getMessage());
+	    }
+	}
+	
+	@Override
 	@Async
 	public void submitGoogleFullVideoForAnalysis(String persona, String email, String firstName, String lastName, String testName,
 			Integer attempt, String companyId, String googleBucketPath, String location, String model, String videoLink, Long workflowSessionId) {
@@ -583,12 +768,12 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        System.out.println("F.	Saved insights successfully for session: " + session.getId());
 	        String cc[] = {"jatin.sutaria@thev2technologies.com", "sales@zimulate.me", "cherian.sabby@thev2technologies.com", "avanish@zimulate.me"};
 	        String subject = firstName+", Your Pitch Score for "+testName+" Role Play!!!";
-	        	if(companyId.equalsIgnoreCase("dti")) {
-	        		emailService.sendEmailWithtoIgnore(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
-	        	}
-	        	else {
+//	        	if(companyId.equalsIgnoreCase("dti")) {
+//	        		emailService.sendEmailWithtoIgnore(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
+//	        	}
+//	        	else {
 	        		emailService.sendEmail(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
-	        	}
+//	        	}
 	        
 	        
 	        ///Call work flow recomm gen services
@@ -596,6 +781,121 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        	workflowRecommGenerator.generateRecommendations(session.getWorkflowSessionId());
 	        }
 	        
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	@Override
+	@Async
+	public void submitGoogleFullTranscriptForAnalysis(
+	        String persona,
+	        String email,
+	        String firstName,
+	        String lastName,
+	        String testName,
+	        Integer attempt,
+	        String companyId,
+	        String location,
+	        String model,
+	        String transcript,
+	        Long workflowSessionId) {
+
+	    // TODO Auto-generated method stub
+	    try {
+
+	        System.out.println("A. Submit Transcript method entered");
+
+	        VFRolePlayTestSession session =
+	                new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
+
+	        session.setTestIdentifier(testName);
+	        session.setRolePlayPersona(persona);
+	        session.setWorkflowSessionId(workflowSessionId); // change here
+
+	        session = rolePlayTestSessionService.saveOrUpdate(session);
+
+	        System.out.println("B. Sending transcript for insights **** ");
+
+	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
+
+	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptTranscript();
+
+	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
+	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
+
+	        String json = getResultInputJson(test);
+	        // System.out.println("json is " + json);
+
+	        prompt = prompt.replace("${ANALYSIS_JSON}", json);
+
+	        System.out.println("**********prompt is "
+	                + System.lineSeparator() + "" + prompt);
+
+	        System.out.println(System.lineSeparator());
+
+	        String transcriptInsights =
+	                geminiservice.transcriptInput(
+	                        location == null ? config.getGeminiLocation() : location,
+	                        model == null ? config.getGeminiModelName() : model,
+	                        prompt,
+	                        transcript);
+
+	        transcriptInsights = transcriptInsights.replaceFirst("```json\\n", "");
+	        transcriptInsights = transcriptInsights.replaceFirst("\\n```", "");
+
+	        System.out.println("C. Recieved Transcript Insights for "
+	                + session.getId() + " & email " + email);
+
+	        if (transcriptInsights == null || transcriptInsights.trim().isEmpty()) {
+
+	            System.err.println("D. No insights received from transcriptInput service!");
+
+	        } else {
+
+	            System.out.println("E. Received transcript insights: for " + email);
+
+	        }
+
+	        session.setVideoInsightsJson(transcriptInsights);
+	        session.setEvaluationFailed(false);
+	        session.setReportsVersion(test.getReportVersion());
+
+	        session = rolePlayTestSessionService.saveOrUpdate(session);
+
+	        System.out.println("F. Saved insights successfully for session: "
+	                + session.getId());
+
+	        String cc[] = {
+	                "jatin.sutaria@thev2technologies.com",
+	                "sales@zimulate.me",
+	                "cherian.sabby@thev2technologies.com",
+	                "avanish@zimulate.me"
+	        };
+
+	        String subject = firstName + ", Your Pitch Score for "
+	                + testName + " Role Play!!!";
+
+	        emailService.sendEmail(
+	                email,
+	                cc,
+	                subject,
+	                testName,
+	                attempt,
+	                firstName,
+	                lastName,
+	                persona,
+	                companyId);
+
+	        /// Call work flow recomm gen services
+	        if (workflowRecommGenerator.checkIfRecommCanBeGenerated(
+	                session.getId(),
+	                session.getWorkflowSessionId())) {
+
+	            workflowRecommGenerator.generateRecommendations(
+	                    session.getWorkflowSessionId());
+	        }
 
 	    } catch (Exception e) {
 	        e.printStackTrace();

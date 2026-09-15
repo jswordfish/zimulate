@@ -42,13 +42,11 @@ public interface ZimulateWorkflowRepo extends CrudRepository<ZimulateWorkflow, L
 		                "w.companyId, " +
 		                "w.complete, " +
 		                "w.navigationBack, " +
-
 		                "CASE " +
 		                "    WHEN w.complete IS NULL OR w.complete = false " +
 		                "    THEN true " +
 		                "    ELSE false " +
 		                "END, " +
-
 		                "CASE " +
 		                "    WHEN NOT EXISTS (" +
 		                "        SELECT ws.id " +
@@ -59,19 +57,16 @@ public interface ZimulateWorkflowRepo extends CrudRepository<ZimulateWorkflow, L
 		                "    THEN true " +
 		                "    ELSE false " +
 		                "END" +
-
 		                ") " +
-
 		                "FROM ZimulateWorkflow w " +
-
 		                "WHERE w.companyId = :companyId " +
-
 		                "AND (" +
 		                "    :search IS NULL OR :search = '' OR " +
 		                "    LOWER(w.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		                "    LOWER(w.objective) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
 		                "    LOWER(w.industry) LIKE LOWER(CONCAT('%', :search, '%'))" +
-		                ")",
+		                ") " +
+		                "ORDER BY w.id DESC",
 
 		        countQuery = "SELECT COUNT(w) " +
 		                     "FROM ZimulateWorkflow w " +

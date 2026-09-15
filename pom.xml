@@ -51,15 +51,10 @@
 		 </dependency>
 		
 	<dependency>
-	   <groupId>com.google.cloud</groupId>
-	   <artifactId>google-cloud-vertexai</artifactId>
-	 </dependency>
-	 
-	 <dependency>
-	  <groupId>com.google.cloud</groupId>
-	  <artifactId>google-cloud-vertexai</artifactId>
-	  <version>0.4.0</version>
-	</dependency>
+    <groupId>com.google.cloud</groupId>
+    <artifactId>google-cloud-vertexai</artifactId>
+    <version>0.4.0</version>
+</dependency>
 
 		
 		<dependency>

@@ -84,6 +84,7 @@ public class VFRolePlayTestServiceImpl implements VFRolePlayTestService{
 			else {
 				structureNew.setCreateDate(new Date());
 				test.setRoleplayAnalysisStructure(structureNew);
+				
 			}
 			
 			mapper.map(test, test2);

@@ -32,7 +32,7 @@ public class RoleplayAnalysisStructure extends Base{
 	@Column(length = 2500)
 	String analysisGenPromptHard;
 	
-
+	String analysisGenPromptTranscript;
 	
 	@OneToOne(mappedBy = "roleplayAnalysisStructure")
 	@JsonIgnore

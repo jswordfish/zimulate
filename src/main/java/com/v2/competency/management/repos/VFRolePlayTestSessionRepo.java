@@ -29,7 +29,30 @@ public interface VFRolePlayTestSessionRepo extends JpaRepository<VFRolePlayTestS
 	@Query("select v from VFRolePlayTestSession v where v.companyId=:companyId and v.testIdentifier=:testIdentifier and LOWER(v.email) LIKE LOWER(CONCAT('%', :containsText, '%'))")
 	public List<VFRolePlayTestSession> seatchEmailUserSessionsForTest(@Param("testIdentifier")  String testIdentifier, @Param("companyId") String companyId, @Param("containsText") String containsText);
 
-
+	@Query("SELECT s FROM VFRolePlayTestSession s " +
+		       "WHERE s.companyId = :companyId " +
+		       "AND s.testName = :testName " +
+		       "AND (:email IS NULL OR LOWER(s.email) = LOWER(:email)) " +
+		       "AND (" +
+		       ":search IS NULL " +
+		       "OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.testIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.testName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.videoLink) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.videoUrl) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.aiAnalysisLink) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.rolePlayPersona) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.difficultyLevel) LIKE LOWER(CONCAT('%', :search, '%')) " +
+		       "OR LOWER(s.reportsVersion) LIKE LOWER(CONCAT('%', :search, '%'))" +
+		       ")")
+		Page<VFRolePlayTestSession> findRolePlayAttempts(
+		        @Param("companyId") String companyId,
+		        @Param("testName") String testName,
+		        @Param("email") String email,
+		        @Param("search") String search,
+		        Pageable pageable);
 	
 	@Query("SELECT v FROM VFRolePlayTestSession v " +
 		       "WHERE v.companyId = :companyId " +

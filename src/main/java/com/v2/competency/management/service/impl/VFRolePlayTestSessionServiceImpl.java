@@ -6,11 +6,14 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.service.VFRolePlayTestSessionService;
@@ -57,6 +60,65 @@ public class VFRolePlayTestSessionServiceImpl implements VFRolePlayTestSessionSe
 			System.out.println("Updated session2 with id :- "+session2.getId());
 			return session2;
 		}
+	}
+	
+	@Override
+	public PaginatedResponseDto getLatestRolePlayAttempts(
+	        String companyId,
+	        String email,
+	        String testName,
+	        String search,
+	        int page,
+	        int size) {
+
+	    Pageable pageable = PageRequest.of(
+	            page,
+	            size,
+	            Sort.by("id").descending()
+	    );
+
+	    if (search != null && search.trim().isEmpty()) {
+	        search = null;
+	    }
+
+	    Page<VFRolePlayTestSession> pageResult =
+	            repo.findRolePlayAttempts(
+	                    companyId,
+	                    testName,
+	                    email,
+	                    search,
+	                    pageable
+	            );
+
+	    PaginatedResponseDto dto = new PaginatedResponseDto();
+
+	    dto.setSelectedPage(page);
+
+	    dto.setTotalNumberOfRecords(
+	            (int) pageResult.getTotalElements()
+	    );
+
+	    dto.setTotalNumberOfPages(
+	            pageResult.getTotalPages()
+	    );
+
+	    if (pageResult.getTotalElements() == 0) {
+	        dto.setRecordsFrom(0);
+	        dto.setRecordsTo(0);
+	    } else {
+	        dto.setRecordsFrom(page * size + 1);
+
+	        dto.setRecordsTo(
+	                Math.min(
+	                        (page + 1) * size,
+	                        (int) pageResult.getTotalElements()
+	                )
+	        );
+	    }
+
+	    dto.setList(pageResult.getContent());
+
+	    return dto;
 	}
 
 	@Override

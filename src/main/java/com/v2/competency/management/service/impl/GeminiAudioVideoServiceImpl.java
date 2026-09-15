@@ -272,6 +272,68 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
         }
     }
     
+    @Override
+    public String transcriptInput(String location, String modelName, String prompt, String transcript)
+            throws IOException {
+
+        String projectId = config.getGeminiProjectId();
+
+        if (location == null) {
+            location = config.getGeminiLocation();
+        }
+
+        if (modelName == null) {
+            modelName = config.getGeminiModelName();
+        }
+
+        System.out.println("in transcriptInput ..generating analysis with "
+                + modelName + " and " + location);
+
+        try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+
+            GenerationConfig generationConfig =
+                    GenerationConfig.newBuilder()
+                            .setResponseMimeType("application/json")
+                            .build();
+
+            // Initialize model
+            GenerativeModel model =
+                    new GenerativeModel(modelName, generationConfig, vertexAI);
+
+            System.out.println("Sending transcript request to Gemini model...");
+
+            // Send prompt + transcript to Gemini
+            GenerateContentResponse response = model.generateContent(
+                    ContentMaker.fromMultiModalData(
+                            prompt,
+                            PartMaker.fromMimeTypeAndData(
+                                    "text/plain",
+                                    transcript
+                            )
+                    )
+            );
+
+            System.out.println("Response received from Gemini model.");
+
+            String output =
+                    response.getCandidates(0)
+                            .getContent()
+                            .getParts(0)
+                            .getText();
+
+            return output;
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "ERROR in transcriptInput method: " + e.getMessage());
+
+            e.printStackTrace();
+
+            return "Error during transcript analysis: " + e.getMessage();
+        }
+    }
+    
 
 	@Override
 	public String processAudioFile(String prompt, File file) throws IOException {
@@ -351,5 +413,80 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 			throw new RuntimeException(e);
 		} 
     }
+	
+	@Override
+	public String updateSystemPrompt(
+	        String location,
+	        String modelName,
+	        String prompt,
+	        String input) throws IOException {
+
+	    String projectId = config.getGeminiProjectId();
+
+	    if (location == null) {
+	        location = config.getGeminiLocation();
+	    }
+
+	    if (modelName == null) {
+	        modelName = config.getGeminiModelName();
+	    }
+
+	    System.out.println(
+	            "in updateSystemPrompt ..generating prompt with "
+	                    + modelName + " and " + location);
+
+	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+
+	        GenerationConfig generationConfig =
+	                GenerationConfig.newBuilder()
+	                        .setResponseMimeType("text/plain")
+	                        .build();
+
+	        GenerativeModel model =
+	                new GenerativeModel(
+	                        modelName,
+	                        generationConfig,
+	                        vertexAI);
+
+	        System.out.println(
+	                "Sending system prompt update request to Gemini model...");
+
+	        String completePrompt =
+	                prompt
+	                        + "\n\n"
+	                        + input;
+
+	        System.out.println(
+	                "Complete prompt length: "
+	                        + completePrompt.length());
+
+	        GenerateContentResponse response =
+	                model.generateContent(
+	                        ContentMaker.fromString(completePrompt)
+	                );
+
+	        System.out.println(
+	                "Response received from Gemini model.");
+
+	        String output =
+	                response.getCandidates(0)
+	                        .getContent()
+	                        .getParts(0)
+	                        .getText();
+
+	        return output;
+
+	    } catch (Exception e) {
+
+	        System.out.println(
+	                "ERROR in updateSystemPrompt method: "
+	                        + e.getMessage());
+
+	        e.printStackTrace();
+
+	        return "Error while updating system prompt: "
+	                + e.getMessage();
+	    }
+	}
 
 }

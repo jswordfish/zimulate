@@ -308,8 +308,8 @@ public class UserServiceImpl implements UserService{
 	
 	@Override
 	public Page<User> searchUsersFinal(String search, String managerEmail, Boolean external, String companyId, int page, int size) {
-	    Pageable pageable = PageRequest.of(page, size, Sort.by("firstName").ascending());
-	    return repo.searchUsersFinal(search, managerEmail, external, companyId, pageable);
+	    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+	    return repo.searchUsersFinal(search, managerEmail, external, companyId, pageable); 
 	}
 
 	@Override

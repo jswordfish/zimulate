@@ -47,7 +47,7 @@ public class MiscellaneousWebService {
 	        @RequestParam String token,
 	        @RequestParam(required = false) String agentId) {
 
-	    String key = service.getValue("elevenlabs.api.key");
+	    String key = service.getValue("ELEVEN_LABS");
 
 	    UriComponentsBuilder builder = UriComponentsBuilder
 	            .fromHttpUrl("https://api.elevenlabs.io/v1/convai/analytics/live-count");

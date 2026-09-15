@@ -15,5 +15,14 @@ public interface GeminiAudioVideoService {
 	public String videoInput(String prompt, String videoPath) throws IOException;
 	
 	public String videoInputWithGoogleCloudBucketUrl(String location, String model, String prompt, String googleCloudBucketUrl) throws IOException ;
+	
+	public String transcriptInput(String location, String modelName, String prompt, String transcript)
+            throws IOException;
+	
+	public String updateSystemPrompt(
+	        String location,
+	        String modelName,
+	        String prompt,
+	        String input) throws IOException;
 
 }

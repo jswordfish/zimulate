@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
 
 
@@ -38,8 +39,14 @@ public interface VFRolePlayTestSessionService {
 	
 	public List<VFRolePlayTestSession> findRoleplaySessionsByWorkflowId(Long workflowSessionId);
 	
-	 public Page<VFRolePlayTestSession> searchAssessmentsForRoleplay( String companyId, String testIdentifier, String search, Pageable pageable);
+	public Page<VFRolePlayTestSession> searchAssessmentsForRoleplay( String companyId, String testIdentifier, String search, Pageable pageable);
 
-
+	public PaginatedResponseDto getLatestRolePlayAttempts(
+	        String companyId,
+	        String email,
+	        String testName,
+	        String search,
+	        int page,
+	        int size);
 
 }
