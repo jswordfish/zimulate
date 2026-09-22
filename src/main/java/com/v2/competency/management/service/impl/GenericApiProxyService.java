@@ -84,12 +84,27 @@ public class GenericApiProxyService {
         try {
             log.info("Calling external API. provider={}, method={}, uri={}", provider, httpMethod, uri);
             
-            ResponseEntity<Object> response = restTemplate.exchange(uri, httpMethod, entity, Object.class);
+            ResponseEntity<Object> response =
+                    restTemplate.exchange(uri, httpMethod, entity, Object.class);
 
-            // Print response success indicator
-            System.out.println("=== Response Generated Successfully (Status: " + response.getStatusCode() + ") ===");
+            System.out.println(
+                    "=== Response Generated Successfully (Status: "
+                            + response.getStatusCode() + ") ==="
+            );
 
-            return response;
+            HttpHeaders responseHeaders = new HttpHeaders();
+
+            // Copy only safe/useful headers from external API
+            MediaType contentType = response.getHeaders().getContentType();
+            if (contentType != null) {
+                responseHeaders.setContentType(contentType);
+            }
+
+            return new ResponseEntity<>(
+                    response.getBody(),
+                    responseHeaders,
+                    response.getStatusCode()
+            );
         } catch (HttpStatusCodeException ex) {
             // Print response failure indicator
             System.out.println("=== Response Failed (Status: " + ex.getStatusCode() + ") ===");
