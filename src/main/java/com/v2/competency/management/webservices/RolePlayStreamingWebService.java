@@ -280,7 +280,8 @@ public class RolePlayStreamingWebService {
 	        @RequestParam(required = false) String model,
 	        @RequestParam(required = false) String videoLink,
 	        @RequestParam(required = false) Long workflowSessionId,
-	        @RequestParam(required = false) String transcript) {
+	        @RequestParam(required = false) String transcript,
+	        @RequestParam String conversationId) {
 
 	    System.out.println("in submit-video-google ");
 
@@ -305,7 +306,8 @@ public class RolePlayStreamingWebService {
 	                location,
 	                model,
 	                transcript,
-	                workflowSessionId);
+	                workflowSessionId,
+	                conversationId);
 
 	    } else {
 
@@ -321,7 +323,8 @@ public class RolePlayStreamingWebService {
 	                location,
 	                model,
 	                videoLink,
-	                workflowSessionId);
+	                workflowSessionId,
+	                conversationId);
 	    }
 
 	    return new ResponseEntity<>(HttpStatus.OK);

@@ -21,12 +21,15 @@ public interface ASyncAIInsightsGenService {
 	
 	String updateSystemPrompt(
 	        String currentSystemPrompt,
-	        String userFeedback);
+	        String userFeedback,
+	        String transcript,
+	        String updateprompt);
 	
 	String generateOppositionAgentPrompt(
 			String primaryAgentSystemPrompt,
 			String userPersona,
-			String rolePlayObjective);
+			String rolePlayObjective,
+			String oppositionPromptGenPrompt);
 	
 	public void submitGoogleFullVideoForAnalysis(
 			String persona,
@@ -38,7 +41,7 @@ public interface ASyncAIInsightsGenService {
 		    String companyId,
 		    String googleBucketPath, 
 		    String location,
-		    String model, String videoLink, Long workflowSessionId);
+		    String model, String videoLink, Long workflowSessionId, String conversationId);
 	
 	public void submitGoogleFullTranscriptForAnalysis(
 	        String persona,
@@ -51,7 +54,8 @@ public interface ASyncAIInsightsGenService {
 	        String location,
 	        String model,
 	        String transcript,
-	        Long workflowSessionId);
+	        Long workflowSessionId,
+	        String conversationId);
 	
 	public void submitGoogleFullVideoForAnalysisSync(
 			String persona,

@@ -134,7 +134,7 @@ public class ZimulateWorkflowServiceImpl implements ZimulateWorkflowService{
 	        int page,
 	        int size) {
 
-	    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+	    Pageable pageable = PageRequest.of(page, size);
 
 	    Page<WorkFlowDto> workflowPage =
 	            repo.findAllWorkflowsDto(
@@ -162,13 +162,10 @@ public class ZimulateWorkflowServiceImpl implements ZimulateWorkflowService{
 	    dto.setTotalNumberOfRecords(
 	            (int) workflowPage.getTotalElements()
 	    );
-
 	    dto.setTotalNumberOfPages(
 	            workflowPage.getTotalPages()
 	    );
-
 	    dto.setSelectedPage(page);
-
 	    dto.setList(
 	            workflowPage.getContent()
 	    );

@@ -62,6 +62,7 @@ String email;
 	
 	Boolean reviewDone;
 	
+	String conversationId;
 	
 	String  difficultyLevel = RoleplayDifficultyLevel.DEFAULT.getLevel();
 	
@@ -366,6 +367,18 @@ String email;
 
 	public void setError(String error) {
 		this.error = error;
+	}
+
+
+
+	public String getConversationId() {
+		return conversationId;
+	}
+
+
+
+	public void setConversationId(String conversationId) {
+		this.conversationId = conversationId;
 	}
 
 

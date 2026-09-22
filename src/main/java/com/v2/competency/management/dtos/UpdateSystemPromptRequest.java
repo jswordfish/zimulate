@@ -18,5 +18,11 @@ public class UpdateSystemPromptRequest {
     private String userPersona;
     
 	private String rolePlayObjective;
+	
+	private String transcript;
+	
+	private String updateprompt;
+	
+	private String oppositionPromptGenPrompt;
     
 }

@@ -147,34 +147,47 @@ public class RolePlayWebservice {
 		return ResponseEntity.ok(sessions);
 	}
 	
+	
 	@GetMapping("/roleplay-attempts")
 	public ResponseEntity<PaginatedResponseDto> getRolePlayAttempts(
 
 	        @RequestParam String companyId,
 
-	        @RequestParam(required = false) String email,
+	        @RequestParam(required = false)
+	        String email,
 
-	        @RequestParam String testName,
+	        @RequestParam
+	        String testName,
 
-	        @RequestParam(required = false) String search,
+	        @RequestParam(required = false)
+	        String search,
 
-	        @RequestParam String token,
+	        @RequestParam(required = false)
+	        String sort,   // example: name=asc
 
-	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam
+	        String token,
 
-	        @RequestParam(defaultValue = "10") int size) {
+	        @RequestParam(defaultValue = "0")
+	        int page,
+
+	        @RequestParam(defaultValue = "10")
+	        int size) {
 
 	    return ResponseEntity.ok(
-	    		rolePlayTestSessionService.getLatestRolePlayAttempts(
+	            rolePlayTestSessionService.getLatestRolePlayAttempts(
 	                    companyId,
 	                    email,
 	                    testName,
 	                    search,
+	                    sort,
 	                    page,
 	                    size
 	            )
 	    );
 	}
+	
+
 	
 	@PostMapping("/update-system-prompt")
 	public ResponseEntity<SystemPromptGenerationResponse> updateSystemPrompt(
@@ -187,14 +200,17 @@ public class RolePlayWebservice {
 	            CompletableFuture.supplyAsync(() ->
 	                    aSyncAIInsightsGenService.updateSystemPrompt(
 	                            request.getCurrentSystemPrompt(),
-	                            request.getUserFeedback()));
+	                            request.getUserFeedback(),
+	                            request.getTranscript(),
+	                            request.getUpdateprompt()));
 
 	    CompletableFuture<String> oppositionPromptFuture =
 	            CompletableFuture.supplyAsync(() ->
 	                    aSyncAIInsightsGenService.generateOppositionAgentPrompt(
 	                            request.getCurrentSystemPrompt(),
 	                            request.getUserPersona(),
-	                            request.getRolePlayObjective()));
+	                            request.getRolePlayObjective(),
+	                            request.getOppositionPromptGenPrompt()));
 
 	    CompletableFuture.allOf(updatedPromptFuture, oppositionPromptFuture).join();
 

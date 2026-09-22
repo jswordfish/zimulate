@@ -62,19 +62,41 @@ public class VFRolePlayTestSessionServiceImpl implements VFRolePlayTestSessionSe
 		}
 	}
 	
+	
 	@Override
 	public PaginatedResponseDto getLatestRolePlayAttempts(
+
 	        String companyId,
 	        String email,
 	        String testName,
 	        String search,
+	        String sort,
 	        int page,
 	        int size) {
+
+	    // Default sort: id desc
+	    Sort sortSpec = Sort.by("id").descending();
+
+	    // Parse sort input: name=asc
+	    if (sort != null && !sort.isEmpty()) {
+
+	        String[] parts = sort.split("=");
+
+	        if (parts.length == 2) {
+
+	            String field = parts[0];
+	            String direction = parts[1];
+
+	            sortSpec = direction.equalsIgnoreCase("asc")
+	                    ? Sort.by(field).ascending()
+	                    : Sort.by(field).descending();
+	        }
+	    }
 
 	    Pageable pageable = PageRequest.of(
 	            page,
 	            size,
-	            Sort.by("id").descending()
+	            sortSpec
 	    );
 
 	    if (search != null && search.trim().isEmpty()) {
@@ -103,9 +125,12 @@ public class VFRolePlayTestSessionServiceImpl implements VFRolePlayTestSessionSe
 	    );
 
 	    if (pageResult.getTotalElements() == 0) {
+
 	        dto.setRecordsFrom(0);
 	        dto.setRecordsTo(0);
+
 	    } else {
+
 	        dto.setRecordsFrom(page * size + 1);
 
 	        dto.setRecordsTo(
@@ -120,6 +145,8 @@ public class VFRolePlayTestSessionServiceImpl implements VFRolePlayTestSessionSe
 
 	    return dto;
 	}
+	
+
 
 	@Override
 	public Integer findCountOfSessionsForUserForTest(String email, String companyId, String testName) {

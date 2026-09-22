@@ -39,7 +39,6 @@ public class GenericApiProxyService {
         ApiProvider provider = request.getProvider();
 
         // 1. Make sure the url actually belongs to this provider's domain.
-        //    Prevents the frontend from redirecting our API key to some other host.
         validateUrlBelongsToProvider(request.getUrl(), provider);
 
         // 2. Resolve the HTTP method
@@ -48,11 +47,9 @@ public class GenericApiProxyService {
             throw new IllegalArgumentException("Unsupported HTTP method: " + request.getMethod());
         }
 
-     // 3. Get the stored API key for this provider
+        // 3. Get the stored API key for this provider
         String apiKey = miscellaneousService.getValue(provider.name());
 
-        // TODO(REMOVE BEFORE PROD): temporary hardcoded fallback for local testing only,
-        // since the properties file key isn't set up in this environment yet.
         if ((apiKey == null || apiKey.isEmpty()) && provider == ApiProvider.ELEVEN_LABS) {
             log.warn("Using HARDCODED ElevenLabs API key for testing — remove this before deploying!");
         }
@@ -73,22 +70,37 @@ public class GenericApiProxyService {
                 : MediaType.APPLICATION_JSON;
         headers.setContentType(mediaType);
 
-        // 5. Build final URI, adding query params for GET (or any method that sends params)
+        // 5. Build final URI
         URI uri = buildUri(request.getUrl(), request.getParams());
 
-        // 6. Build request entity (body will simply be ignored by RestTemplate for GET)
+        // 6. Build request entity
         HttpEntity<Object> entity = new HttpEntity<>(request.getBody(), headers);
+
+        // Print the full request object as a String
+        System.out.println("=== Full Request ===");
+        System.out.println(request);
 
         // 7. Call the external API
         try {
             log.info("Calling external API. provider={}, method={}, uri={}", provider, httpMethod, uri);
-            return restTemplate.exchange(uri, httpMethod, entity, Object.class);
+            
+            ResponseEntity<Object> response = restTemplate.exchange(uri, httpMethod, entity, Object.class);
+
+            // Print response success indicator
+            System.out.println("=== Response Generated Successfully (Status: " + response.getStatusCode() + ") ===");
+
+            return response;
         } catch (HttpStatusCodeException ex) {
-            // Forward the external API's actual error status + body back to frontend
+            // Print response failure indicator
+            System.out.println("=== Response Failed (Status: " + ex.getStatusCode() + ") ===");
+
             log.warn("External API call failed. provider={}, status={}, body={}",
                     provider, ex.getStatusCode(), ex.getResponseBodyAsString());
             return ResponseEntity.status(ex.getStatusCode())
                     .body(ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            System.out.println("=== Response Failed with Exception: " + ex.getMessage() + " ===");
+            throw ex;
         }
     }
 

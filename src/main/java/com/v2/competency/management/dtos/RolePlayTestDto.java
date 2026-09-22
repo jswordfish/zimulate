@@ -88,4 +88,7 @@ public class RolePlayTestDto {
 	String rolePlayType;
 	
 	Boolean notShowCustomPersona;
+	
+	Boolean isTranscriptBasedAnalysis;
+	
 }

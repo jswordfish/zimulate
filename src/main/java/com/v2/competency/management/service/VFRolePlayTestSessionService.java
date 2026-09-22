@@ -41,12 +41,17 @@ public interface VFRolePlayTestSessionService {
 	
 	public Page<VFRolePlayTestSession> searchAssessmentsForRoleplay( String companyId, String testIdentifier, String search, Pageable pageable);
 
-	public PaginatedResponseDto getLatestRolePlayAttempts(
+	
+	PaginatedResponseDto getLatestRolePlayAttempts(
 	        String companyId,
 	        String email,
 	        String testName,
 	        String search,
+	        String sort,
 	        int page,
-	        int size);
+	        int size
+	);
+	
+
 
 }
