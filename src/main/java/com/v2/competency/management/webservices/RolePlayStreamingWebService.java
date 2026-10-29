@@ -334,7 +334,7 @@ public class RolePlayStreamingWebService {
 	    }
 
 	    return new ResponseEntity<>(HttpStatus.OK);
-	}
+	} 
 	
 	@PostMapping("/submit-video-google-in-sync-mode")
 	public ResponseEntity<String> submitGoogleFullVideoForAnalysisInSyncMode(
