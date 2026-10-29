@@ -9,5 +9,7 @@ public interface AgentService {
 	public String createOrUpdateAgent(String agentName, String agentPrompt, String knowledgeBaseId);
 	
 	public String createOrUpdateAgent(Root root, String agentId);
+	
+	public String getConversationTranscript(String conversationId);
 
 }

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,12 @@ public class UserController {
 	
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-mm-DD hh:mm:ss");
+	
+	@PostMapping("/save-update-user-manually")
+    public ResponseEntity<User> saveOrUpdateUser(@RequestBody User user, @RequestParam String token) {
+        User savedUser = service.saveOrUpdate(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.OK);
+    }
 	
 	@GetMapping("/search by name paginated")
 	public ResponseEntity<PaginatedResponseDto> searchUsers(

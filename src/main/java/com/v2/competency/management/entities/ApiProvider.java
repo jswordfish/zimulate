@@ -6,7 +6,10 @@ import lombok.Getter;
 public enum ApiProvider {
 
     ELEVEN_LABS("https://api.elevenlabs.io", "xi-api-key"),
-    HEY_GEN("https://api.heygen.com", "X-Api-Key");
+    HEY_GEN("https://api.heygen.com", "X-Api-Key"),
+    LIVEAVATAR("https://api.liveavatar.com", "X-API-KEY"),
+    GEMINI(null, null);
+	
 
     private final String baseUrl;
     private final String authHeaderName;

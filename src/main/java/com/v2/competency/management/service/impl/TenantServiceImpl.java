@@ -1,5 +1,7 @@
 package com.v2.competency.management.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +10,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
@@ -22,7 +25,12 @@ public class TenantServiceImpl implements TenantService{
 	@Autowired
 	TenantRepo tenantRepo;
 	
+	@Autowired
+    private S3Service s3Service;
+	
 	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	
+	private String bucketName = "letsworkcentres";
 
 	@Override
 	public Tenant findByIdentity(String orgName, String companyId, String tenantAdminEmail) {
@@ -31,25 +39,82 @@ public class TenantServiceImpl implements TenantService{
 	}
 
 	@Override
-	public Tenant saveOrUpdate(Tenant tenant) {
-		// TODO Auto-generated method stub
-		Tenant tenant2 = findByIdentity(tenant.getOrgName(), tenant.getCompanyId(), tenant.getTenantAdminEmail());
-		if(tenant2 == null) {
-			if(tenantRepo.findTenantByCompanyId(tenant.getCompanyId()) != null) {
-				//means tenant is already created with a different org name or admin email. this should not be allowed.
-				throw new RuntimeException("Tenant already exists with comp name "+tenant.getOrgName()+" and admin email "+tenant.getTenantAdminEmail());
-			}
-			
-			tenant.setCreateDate(new Date());
-			return tenantRepo.save(tenant);
-		}
-		else {
-			tenant.setCreateDate(tenant2.getCreateDate());
-			tenant.setUpdateDate(new Date());
-			tenant.setId(tenant2.getId());
-			mapper.map(tenant, tenant2);
-			return tenantRepo.save(tenant2);
-		}
+	public Tenant saveOrUpdate(Tenant tenant, MultipartFile image) throws IOException {
+
+//	    Tenant tenant2 = findByIdentity(
+//	            tenant.getOrgName(),
+//	            tenant.getCompanyId(),
+//	            tenant.getTenantAdminEmail()
+//	    );
+		
+		Tenant tenant2 = findTenantByCompanyId(
+	            tenant.getCompanyId()
+	    );
+
+	    Tenant savedTenant;
+
+	    if (tenant2 == null) {
+
+//	        if (tenantRepo.findTenantByCompanyId(tenant.getCompanyId()) != null) {
+//	            // means tenant is already created with a different org name
+//	            // or admin email. this should not be allowed.
+//	            throw new RuntimeException(
+//	                    "Tenant already exists with comp name "
+//	                    + tenant.getOrgName()
+//	                    + " and admin email "
+//	                    + tenant.getTenantAdminEmail()
+//	            );
+//	        }
+
+	        tenant.setCreateDate(new Date());
+
+	        savedTenant = tenantRepo.save(tenant);
+
+	    } else {
+
+	        tenant.setCreateDate(tenant2.getCreateDate());
+	        tenant.setUpdateDate(new Date());
+	        tenant.setId(tenant2.getId());
+
+	        mapper.map(tenant, tenant2);
+
+	        savedTenant = tenantRepo.save(tenant2);
+	    }
+
+	    /*
+	     * Upload image only when provided.
+	     */
+	    if (image != null && !image.isEmpty()) {
+
+	        File tempFile = File.createTempFile(
+	                "tenant_",
+	                "_" + image.getOriginalFilename()
+	        );
+
+	        try {
+
+	            image.transferTo(tempFile);
+
+	            String s3Key = s3Service.uploadTenantImage(
+	                    bucketName,
+	                    savedTenant.getCompanyId(),
+	                    image.getOriginalFilename(),
+	                    tempFile
+	            );
+
+	            savedTenant.setS3KeyName(s3Key);
+
+	            savedTenant = tenantRepo.save(savedTenant);
+
+	        } finally {
+
+	            if (tempFile.exists()) {
+	                tempFile.delete();
+	            }
+	        }
+	    }
+
+	    return savedTenant;
 	}
 
 	@Override

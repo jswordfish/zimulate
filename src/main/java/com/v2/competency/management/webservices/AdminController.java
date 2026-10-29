@@ -264,6 +264,9 @@ public class AdminController {
 		    /*
 		     * Role or Designation
 		     */
+		    
+		    
+		    
 		    if (user.getRoleOrDesig() == null
 		            || user.getRoleOrDesig().trim().isEmpty()) {
 
@@ -288,14 +291,14 @@ public class AdminController {
 		    /*
 		     * Department
 		     */
-		    if (user.getDepartment() == null
-		            || user.getDepartment().trim().isEmpty()) {
-
-		        errors.add(
-		                "Department is required. "
-		                        + "Please enter the user's department."
-		        );
-		    }
+//		    if (user.getDepartment() == null
+//		            || user.getDepartment().trim().isEmpty()) {
+//
+//		        errors.add(
+//		                "Department is required. "
+//		                        + "Please enter the user's department."
+//		        );
+//		    }
 
 		    /*
 		     * Email
@@ -344,14 +347,23 @@ public class AdminController {
 		    /*
 		     * Report To
 		     */
-		    if (user.getReportTo() == null
-		            || user.getReportTo().trim().isEmpty()) {
+		    
+		    
+		    OrgHierarchy orgHierarchy = orgHierarchyService.findByRoleOrDesig(user.getRoleOrDesig(), user.getCompanyId());
+		    if(orgHierarchy == null) {
+		        throw new RuntimeException("Role or designation invalid");
+		    }
 
-		        errors.add(
-		                "Report to is required. "
-		                        + "Please enter the name or employee ID of the person "
-		                        + "this user reports to."
-		        );
+		    if (!"Level 1".equalsIgnoreCase(orgHierarchy.getLevel())) {
+		        if (user.getReportTo() == null
+		                || user.getReportTo().trim().isEmpty()) {
+
+		            errors.add(
+		                    "Report to is required. "
+		                            + "Please enter the name or employee ID of the person "
+		                            + "this user reports to."
+		            );
+		        }
 		    }
 
 		    /*
@@ -360,13 +372,13 @@ public class AdminController {
 		     * Boolean is slightly different from String.
 		     * If Poiji cannot map the Excel value, it may become null.
 		     */
-		    if (user.getReviewer() == null) {
-
-		        errors.add(
-		                "Is Reviewer is required. "
-		                        + "Please enter either TRUE or FALSE."
-		        );
-		    }
+//		    if (user.getReviewer() == null) {
+//
+//		        errors.add(
+//		                "Is Reviewer is required. "
+//		                        + "Please enter either TRUE or FALSE."
+//		        );
+//		    }
 
 		    return errors;
 		}

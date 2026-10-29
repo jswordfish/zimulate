@@ -81,4 +81,6 @@ public class AssessmentMapper extends Base{
 	
 	String aiPersonaType;
 	
+	String rolePlayLabelForUI;
+	
 }

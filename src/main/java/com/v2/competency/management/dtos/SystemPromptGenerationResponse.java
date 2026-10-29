@@ -15,5 +15,7 @@ public class SystemPromptGenerationResponse {
 	private String updatedSystemPrompt;
 	
 	private String oppositionAgentPrompt;
+	
+	private String oppositionSadFlowPrompt;
 
 }

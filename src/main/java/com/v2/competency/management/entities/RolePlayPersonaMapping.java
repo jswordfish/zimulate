@@ -23,5 +23,7 @@ public class RolePlayPersonaMapping extends Base{
 	String voiceId;
 	
 	String type;
+	
+	String googleBucketUrl;
 
 }

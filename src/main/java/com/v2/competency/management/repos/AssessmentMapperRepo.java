@@ -58,6 +58,7 @@ public interface AssessmentMapperRepo extends JpaRepository<AssessmentMapper, Lo
 	public Page<String> getListOfUsersAssignedTests(@Param("companyId") String companyId, Pageable pageable);
 	
 	
+	
 	@Query("select u from AssessmentMapper u where u.email =:email and u.companyId =:companyId and u.typePath1='Roles' and (u.reviewMode=false OR  u.reviewMode IS NULL) and (u.consolidatedAssessments IS NULL OR u.consolidatedAssessments=false)")
 	public List<AssessmentMapper> findRolesForUserAssignedAssessments( @Param("email") String email, @Param("companyId") String companyId);
 	
@@ -95,15 +96,79 @@ public interface AssessmentMapperRepo extends JpaRepository<AssessmentMapper, Lo
 	           "WHERE am.testName = :testName")
 	    Page<User> findUsersByTestName(@Param("testName") String testName, Pageable pageable);
 	
-	@Query("SELECT u FROM AssessmentMapper u " +
-		       "WHERE u.companyId = :companyId " +
-		       "AND u.email = :email " +
-		       "AND (:search IS NULL OR LOWER(u.testName) LIKE LOWER(CONCAT('%', :search, '%'))) ")
-		Page<AssessmentMapper> findAssessmentsForUserWithFilters(
+//	@Query("SELECT u FROM AssessmentMapper u " +
+//		       "WHERE u.companyId = :companyId " +
+//		       "AND u.email = :email " +
+//		       "AND (:search IS NULL OR LOWER(u.testName) LIKE LOWER(CONCAT('%', :search, '%'))) ")
+//		Page<AssessmentMapper> findAssessmentsForUserWithFilters(
+//		        @Param("companyId") String companyId,
+//		        @Param("email") String email,
+//		        @Param("search") String search,
+//		        Pageable pageable);
+	
+	// Natural sort ASC
+		@Query(value = "SELECT * FROM assessment_mapper u " +
+		        "WHERE u.company_id = :companyId " +
+		        "AND u.email = :email " +
+		        "AND (:search IS NULL OR " +
+		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+		        "ORDER BY " +
+		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') ASC, " +
+		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) ASC, " +
+		        "u.test_name ASC",
+		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+		        "WHERE u.company_id = :companyId " +
+		        "AND u.email = :email " +
+		        "AND (:search IS NULL OR " +
+		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+		        nativeQuery = true)
+		Page<AssessmentMapper> findAssessmentsNaturalAsc(
 		        @Param("companyId") String companyId,
 		        @Param("email") String email,
 		        @Param("search") String search,
 		        Pageable pageable);
+
+		// Natural sort DESC
+		@Query(value = "SELECT * FROM assessment_mapper u " +
+		        "WHERE u.company_id = :companyId " +
+		        "AND u.email = :email " +
+		        "AND (:search IS NULL OR " +
+		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+		        "ORDER BY " +
+		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') DESC, " +
+		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) DESC, " +
+		        "u.test_name DESC",
+		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+		        "WHERE u.company_id = :companyId " +
+		        "AND u.email = :email " +
+		        "AND (:search IS NULL OR " +
+		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+		        nativeQuery = true)
+		Page<AssessmentMapper> findAssessmentsNaturalDesc(
+		        @Param("companyId") String companyId,
+		        @Param("email") String email,
+		        @Param("search") String search,
+		        Pageable pageable);
+
+		// Original JPQL query, used for sorting by any OTHER field
+		@Query("SELECT u FROM AssessmentMapper u " +
+		       "WHERE u.companyId = :companyId " +
+		       "AND u.email = :email " +
+		       "AND (:search IS NULL OR " +
+		       "LOWER(u.testName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+		       "LOWER(u.rolePlayLabelForUI) LIKE LOWER(CONCAT('%', :search, '%')))")
+		Page<AssessmentMapper> findAssessmentsForUserWithFiltersSorted(
+		        @Param("companyId") String companyId,
+		        @Param("email") String email,
+		        @Param("search") String search,
+		        Pageable pageable);
+
+	
+	
 	
 	@Query("SELECT a FROM AssessmentMapper a " +
 	           "WHERE (:assignedBy IS NULL OR LOWER(a.assignedBy) = LOWER(:assignedBy)) " +

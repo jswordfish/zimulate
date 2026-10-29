@@ -24,5 +24,13 @@ public class UpdateSystemPromptRequest {
 	private String updateprompt;
 	
 	private String oppositionPromptGenPrompt;
+	
+	private String oppositionSadFlowPrompt;
+	
+	private String feedbackGenPrompt;
+	
+	private String testName;
+	
+	private String companyId;
     
 }

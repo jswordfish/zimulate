@@ -307,6 +307,7 @@ public class AI_Platform_AssessmentMapperWebService {
 	                    .testLink(testLink)
 	                    .testName(testName)
 	                    .testIdentifier(test.getTestName())
+	                    .rolePlayLabelForUI(test.getRolePlayLabelForUI())
 	                    .assignedBy(managerEmail)
 	                    .external(false)
 	                    .path1("NA")

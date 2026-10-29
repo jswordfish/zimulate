@@ -3,12 +3,15 @@ package com.v2.competency.management.service.impl;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +77,30 @@ public class MailJetEmailService implements EmailService{
         variables.put("roleplay", roleplay);
         variables.put("attempt", ""+attempt);
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
         variables.put("time", dateFormat.format(new Date()));
+        LocalDate date = LocalDate.now();
+
+        String day = String.valueOf(date.getDayOfMonth());
+        int dayOfMonth = date.getDayOfMonth();
+
+        String suffix;
+        if (dayOfMonth >= 11 && dayOfMonth <= 13) {
+            suffix = "th";
+        } else {
+            switch (dayOfMonth % 10) {
+                case 1: suffix = "st"; break;
+                case 2: suffix = "nd"; break;
+                case 3: suffix = "rd"; break;
+                default: suffix = "th";
+            }
+        }
+
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("EEE, ", Locale.ENGLISH))
+                + day + suffix
+                + date.format(DateTimeFormatter.ofPattern(" MMM", Locale.ENGLISH));
+
+        variables.put("date", formattedDate);
         variables.put("persona", persona);
         
         TransactionalEmail message1 = TransactionalEmail

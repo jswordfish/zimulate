@@ -31,6 +31,7 @@ import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.repos.RolePlayQuestionAnswerRepo;
 import com.v2.competency.management.repos.VFRolePlayTestRepo;
 import com.v2.competency.management.service.ASyncAIInsightsGenService;
+import com.v2.competency.management.service.AgentService;
 import com.v2.competency.management.service.GeminiAudioVideoService;
 import com.v2.competency.management.service.RelevancyCheckerService;
 import com.v2.competency.management.service.RolePlayQuestionAnswerService;
@@ -71,6 +72,9 @@ public class RolePlayStreamingWebService {
 	
 	@Autowired
 	VideoMergerServiceDJ videoService;
+	
+	@Autowired
+	AgentService elevenLabsAgentService;
 	
 	@Autowired
 	PropertyConfig config;
@@ -295,6 +299,9 @@ public class RolePlayStreamingWebService {
 
 	    if (Boolean.TRUE.equals(test.getIsTranscriptBasedAnalysis())) {
 
+	        String elevenLabsTranscript =
+	        		elevenLabsAgentService.getConversationTranscript(conversationId);
+
 	        aSyncAIInsightsGenService.submitGoogleFullTranscriptForAnalysis(
 	                persona,
 	                email,
@@ -305,10 +312,9 @@ public class RolePlayStreamingWebService {
 	                companyId,
 	                location,
 	                model,
-	                transcript,
+	                elevenLabsTranscript,
 	                workflowSessionId,
 	                conversationId);
-
 	    } else {
 
 	        aSyncAIInsightsGenService.submitGoogleFullVideoForAnalysis(

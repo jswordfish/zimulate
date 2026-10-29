@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.vertexai.VertexAI;
@@ -44,11 +45,14 @@ import com.v2.competency.management.dtos.SystemPromptGenerationResponse;
 import com.v2.competency.management.dtos.UpdateSystemPromptRequest;
 import com.v2.competency.management.entities.RolePlayQuestionAnswer;
 import com.v2.competency.management.entities.RolePlayQuestionFollowUpLevel;
+import com.v2.competency.management.entities.RolePlayUserPromptMapping;
 import com.v2.competency.management.entities.RoleplayDifficultyLevel;
 import com.v2.competency.management.entities.User;
 import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.repos.RolePlayQuestionAnswerRepo;
+import com.v2.competency.management.repos.RolePlayUserPromptMappingRepo;
+import com.v2.competency.management.repos.VFRolePlayTestRepo;
 import com.v2.competency.management.repos.VFRolePlayTestSessionRepo;
 import com.v2.competency.management.service.ASyncAIInsightsGenService;
 import com.v2.competency.management.service.GeminiAudioVideoService;
@@ -75,10 +79,16 @@ public class RolePlayWebservice {
 	RolePlayQuestionAnswerService service;
 	
 	@Autowired
+	RolePlayUserPromptMappingRepo rolePlayUserPromptMappingRepo;
+	
+	@Autowired
 	VFRolePlayTestService rolePlayTestService;
 	
 	@Autowired
 	VFRolePlayTestSessionService rolePlayTestSessionService;
+	
+	@Autowired
+	VFRolePlayTestRepo vFRolePlayTestRepo;
 	
 	@Autowired
 	RelevancyCheckerService relevanceService;
@@ -203,23 +213,96 @@ public class RolePlayWebservice {
 	                            request.getUserFeedback(),
 	                            request.getTranscript(),
 	                            request.getUpdateprompt()));
-
-	    CompletableFuture<String> oppositionPromptFuture =
+	    
+	    VFRolePlayTest test1 = rolePlayTestService.findRolePlayTestsByTestName(request.getCompanyId(), request.getTestName());
+	    if(test1 == null) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role play does not exists");
+	    }
+	    
+	    Long id = test1.getId();
+	    
+	    RolePlayUserPromptMapping mapping = rolePlayUserPromptMappingRepo.findByTest_IdAndCompanyId(id, request.getCompanyId());
+	    
+	    CompletableFuture<String> oppositionPromptFuture;
+	    
+	    if(mapping != null) {
+	        oppositionPromptFuture = CompletableFuture.completedFuture(mapping.getUserPrompt());
+	    } else {
+	        oppositionPromptFuture = CompletableFuture.supplyAsync(() ->
+	                aSyncAIInsightsGenService.generateOppositionAgentPrompt(
+	                        request.getCurrentSystemPrompt(),
+	                        request.getUserPersona(),
+	                        request.getRolePlayObjective(),
+	                        request.getOppositionPromptGenPrompt(),
+	                        request.getTestName(),
+	                        request.getCompanyId()));
+	    }
+	    
+	    CompletableFuture<String> oppositionSadFlowPromptFuture =
 	            CompletableFuture.supplyAsync(() ->
-	                    aSyncAIInsightsGenService.generateOppositionAgentPrompt(
+	                    aSyncAIInsightsGenService.generateOppositionSadFlowAgentPrompt(
 	                            request.getCurrentSystemPrompt(),
 	                            request.getUserPersona(),
+	                            request.getUserFeedback(),
 	                            request.getRolePlayObjective(),
-	                            request.getOppositionPromptGenPrompt()));
+	                            request.getOppositionSadFlowPrompt()));
 
-	    CompletableFuture.allOf(updatedPromptFuture, oppositionPromptFuture).join();
+	    CompletableFuture.allOf(updatedPromptFuture, oppositionPromptFuture, oppositionSadFlowPromptFuture).join();
 
 	    SystemPromptGenerationResponse response =
 	            new SystemPromptGenerationResponse(
 	                    updatedPromptFuture.join(),
-	                    oppositionPromptFuture.join());
+	                    oppositionPromptFuture.join(),
+	                    oppositionSadFlowPromptFuture.join());
 
 	    return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping("/save-feedback-for-test")
+	public ResponseEntity<VFRolePlayTest> saveFeedback(
+			@RequestParam Long testId,
+			@RequestParam String feedback,
+			@RequestParam String token){
+		
+		VFRolePlayTest test = vFRolePlayTestRepo.findById(testId).orElse(null);
+		
+		if(test==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Test not found");
+		}
+		
+		test.setFeedback(feedback);
+		
+		return ResponseEntity.ok(rolePlayTestService.saveOrUpdate(test));
+		
+	}
+	
+	@PostMapping("/generate-user-prompt")
+	public ResponseEntity<String> getUserPrompt(
+			@RequestBody UpdateSystemPromptRequest request,
+	        @RequestParam String token
+			)
+	{
+		return ResponseEntity.ok(aSyncAIInsightsGenService.generateOppositionAgentPrompt(
+                request.getCurrentSystemPrompt(),
+                request.getUserPersona(),
+                request.getRolePlayObjective(),
+                request.getOppositionPromptGenPrompt(),
+                request.getTestName(),
+                request.getCompanyId()));
+	}
+	
+	@PostMapping("/generate-feedback")
+	public ResponseEntity<String> getFeedback(
+			@RequestBody UpdateSystemPromptRequest request,
+	        @RequestParam String token
+			)
+	{
+		return ResponseEntity.ok(aSyncAIInsightsGenService.generateFeedbackGenPrompt(
+                request.getCurrentSystemPrompt(),
+                request.getUserPersona(),
+                request.getRolePlayObjective(),
+                request.getTranscript(),
+                request.getFeedbackGenPrompt()));
 	}
     
     @PostMapping("/allRolePlayAnswersForRolePlayTestForUser")

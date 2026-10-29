@@ -3,6 +3,8 @@ package com.v2.competency.management.entities;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,12 +30,21 @@ public class WorkFlowSessionMetaData extends Base{
 	
 	private String email;
 	
+	private String userName;
+	
 	private LocalDateTime startTime;
 	
 	private LocalDateTime endTime;
 	
-	private Integer durationInMinutes;
+	private Double durationInMinutes;
 	
 	private Long tokenUsed;
+	
+	private Double costInDollars;
+	
+	private Boolean reportGenerated;
+	
+	@Enumerated(EnumType.STRING)
+	private RolePlayType type;
 
 }

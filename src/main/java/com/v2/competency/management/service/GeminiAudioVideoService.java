@@ -24,5 +24,7 @@ public interface GeminiAudioVideoService {
 	        String modelName,
 	        String prompt,
 	        String input) throws IOException;
+	
+	public String generateTextResponse(String prompt) throws IOException;
 
 }

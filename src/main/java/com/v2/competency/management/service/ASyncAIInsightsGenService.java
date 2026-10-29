@@ -29,7 +29,23 @@ public interface ASyncAIInsightsGenService {
 			String primaryAgentSystemPrompt,
 			String userPersona,
 			String rolePlayObjective,
-			String oppositionPromptGenPrompt);
+			String oppositionPromptGenPrompt,
+			String testName,
+			String companyId);
+	
+	String generateFeedbackGenPrompt(
+			String currentSystemPrompt,
+			String userPersona,
+			String rolePlayObjective,
+			String transcript,
+			String feedbackGenPrompt);
+	
+	String generateOppositionSadFlowAgentPrompt(
+			String primaryAgentSystemPrompt,
+			String userPersona,
+			String userFeedback,
+			String rolePlayObjective,
+			String oppositionSadFlowPrompt);
 	
 	public void submitGoogleFullVideoForAnalysis(
 			String persona,

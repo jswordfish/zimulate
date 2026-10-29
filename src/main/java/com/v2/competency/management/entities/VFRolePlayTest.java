@@ -83,5 +83,6 @@ public class VFRolePlayTest extends Base{
 	
 	Boolean notShowCustomPersona;
 	
+	String feedback;
 	
 }

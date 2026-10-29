@@ -26,7 +26,7 @@ public class ApiProxyController {
     private final GenericApiProxyService genericApiProxyService;
 
     @PostMapping("/call")
-    public ResponseEntity<Object> callExternalApi(@Valid @RequestBody GenericApiRequest request, @RequestParam String token) {
+    public ResponseEntity<?> callExternalApi(@Valid @RequestBody GenericApiRequest request, @RequestParam String token) {
         return genericApiProxyService.callExternalApi(request);
     }
 }

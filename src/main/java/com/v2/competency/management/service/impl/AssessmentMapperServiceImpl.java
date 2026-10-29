@@ -280,53 +280,102 @@ public class AssessmentMapperServiceImpl implements AssessmentMapperService{
         return userPage.map(user -> new UserWithTestDto(testName, user));
     }
 	
+//	@Override
+//	public PaginatedResponseDto findAssessmentsForUserWithFilters(
+//	        String companyId,
+//	        String email,
+//	        String search,
+//	        String sort,
+//	        int page,
+//	        int size) {
+//
+//	    // Handle sorting
+//	    Sort sortObj = Sort.by("testName").ascending(); // default
+//	    if (sort != null && !sort.trim().isEmpty()) {
+//	        List<Sort.Order> orders = Arrays.stream(sort.split(","))
+//	                .map(String::trim)
+//	                .map(s -> {
+//	                    String[] parts = s.split("=");
+//	                    if (parts.length == 2) {
+//	                        String field = parts[0].trim();
+//	                        String direction = parts[1].trim().toLowerCase();
+//	                        return direction.equals("desc")
+//	                                ? Sort.Order.desc(field)
+//	                                : Sort.Order.asc(field);
+//	                    } else {
+//	                        return Sort.Order.asc(s);
+//	                    }
+//	                })
+//	                .collect(Collectors.toList());
+//	        sortObj = Sort.by(orders);
+//	    }
+//
+//	    Pageable pageable = PageRequest.of(page, size > 0 ? size : 10, sortObj);
+//
+//	    // Call repo query with filters
+//	    Page<AssessmentMapper> pageResult =
+//	            repo.findAssessmentsForUserWithFilters(companyId, email, search, pageable);
+//
+//	    // Build response
+//	    PaginatedResponseDto dto = new PaginatedResponseDto();
+//	    dto.setRecordsFrom(page * size + 1);
+//	    dto.setRecordsTo(page * size + pageResult.getNumberOfElements());
+//	    dto.setTotalNumberOfRecords((int) pageResult.getTotalElements());
+//	    dto.setTotalNumberOfPages(pageResult.getTotalPages());
+//	    dto.setSelectedPage(page + 1);
+//	    dto.setList(pageResult.getContent());
+//
+//	    return dto;
+//	}
+	
+	
+
 	@Override
 	public PaginatedResponseDto findAssessmentsForUserWithFilters(
-	        String companyId,
-	        String email,
-	        String search,
-	        String sort,
-	        int page,
-	        int size) {
+	        String companyId, String email, String search, String sort, int page, int size) {
 
-	    // Handle sorting
-	    Sort sortObj = Sort.by("testName").ascending(); // default
+	    int pageSize = size > 0 ? size : 10;
+	    String normalizedSearch = (search == null || search.trim().isEmpty()) ? null : search.trim();
+
+	    Page<AssessmentMapper> pageResult;
+
+	    List<Sort.Order> orders = new ArrayList<>();
 	    if (sort != null && !sort.trim().isEmpty()) {
-	        List<Sort.Order> orders = Arrays.stream(sort.split(","))
-	                .map(String::trim)
-	                .map(s -> {
-	                    String[] parts = s.split("=");
-	                    if (parts.length == 2) {
-	                        String field = parts[0].trim();
-	                        String direction = parts[1].trim().toLowerCase();
-	                        return direction.equals("desc")
-	                                ? Sort.Order.desc(field)
-	                                : Sort.Order.asc(field);
-	                    } else {
-	                        return Sort.Order.asc(s);
-	                    }
-	                })
-	                .collect(Collectors.toList());
-	        sortObj = Sort.by(orders);
+	        for (String s : sort.split(",")) {
+	            s = s.trim();
+	            if (s.isEmpty()) continue;
+	            String[] parts = s.split("=");
+	            String field = parts[0].trim();
+	            boolean desc = parts.length == 2 && "desc".equalsIgnoreCase(parts[1].trim());
+	            orders.add(desc ? Sort.Order.desc(field) : Sort.Order.asc(field));
+	        }
 	    }
 
-	    Pageable pageable = PageRequest.of(page, size > 0 ? size : 10, sortObj);
+	    // Natural sort when no sort is given, or when the primary sort is testName
+	    boolean naturalSort = orders.isEmpty() || "testName".equals(orders.get(0).getProperty());
 
-	    // Call repo query with filters
-	    Page<AssessmentMapper> pageResult =
-	            repo.findAssessmentsForUserWithFilters(companyId, email, search, pageable);
+	    if (naturalSort) {
+	        boolean desc = !orders.isEmpty() && orders.get(0).isDescending();
+	        Pageable pageable = PageRequest.of(page, pageSize); // unsorted: ORDER BY is in the query
+	        pageResult = desc
+	                ? repo.findAssessmentsNaturalDesc(companyId, email, normalizedSearch, pageable)
+	                : repo.findAssessmentsNaturalAsc(companyId, email, normalizedSearch, pageable);
+	    } else {
+	        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(orders));
+	        pageResult = repo.findAssessmentsForUserWithFiltersSorted(
+	                companyId, email, normalizedSearch, pageable);
+	    }
 
-	    // Build response
 	    PaginatedResponseDto dto = new PaginatedResponseDto();
-	    dto.setRecordsFrom(page * size + 1);
-	    dto.setRecordsTo(page * size + pageResult.getNumberOfElements());
+	    dto.setRecordsFrom(pageResult.isEmpty() ? 0 : page * pageSize + 1);
+	    dto.setRecordsTo(page * pageSize + pageResult.getNumberOfElements());
 	    dto.setTotalNumberOfRecords((int) pageResult.getTotalElements());
 	    dto.setTotalNumberOfPages(pageResult.getTotalPages());
 	    dto.setSelectedPage(page + 1);
 	    dto.setList(pageResult.getContent());
-
 	    return dto;
 	}
+	
 	
 	@Override
     public PaginatedResponseDto getTestsAssignedByManager(

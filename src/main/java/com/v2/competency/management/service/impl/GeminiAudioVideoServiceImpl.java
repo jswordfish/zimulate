@@ -11,6 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+//import com.google.genai.Client;
+//import com.google.genai.types.Content;
+//import com.google.genai.types.GenerateContentConfig;
+//import com.google.genai.types.GenerateContentResponse;
+//import com.google.genai.types.Part;
+
 import com.google.cloud.vertexai.VertexAI;
 import com.google.cloud.vertexai.api.Content;
 import com.google.cloud.vertexai.api.GenerateContentResponse;
@@ -225,24 +231,80 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
         }
     }
     
+//    @Override
+//    public String videoInputWithGoogleCloudBucketUrl(String location, String modelName, String prompt, String googleCloudBucketUrl) throws IOException {
+//    	String projectId = config.getGeminiProjectId();
+//        //String location = config.getGeminiLocation();
+//        //String modelName = config.getGeminiModelName();
+//    		if(location == null) {
+//    			location = config.getGeminiLocation();
+//    		}
+//    		if(modelName ==null) {
+//    			modelName = config.getGeminiModelName();
+//    		}
+//    	System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating anaalysis with "+modelName+" and "+location);
+//
+//        try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+//        	GenerationConfig generationConfig =
+//	                GenerationConfig.newBuilder()
+//	                    .setResponseMimeType("application/json") // This is the key line
+//	                    .build();
+//
+//            // Initialize model
+//            GenerativeModel model = new GenerativeModel(modelName, generationConfig, vertexAI);
+//            //System.out.println("Generative model initialized with model name: " + modelName);
+//
+//            // Send request
+//            System.out.println("Sending request to Gemini model...");
+//
+//            // STEP 2: The GCS URI string is passed directly to PartMaker.
+//            // The Vertex AI SDK handles fetching the file from the URI.
+//            GenerateContentResponse response = model.generateContent(
+//                ContentMaker.fromMultiModalData(
+//                    prompt,
+//                    PartMaker.fromMimeTypeAndData("video/mp4", googleCloudBucketUrl)
+//                )
+//            );
+//
+//            System.out.println("Response received from Gemini model.");
+//            String output = response.getCandidates(0).getContent().getParts(0).getText();
+//           // System.out.println("Extracted response text: " + output);
+//            return output;
+//
+//        } catch (Exception e) {
+//            System.out.println("ERROR in videoInputWithGcs method: " + e.getMessage());
+//            e.printStackTrace(); // Full stack trace in logs
+//            return "Error during video analysis: " + e.getMessage();
+//        }
+//    }
+    
     @Override
     public String videoInputWithGoogleCloudBucketUrl(String location, String modelName, String prompt, String googleCloudBucketUrl) throws IOException {
-    	String projectId = config.getGeminiProjectId();
+        String projectId = config.getGeminiProjectId();
         //String location = config.getGeminiLocation();
         //String modelName = config.getGeminiModelName();
-    		if(location == null) {
-    			location = config.getGeminiLocation();
-    		}
-    		if(modelName ==null) {
-    			modelName = config.getGeminiModelName();
-    		}
-    	System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating anaalysis with "+modelName+" and "+location);
+            if(location == null) {
+                location = config.getGeminiLocation();
+            }
+            if(modelName ==null) {
+                modelName = config.getGeminiModelName();
+            }
+        System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating anaalysis with "+modelName+" and "+location);
 
-        try (VertexAI vertexAI = new VertexAI(projectId, location)) {
-        	GenerationConfig generationConfig =
-	                GenerationConfig.newBuilder()
-	                    .setResponseMimeType("application/json") // This is the key line
-	                    .build();
+        // "global" has no "global-" prefixed host, so the endpoint must be set explicitly
+        String apiEndpoint = "global".equals(location)
+                ? "aiplatform.googleapis.com"
+                        : location + "-aiplatform.googleapis.com";
+
+                try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+                    vertexAI.setApiEndpoint(apiEndpoint);   // must be called before the model sends its first request
+
+                    GenerationConfig generationConfig =
+                            GenerationConfig.newBuilder()
+                                .setResponseMimeType("application/json") // This is the key line
+                                .build(); 
+
+            
 
             // Initialize model
             GenerativeModel model = new GenerativeModel(modelName, generationConfig, vertexAI);
@@ -272,6 +334,7 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
         }
     }
     
+
     @Override
     public String transcriptInput(String location, String modelName, String prompt, String transcript)
             throws IOException {
@@ -301,17 +364,18 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
                     new GenerativeModel(modelName, generationConfig, vertexAI);
 
             System.out.println("Sending transcript request to Gemini model...");
+            
+            System.out.println("transcript that we are using : "+transcript.toString());
 
             // Send prompt + transcript to Gemini
             GenerateContentResponse response = model.generateContent(
                     ContentMaker.fromMultiModalData(
                             prompt,
-                            PartMaker.fromMimeTypeAndData(
-                                    "text/plain",
-                                    transcript
-                            )
+                            "TRANSCRIPT:\n" + transcript
                     )
             );
+            
+            
 
             System.out.println("Response received from Gemini model.");
 
@@ -333,6 +397,132 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
             return "Error during transcript analysis: " + e.getMessage();
         }
     }
+    
+//    @Override
+//    public String transcriptInput(String location, String modelName, String prompt, String transcript)
+//            throws IOException {
+//
+//        String projectId = config.getGeminiProjectId();
+//
+//        if (location == null) {
+//            location = config.getGeminiLocation();
+//        }
+//
+//        if (modelName == null) {
+//            modelName = config.getGeminiModelName();
+//        }
+//
+//        System.out.println("in transcriptInput ..generating analysis with "
+//                + modelName + " and " + location);
+//
+//        try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+//
+//            GenerationConfig generationConfig =
+//                    GenerationConfig.newBuilder()
+//                            .setResponseMimeType("application/json")
+//                            .build();
+//
+//            // Initialize model
+//            GenerativeModel model =
+//                    new GenerativeModel(modelName, generationConfig, vertexAI);
+//
+//            System.out.println("Sending transcript request to Gemini model...");
+//
+//            System.out.println("transcript that we are using : " + transcript.toString());
+//
+//            // Validate inputs before sending the request
+//            if (prompt == null || prompt.trim().isEmpty()) {
+//                throw new IllegalArgumentException("Gemini prompt is null or empty");
+//            }
+//
+//            if (transcript == null || transcript.trim().isEmpty()) {
+//                throw new IllegalArgumentException("Transcript is null or empty");
+//            }
+//
+//            // Send prompt + transcript to Gemini
+//            GenerateContentResponse response = model.generateContent(
+//                    ContentMaker.fromMultiModalData(
+//                            prompt,
+//                            PartMaker.fromMimeTypeAndData(
+//                                    "text/plain",
+//                                    transcript
+//                            )
+//                    )
+//            );
+//
+//            System.out.println("Response received from Gemini model.");
+//
+//            if (response == null) {
+//                throw new IOException("Gemini returned a null response");
+//            }
+//
+//            if (response.getCandidatesCount() == 0) {
+//                throw new IOException(
+//                        "Gemini returned no candidates. Check prompt, safety filters, "
+//                                + "model configuration, and response metadata.");
+//            }
+//
+//            if (response.getCandidates(0).getContent() == null
+//                    || response.getCandidates(0).getContent().getPartsCount() == 0) {
+//                throw new IOException("Gemini returned no content parts");
+//            }
+//
+//            String output = response.getCandidates(0)
+//                    .getContent()
+//                    .getParts(0)
+//                    .getText();
+//
+//            if (output == null || output.trim().isEmpty()) {
+//                throw new IOException("Gemini returned empty response text");
+//            }
+//
+//            return output;
+//
+//        } catch (io.grpc.StatusRuntimeException e) {
+//
+//            System.err.println("========== GEMINI GRPC ERROR ==========");
+//            System.err.println("Error class: " + e.getClass().getName());
+//            System.err.println("gRPC status code: " + e.getStatus().getCode());
+//            System.err.println("gRPC status description: " + e.getStatus().getDescription());
+//            System.err.println("gRPC cause: " + e.getStatus().getCause());
+//            System.err.println("gRPC trailers: " + e.getTrailers());
+//            System.err.println("Full exception message: " + e.getMessage());
+//            System.err.println("=======================================");
+//
+//            e.printStackTrace();
+//
+//            throw new IOException(
+//                    "Gemini Vertex AI request failed. Status: "
+//                            + e.getStatus().getCode()
+//                            + ", Description: "
+//                            + e.getStatus().getDescription(),
+//                    e);
+//
+//        } catch (Exception e) {
+//
+//            System.out.println(
+//                    "ERROR in transcriptInput method: " + e.getMessage());
+//
+//            System.err.println("========== GEMINI TRANSCRIPT ERROR ==========");
+//            System.err.println("Error class: " + e.getClass().getName());
+//            System.err.println("Error message: " + e.getMessage());
+//
+//            if (e.getCause() != null) {
+//                System.err.println("Root cause class: "
+//                        + e.getCause().getClass().getName());
+//                System.err.println("Root cause message: "
+//                        + e.getCause().getMessage());
+//            }
+//
+//            e.printStackTrace();
+//            System.err.println("=============================================");
+//
+//            throw new IOException(
+//                    "Error during transcript analysis: "
+//                            + e.getClass().getName() + ": " + e.getMessage(),
+//                    e);
+//        }
+//    }
     
 
 	@Override
@@ -488,5 +678,49 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 	                + e.getMessage();
 	    }
 	}
+	
+
+public String generateTextResponse(String prompt) throws IOException {
+
+    String projectId = config.getGeminiProjectId();
+    String location = config.getGeminiLocation();
+    String modelName = config.getGeminiModelName();
+
+    String apiEndpoint = "global".equals(location)
+            ? "aiplatform.googleapis.com"
+            : location + "-aiplatform.googleapis.com";
+
+    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+
+        vertexAI.setApiEndpoint(apiEndpoint);
+
+        GenerationConfig generationConfig =
+                GenerationConfig.newBuilder()
+                        .setResponseMimeType("text/plain")
+                        .build();
+
+        GenerativeModel model =
+                new GenerativeModel(
+                        modelName,
+                        generationConfig,
+                        vertexAI);
+
+        GenerateContentResponse response =
+                model.generateContent(prompt);
+
+        if (response.getCandidatesCount() == 0
+                || response.getCandidates(0).getContent()
+                        .getPartsCount() == 0) {
+            throw new IllegalStateException(
+                    "Gemini returned an empty response");
+        }
+
+        return response.getCandidates(0)
+                .getContent()
+                .getParts(0)
+                .getText();
+    }
+}
+
 
 }

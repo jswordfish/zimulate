@@ -78,15 +78,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 //	    return new CorsFilter(source);
 //	}
 
-	@Bean
-    public S3Client s3Client() {
-        return S3Client.builder()
-                .region(Region.AP_SOUTH_1) // change region as per your bucket
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create("AKIATTNDRE7EMASKPY5A", "TJ8AsCgHkzuRwTNT3ZeQPwahAo91dYDJuhdwTiPd")
-                ))
-                .build();
-    }
+//	@Bean
+//    public S3Client s3Client() {
+//        return S3Client.builder()
+//                .region(Region.AP_SOUTH_1) // change region as per your bucket
+//                .credentialsProvider(StaticCredentialsProvider.create(
+//                        AwsBasicCredentials.create("AKIATTNDRE7EMASKPY5A", "TJ8AsCgHkzuRwTNT3ZeQPwahAo91dYDJuhdwTiPd")
+//                ))
+//                .build();
+//    }
 
    
 }

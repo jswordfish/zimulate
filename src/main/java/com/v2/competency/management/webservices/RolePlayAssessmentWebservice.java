@@ -214,6 +214,8 @@ Map<String, List<String>> map = new HashMap<>();
 		r.setTestName(r.getTestName().trim());
 		r.setCompanyId(r.getCompanyId().trim());
 		r.setQuestionText(r.getQuestionText().trim());
+		r.setIsTranscriptBasedAnalysis(rolePlayDto.getIsTranscriptBasedAnalysis());
+		
 		
 		if(!companyId.equals(r.getCompanyId())) {
 			throw new RuntimeException("Invalid Company Id "+r.getCompanyId());
@@ -744,6 +746,7 @@ Map<String, List<String>> map = new HashMap<>();
 				SalesPersonaDTO dto = SalesPersonaDTO.builder().persona(mapping.getPersona())
 										.personaDesc(mapping.getPersonaDescription())
 										.voiceId(mapping.getVoiceId())
+										.googleBucketUrl(mapping.getGoogleBucketUrl())
 										.build();
 				list2.add(dto);
 			}

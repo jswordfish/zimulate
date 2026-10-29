@@ -13,5 +13,7 @@ public class SalesPersonaDTO {
 	String personaDesc;
 	
 	String voiceId;
+	
+	String googleBucketUrl;
 
 }

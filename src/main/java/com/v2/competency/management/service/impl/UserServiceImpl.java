@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService{
 	@Autowired
 	OrgHierarchyService orgHierarchyService;
 	
-	Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	Mapper mapper = DozerBeanMapperBuilder.buildDefault(); 
 	
 	String companyAdminRole = "Company Admin";
 	

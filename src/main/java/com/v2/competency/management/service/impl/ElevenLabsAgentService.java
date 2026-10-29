@@ -31,6 +31,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.v2.competency.management.dtos.ElevenLabsConversationResponse;
+import com.v2.competency.management.dtos.ElevenLabsTranscriptItem;
 import com.v2.competency.management.elevanlabs.dtos.Root;
 import com.v2.competency.management.service.AgentService;
 import com.v2.competency.management.service.MiscellaneousService;
@@ -54,6 +56,54 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
         requestFactory.setHttpClient(httpClient);
         restTemplate = new RestTemplate(requestFactory);
 	}
+	
+	@Override
+	public String getConversationTranscript(String conversationId) {
+
+        String url = "https://api.elevenlabs.io/v1/convai/conversations/"
+                + conversationId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<ElevenLabsConversationResponse> response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        ElevenLabsConversationResponse.class
+                );
+
+        ElevenLabsConversationResponse conversation = response.getBody();
+
+        if (conversation == null || conversation.getTranscript() == null) {
+            return "";
+        }
+
+        StringBuilder transcriptBuilder = new StringBuilder();
+
+        for (ElevenLabsTranscriptItem item : conversation.getTranscript()) {
+
+            if (item == null || item.getMessage() == null
+                    || item.getMessage().trim().isEmpty()) {
+                continue;
+            }
+
+            if (transcriptBuilder.length() > 0) {
+                transcriptBuilder.append("\n");
+            }
+
+            transcriptBuilder
+                    .append(item.getRole())
+                    .append(": ")
+                    .append(item.getMessage());
+        }
+
+        return transcriptBuilder.toString();
+    }
 
 	@Override
 	public String createOrUpdateKnowledgeBase(File file, String knowledBaseName) {
@@ -82,7 +132,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	
 	private String findKnowledgeBaseIdByName(String name) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
@@ -115,7 +165,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	private String uploadKnowledgeBaseFromPdf(String filePath, String kbName) {
         File pdfFile = new File(filePath);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -141,7 +191,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	private String updateKnowledgeBaseFromPdf(String kbId, String filePath, String kbName) {
         File pdfFile = new File(filePath);
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
@@ -172,7 +222,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	
 	private String updateAgent(String agentId, String name, String prompt, String knowledgeBaseId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> promptConfig = new HashMap<>();
@@ -222,7 +272,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 
     private String sendAgentPayload(String agentId, String name, String prompt, String knowledgeBaseId, boolean isUpdate) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> promptConfig = new HashMap<>();
@@ -274,7 +324,7 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
     
     private String findAgentIdByName(String name) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));
+        headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
@@ -308,14 +358,14 @@ private final HttpClient httpClient = HttpClient.newHttpClient();
 	public String createOrUpdateAgent(Root root, String agentId) {
 		 HttpHeaders headers = new HttpHeaders();
 	       // headers.set("xi-api-key", config.getElevenLabsKey());
-		 headers.set("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"));  // making custom properties external
+		 headers.set("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"));  // making custom properties external
 //		 	headers.set("xi-api-key", config.getElevenLabsKey());
 	        headers.setContentType(MediaType.APPLICATION_JSON);
 	    String updateOrCreateUrl =  agentId == null?config.getElevenLabsApiUrl()+"/create":config.getElevenLabsApiUrl()+"/"+agentId;
 	    System.out.println(updateOrCreateUrl);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(updateOrCreateUrl))
-                .header("xi-api-key", miscellaneousService.getValue("elevenlabs.api.key"))
+                .header("xi-api-key", miscellaneousService.getValue("ELEVEN_LABS"))
                 .header("Content-Type", "application/json")
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(root.toString(), StandardCharsets.UTF_8))
                 .build();

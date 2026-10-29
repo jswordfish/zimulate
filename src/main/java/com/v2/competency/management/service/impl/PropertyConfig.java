@@ -66,6 +66,18 @@ public class PropertyConfig {
 	
 	@Value("${path.to.custom.properties}")
 	String customPropertiesPath;
+	
+	@Value("${gcp.storage.bucket-name}")
+	String googleBucketName;
+	
+
+	public String getGoogleBucketName() {
+		return googleBucketName;
+	}
+
+	public void setGoogleBucketName(String googleBucketName) {
+		this.googleBucketName = googleBucketName;
+	}
 
 	public String getGeminiProjectId() {
 		return geminiProjectId;

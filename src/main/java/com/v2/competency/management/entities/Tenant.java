@@ -30,5 +30,6 @@ public class Tenant extends Base{
 	
 	String password = "12345";
 	
+	String s3KeyName;
 	
 }
