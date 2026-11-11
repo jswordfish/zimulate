@@ -36,6 +36,8 @@ public class MailJetEmailService implements EmailService{
 	
 	String secretKey = "184fc8e67edae36b2b5ad191e8bd2e53";
 	
+	private static final String SENDER_EMAIL = "sales@zimulate.me";
+	
 	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SS");
 	
 	@Autowired
@@ -208,6 +210,56 @@ public class MailJetEmailService implements EmailService{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void sendReportGenerationFailedEmail(
+	        Long sessionId,
+	        String email,
+	        String testName,
+	        Integer attempt,
+	        String companyId,
+	        String errorMessage
+	) {
+	    try {
+	        ClientOptions options = ClientOptions.builder()
+	                .apiKey(apiKey)
+	                .apiSecretKey(secretKey)
+	                .build();
+
+	        MailjetClient client = new MailjetClient(options);
+
+	        // keep the email readable if Gemini returned a huge error
+	        String safeError = errorMessage == null ? "" :
+	                (errorMessage.length() > 1000 ? errorMessage.substring(0, 1000) + "..." : errorMessage);
+
+	        Map<String, Object> variables = new HashMap<>();
+	        variables.put("sessionId", sessionId == null ? "" : sessionId.toString());
+	        variables.put("email", email == null ? "" : email);
+	        variables.put("testName", testName == null ? "" : testName);
+	        variables.put("attempt", attempt == null ? "" : attempt.toString());
+	        variables.put("companyId", companyId == null ? "" : companyId);
+	        variables.put("errorMessage", safeError);
+
+	        TransactionalEmail emailMessage = TransactionalEmail.builder()
+	                .to(List.of(new SendContact("jatin.sutaria@thev2technologies.com")))
+	                .from(new SendContact(SENDER_EMAIL, "Zimulate"))
+	                .subject("Report generation failed - session " + sessionId)
+	                .templateID(8494873L)
+	                .templateLanguage(true)
+	                .variables(variables)
+	                .build();
+
+	        SendEmailsRequest request = SendEmailsRequest.builder()
+	                .message(emailMessage)
+	                .build();
+
+	        request.sendWith(client);
+	    } catch (Exception e) {
+	        // an alert email failing must never break the report flow
+	        System.err.println("Failed to send report-failed email for session " + sessionId);
+	        e.printStackTrace();
+	    }
 	}
 
 }

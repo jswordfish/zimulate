@@ -488,7 +488,8 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	    }
 	}
 	
-	private String getResultInputJson(VFRolePlayTest test) throws JsonProcessingException {
+	@Override
+	public String getResultInputJson(VFRolePlayTest test) throws JsonProcessingException {
 		System.out.println(" getResultInputJson ");
 		if(test.getReportVersion() != null || test.getReportVersion().equalsIgnoreCase("V2")) {
 			System.out.println(" getResultInputJson V2");
@@ -901,20 +902,208 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	    }
 	}
 	
+//	@Override
+//	@Async
+//	public void submitGoogleFullVideoForAnalysis(String persona, String email, String firstName, String lastName, String testName,
+//			Integer attempt, String companyId, String googleBucketPath, String location, String model, String videoLink, Long workflowSessionId, String conversationId) {
+//		// TODO Auto-generated method stub
+//		try {
+//	        System.out.println("A.	Submit Video method entered "+googleBucketPath);
+//
+//	        VFRolePlayTestSession session = new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
+//	        session.setTestIdentifier(testName);
+//	        session.setVideoLink(googleBucketPath);
+//		    session.setVideoUrl(videoLink);
+//		    session.setRolePlayPersona(persona);
+//		    session.setWorkflowSessionId(workflowSessionId); // change here
+//		    session.setConversationId(conversationId);
+//	        session = rolePlayTestSessionService.saveOrUpdate(session);
+//	        System.out.println("B.	Sending video for insights **** ");
+//	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
+//	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptEasy();
+//	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
+//	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
+//	        
+//	        
+//	        String json = getResultInputJson(test);
+//	        //System.out.println("json is "+json);
+//	        prompt = prompt.replace("${ANALYSIS_JSON}", json);
+//	        System.out.println("***********prompt is "+System.lineSeparator()+""+prompt);
+//	        System.out.println(System.lineSeparator());
+//	        
+//	        String videoInsights = geminiservice.videoInputWithGoogleCloudBucketUrl(location==null?config.getGeminiLocation():location, model==null?config.getGeminiModelName():model, prompt, googleBucketPath);
+//	        videoInsights = videoInsights.replaceFirst("```json\\n", "");
+//	        videoInsights = videoInsights.replaceFirst("\\n```", "");
+//	        	        
+//	        System.out.println("C.	Recieved Video Insights for " + session.getId() + " & email " + email);
+//	        
+//	        if (videoInsights == null || videoInsights.trim().isEmpty()) {
+//	            System.err.println("D.	No insights received from videoInput service!");
+//	        } else {
+//	            System.out.println("E.	Received video insights: for "+email);
+//	        }
+//	     
+//	        session.setVideoInsightsJson(videoInsights);
+//	        session.setEvaluationFailed(false);
+//	        session.setReportsVersion(test.getReportVersion());
+//	        session = rolePlayTestSessionService.saveOrUpdate(session);
+//	        System.out.println("F.	Saved insights successfully for session: " + session.getId());
+//	        String cc[] = {"jatin.sutaria@thev2technologies.com", "sales@zimulate.me", "cherian.sabby@thev2technologies.com", "avanish@zimulate.me"};
+//	        String subject = firstName+", Your Pitch Score for "+testName+" Role Play!!!";
+////	        	if(companyId.equalsIgnoreCase("dti")) {
+////	        		emailService.sendEmailWithtoIgnore(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
+////	        	}
+////	        	else {
+//	        		emailService.sendEmail(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
+////	        	}
+//	        
+//	        
+//	        ///Call work flow recomm gen services
+//	        if(workflowRecommGenerator.checkIfRecommCanBeGenerated(session.getId(), session.getWorkflowSessionId())) {
+//	        	workflowRecommGenerator.generateRecommendations(session.getWorkflowSessionId());
+//	        }
+//	        
+//
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	    }
+//	}
+//	
+//	@Override
+//	@Async
+//	public void submitGoogleFullTranscriptForAnalysis(
+//	        String persona,
+//	        String email,
+//	        String firstName,
+//	        String lastName,
+//	        String testName,
+//	        Integer attempt,
+//	        String companyId,
+//	        String location,
+//	        String model,
+//	        String transcript,
+//	        Long workflowSessionId,
+//	        String conversationId) {
+//
+//	    // TODO Auto-generated method stub
+//	    try {
+//
+//	        System.out.println("A. Submit Transcript method entered");
+//
+//	        VFRolePlayTestSession session =
+//	                new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
+//
+//	        session.setTestIdentifier(testName);
+//	        session.setRolePlayPersona(persona);
+//	        session.setWorkflowSessionId(workflowSessionId); // change here
+//	        session.setConversationId(conversationId);
+//
+//	        session = rolePlayTestSessionService.saveOrUpdate(session);
+//
+//	        System.out.println("B. Sending transcript for insights **** ");
+//
+//	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
+//
+//	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptEasy();
+//
+//	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
+//	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
+//
+//	        String json = getResultInputJson(test);
+//	        // System.out.println("json is " + json);
+//
+//	        prompt = prompt.replace("${ANALYSIS_JSON}", json);
+//
+//	        System.out.println("**********prompt is "
+//	                + System.lineSeparator() + "" + prompt);
+//
+//	        System.out.println(System.lineSeparator());
+//
+//	        String transcriptInsights =
+//	                geminiservice.transcriptInput(
+//	                        location == null ? config.getGeminiLocation() : location,
+//	                        model == null ? config.getGeminiModelName() : model,
+//	                        prompt,
+//	                        transcript);
+//
+//	        transcriptInsights = transcriptInsights.replaceFirst("```json\\n", "");
+//	        transcriptInsights = transcriptInsights.replaceFirst("\\n```", "");
+//
+//	        System.out.println("C. Recieved Transcript Insights for "
+//	                + session.getId() + " & email " + email);
+//
+//	        if (transcriptInsights == null || transcriptInsights.trim().isEmpty()) {
+//
+//	            System.err.println("D. No insights received from transcriptInput service!");
+//
+//	        } else {
+//
+//	            System.out.println("E. Received transcript insights: for " + email);
+//
+//	        }
+//
+//	        session.setVideoInsightsJson(transcriptInsights);
+//	        session.setEvaluationFailed(false);
+//	        session.setReportsVersion(test.getReportVersion());
+//
+//	        session = rolePlayTestSessionService.saveOrUpdate(session);
+//
+//	        System.out.println("F. Saved insights successfully for session: "
+//	                + session.getId());
+//
+//	        String cc[] = {
+//	                "jatin.sutaria@thev2technologies.com",
+//	                "sales@zimulate.me",
+//	                "cherian.sabby@thev2technologies.com",
+//	                "avanish@zimulate.me"
+//	        };
+//
+//	        String subject = firstName + ", Your Pitch Score for "
+//	                + testName + " Role Play!!!";
+//
+//	        emailService.sendEmail(
+//	                email,
+//	                cc,
+//	                subject,
+//	                testName,
+//	                attempt,
+//	                firstName,
+//	                lastName,
+//	                persona,
+//	                companyId);
+//
+//	        /// Call work flow recomm gen services
+//	        if (workflowRecommGenerator.checkIfRecommCanBeGenerated(
+//	                session.getId(),
+//	                session.getWorkflowSessionId())) {
+//
+//	            workflowRecommGenerator.generateRecommendations(
+//	                    session.getWorkflowSessionId());
+//	        }
+//
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	    }
+//	}
+	
 	@Override
 	@Async
 	public void submitGoogleFullVideoForAnalysis(String persona, String email, String firstName, String lastName, String testName,
 			Integer attempt, String companyId, String googleBucketPath, String location, String model, String videoLink, Long workflowSessionId, String conversationId) {
 		// TODO Auto-generated method stub
+
+		VFRolePlayTestSession session = null;
+		boolean insightsSaved = false;
+
 		try {
 	        System.out.println("A.	Submit Video method entered "+googleBucketPath);
 
-	        VFRolePlayTestSession session = new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
+	        session = new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
 	        session.setTestIdentifier(testName);
 	        session.setVideoLink(googleBucketPath);
 		    session.setVideoUrl(videoLink);
 		    session.setRolePlayPersona(persona);
-		    session.setWorkflowSessionId(workflowSessionId); // change here
+		    session.setWorkflowSessionId(workflowSessionId); 
 		    session.setConversationId(conversationId);
 	        session = rolePlayTestSessionService.saveOrUpdate(session);
 	        System.out.println("B.	Sending video for insights **** ");
@@ -931,21 +1120,32 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        System.out.println(System.lineSeparator());
 	        
 	        String videoInsights = geminiservice.videoInputWithGoogleCloudBucketUrl(location==null?config.getGeminiLocation():location, model==null?config.getGeminiModelName():model, prompt, googleBucketPath);
+
+	        if (videoInsights == null
+	                || videoInsights.trim().isEmpty()
+	                || videoInsights.trim().startsWith("Error")) {
+
+	            System.err.println("D.	Report generation failed (Gemini returned error/empty) for session " + session.getId());
+	            handleReportGenerationFailure(session, test, videoInsights,
+	                    videoInsights == null || videoInsights.trim().isEmpty()
+	                            ? "No insights received from Gemini"
+	                            : videoInsights,
+	                    email, testName, attempt, companyId);
+	            return; 
+	        }
+
 	        videoInsights = videoInsights.replaceFirst("```json\\n", "");
 	        videoInsights = videoInsights.replaceFirst("\\n```", "");
 	        	        
 	        System.out.println("C.	Recieved Video Insights for " + session.getId() + " & email " + email);
 	        
-	        if (videoInsights == null || videoInsights.trim().isEmpty()) {
-	            System.err.println("D.	No insights received from videoInput service!");
-	        } else {
-	            System.out.println("E.	Received video insights: for "+email);
-	        }
+	        System.out.println("E.	Received video insights: for "+email);
 	     
 	        session.setVideoInsightsJson(videoInsights);
 	        session.setEvaluationFailed(false);
 	        session.setReportsVersion(test.getReportVersion());
 	        session = rolePlayTestSessionService.saveOrUpdate(session);
+	        insightsSaved = true; 
 	        System.out.println("F.	Saved insights successfully for session: " + session.getId());
 	        String cc[] = {"jatin.sutaria@thev2technologies.com", "sales@zimulate.me", "cherian.sabby@thev2technologies.com", "avanish@zimulate.me"};
 	        String subject = firstName+", Your Pitch Score for "+testName+" Role Play!!!";
@@ -965,6 +1165,12 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
+
+	        
+	        if (!insightsSaved) {
+	            handleReportGenerationFailure(session, null, null, e.getMessage(),
+	                    email, testName, attempt, companyId);
+	        }
 	    }
 	}
 	
@@ -985,16 +1191,20 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        String conversationId) {
 
 	    // TODO Auto-generated method stub
+
+	    VFRolePlayTestSession session = null;
+	    boolean insightsSaved = false;
+
 	    try {
 
 	        System.out.println("A. Submit Transcript method entered");
 
-	        VFRolePlayTestSession session =
+	        session =
 	                new VFRolePlayTestSession(email, firstName, lastName, testName, attempt, companyId);
 
 	        session.setTestIdentifier(testName);
 	        session.setRolePlayPersona(persona);
-	        session.setWorkflowSessionId(workflowSessionId); // change here
+	        session.setWorkflowSessionId(workflowSessionId); 
 	        session.setConversationId(conversationId);
 
 	        session = rolePlayTestSessionService.saveOrUpdate(session);
@@ -1025,27 +1235,34 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	                        prompt,
 	                        transcript);
 
+	        if (transcriptInsights == null
+	                || transcriptInsights.trim().isEmpty()
+	                || transcriptInsights.trim().startsWith("Error")) {
+
+	            System.err.println("D. Report generation failed (Gemini returned error/empty) for session "
+	                    + session.getId());
+	            handleReportGenerationFailure(session, test, transcriptInsights,
+	                    transcriptInsights == null || transcriptInsights.trim().isEmpty()
+	                            ? "No insights received from Gemini"
+	                            : transcriptInsights,
+	                    email, testName, attempt, companyId);
+	            return; 
+	        }
+
 	        transcriptInsights = transcriptInsights.replaceFirst("```json\\n", "");
 	        transcriptInsights = transcriptInsights.replaceFirst("\\n```", "");
 
 	        System.out.println("C. Recieved Transcript Insights for "
 	                + session.getId() + " & email " + email);
 
-	        if (transcriptInsights == null || transcriptInsights.trim().isEmpty()) {
-
-	            System.err.println("D. No insights received from transcriptInput service!");
-
-	        } else {
-
-	            System.out.println("E. Received transcript insights: for " + email);
-
-	        }
+	        System.out.println("E. Received transcript insights: for " + email);
 
 	        session.setVideoInsightsJson(transcriptInsights);
 	        session.setEvaluationFailed(false);
 	        session.setReportsVersion(test.getReportVersion());
 
 	        session = rolePlayTestSessionService.saveOrUpdate(session);
+	        insightsSaved = true; 
 
 	        System.out.println("F. Saved insights successfully for session: "
 	                + session.getId());
@@ -1071,7 +1288,6 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	                persona,
 	                companyId);
 
-	        /// Call work flow recomm gen services
 	        if (workflowRecommGenerator.checkIfRecommCanBeGenerated(
 	                session.getId(),
 	                session.getWorkflowSessionId())) {
@@ -1082,7 +1298,46 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
+
+	        if (!insightsSaved) {
+	            handleReportGenerationFailure(session, null, null, e.getMessage(),
+	                    email, testName, attempt, companyId);
+	        }
 	    }
+	}
+
+	
+	private void handleReportGenerationFailure(VFRolePlayTestSession session, VFRolePlayTest test,
+			String insightsText, String errorMessage, String email, String testName,
+			Integer attempt, String companyId) {
+		Long sessionId = null;
+		try {
+			if (session != null) {
+				if (insightsText != null) {
+					session.setVideoInsightsJson(insightsText); // keep the error text
+				}
+				session.setEvaluationFailed(true);
+				if (test != null) {
+					session.setReportsVersion(test.getReportVersion());
+				}
+				session = rolePlayTestSessionService.saveOrUpdate(session);
+				sessionId = session.getId();
+			}
+		} catch (Exception e) {
+			System.err.println("Failed to mark session as failed");
+			e.printStackTrace();
+			if (session != null) {
+				sessionId = session.getId();
+			}
+		}
+
+		try {
+			emailService.sendReportGenerationFailedEmail(
+					sessionId, email, testName, attempt, companyId, errorMessage);
+		} catch (Exception e) {
+			System.err.println("Failed to send report-failed email");
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -1148,7 +1403,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 
 	@Override
 	public String generateFeedbackGenPrompt(String currentSystemPrompt, String userPersona,
-			String rolePlayObjective, String transcript, String feedbackGenPrompt) {
+			String rolePlayObjective, String transcript, String feedbackGenPrompt, Double temperature) {
 		
 		try {
 
@@ -1245,9 +1500,10 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	                transcript);
 	        
 	        String oppositionPrompt =
-	                geminiservice.updateSystemPrompt(
+	                geminiservice.generateFeedbackPrompt(
 	                        null,
 	                        null,
+	                        temperature,
 	                        prompt,
 	                        "");
 	        

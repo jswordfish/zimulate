@@ -16,7 +16,7 @@ import com.googlecloud.vertex.ai.roleplay.insights.dto.RolePlayInsightsDto;
 @Entity
 public class VFRolePlayTestSession extends Base {
 	
-String email;
+	String email;
 	
 	String firstName;
 	
@@ -53,7 +53,7 @@ String email;
 	RolePlayInsightsDto insightsDto;
 	
 	Boolean evaluationFailed;
-	
+		
 	@Lob
 	String reviewerInsightsJson;
 	
@@ -79,7 +79,7 @@ String email;
 	@Transient
 	String error;
 	
-	
+	Boolean geminiTriesExhausted;
 
 	public VFRolePlayTestSession() {
 	
@@ -110,6 +110,18 @@ String email;
 	public String getFirstName() {
 		return firstName;
 	}
+
+	public Boolean getGeminiTriesExhausted() {
+		return geminiTriesExhausted;
+	}
+
+
+
+	public void setGeminiTriesExhausted(Boolean geminiTriesExhausted) {
+		this.geminiTriesExhausted = geminiTriesExhausted;
+	}
+
+
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;

@@ -25,6 +25,13 @@ public interface GeminiAudioVideoService {
 	        String prompt,
 	        String input) throws IOException;
 	
+	public String generateFeedbackPrompt(
+	        String location,
+	        String modelName,
+	        Double temperature,
+	        String prompt,
+	        String input) throws IOException;
+	
 	public String generateTextResponse(String prompt) throws IOException;
 
 }

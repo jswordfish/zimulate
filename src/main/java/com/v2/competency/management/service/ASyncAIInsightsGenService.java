@@ -3,6 +3,8 @@ package com.v2.competency.management.service;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.v2.competency.management.entities.VFRolePlayTest;
 import com.v2.competency.management.entities.VFRolePlayTestSession;
 import com.v2.competency.management.entities.VFTestUserQuestionAnswer;
 
@@ -18,6 +20,8 @@ public interface ASyncAIInsightsGenService {
 	public void generateInsightsForRolePlayBasedAssessmentWithVideoInAsyncDJ(String testName, String email, String companyId, VFRolePlayTestSession rolePlayTestSession, String transcript, String mergedVideoPath);
 	
 	public void generateInsightsForRolePlayBasedAssessmentWithUnifiedPromptInAsyncDJ(String testName, String email, String companyId, VFRolePlayTestSession rolePlayTestSession, String mergedVideoPath);
+	
+	String getResultInputJson(VFRolePlayTest test) throws JsonProcessingException;
 	
 	String updateSystemPrompt(
 	        String currentSystemPrompt,
@@ -38,7 +42,8 @@ public interface ASyncAIInsightsGenService {
 			String userPersona,
 			String rolePlayObjective,
 			String transcript,
-			String feedbackGenPrompt);
+			String feedbackGenPrompt,
+			Double temperature);
 	
 	String generateOppositionSadFlowAgentPrompt(
 			String primaryAgentSystemPrompt,

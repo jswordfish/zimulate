@@ -262,6 +262,7 @@ public class RolePlayWebservice {
 	public ResponseEntity<VFRolePlayTest> saveFeedback(
 			@RequestParam Long testId,
 			@RequestParam String feedback,
+			@RequestParam String transcript,
 			@RequestParam String token){
 		
 		VFRolePlayTest test = vFRolePlayTestRepo.findById(testId).orElse(null);
@@ -271,6 +272,8 @@ public class RolePlayWebservice {
 		}
 		
 		test.setFeedback(feedback);
+		
+		test.setAiToAiTranscript(transcript);
 		
 		return ResponseEntity.ok(rolePlayTestService.saveOrUpdate(test));
 		
@@ -302,7 +305,8 @@ public class RolePlayWebservice {
                 request.getUserPersona(),
                 request.getRolePlayObjective(),
                 request.getTranscript(),
-                request.getFeedbackGenPrompt()));
+                request.getFeedbackGenPrompt(),
+                request.getTemperature()));
 	}
     
     @PostMapping("/allRolePlayAnswersForRolePlayTestForUser")

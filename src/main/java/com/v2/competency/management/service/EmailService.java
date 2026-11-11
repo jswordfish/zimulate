@@ -6,5 +6,13 @@ public interface EmailService {
 	
 	public void sendEmailWithtoIgnore(String email, String cc[], String subject, String roleplay, Integer attempt, String firstName, String lastName, String persona, String companyId);
 
-
+	public void sendReportGenerationFailedEmail(
+	        Long sessionId,
+	        String email,
+	        String testName,
+	        Integer attempt,
+	        String companyId,
+	        String errorMessage
+	);
+	
 }

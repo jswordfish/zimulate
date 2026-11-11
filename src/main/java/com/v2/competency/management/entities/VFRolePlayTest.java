@@ -85,4 +85,6 @@ public class VFRolePlayTest extends Base{
 	
 	String feedback;
 	
+	String aiToAiTranscript;
+	
 }

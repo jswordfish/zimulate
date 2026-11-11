@@ -32,5 +32,7 @@ public class UpdateSystemPromptRequest {
 	private String testName;
 	
 	private String companyId;
+	
+	private Double temperature;
     
 }

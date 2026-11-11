@@ -2,14 +2,16 @@ package com.v2.competency.management;
 
 import java.util.concurrent.Executor;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import springfox.documentation.builders.PathSelectors;
@@ -21,6 +23,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 @EnableAsync
+@EnableScheduling
 public class Application implements CommandLineRunner{
 	static Log log = LogFactory.getLog(Application.class.getName());
 	
@@ -28,6 +31,11 @@ public class Application implements CommandLineRunner{
 	public static void main(String[] args) {
 		log.info("starting app");
 		SpringApplication.run(Application.class, args);
+	}
+	
+	@PostConstruct  
+	public void init() {
+	    System.out.println("FailedEvaluationRetryScheduler bean created");
 	}
 
 	@Override

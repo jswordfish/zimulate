@@ -679,6 +679,90 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 	    }
 	}
 	
+	@Override
+	public String generateFeedbackPrompt(
+	        String location,
+	        String modelName,
+	        Double temperature,
+	        String prompt,
+	        String input) throws IOException {
+
+	    String projectId = config.getGeminiProjectId();
+
+	    if (location == null) {
+	        location = config.getGeminiLocation();
+	    }
+
+	    if (modelName == null) {
+	        modelName = config.getGeminiModelName();
+	    }
+
+	    System.out.println(
+	            "in generateFeedbackPrompt ..generating prompt with "
+	                    + modelName + ", location: " + location 
+	                    + ", and temperature: " + temperature);
+
+	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+
+	        // Build the GenerationConfig with the provided temperature
+	        GenerationConfig.Builder configBuilder =
+	                GenerationConfig.newBuilder()
+	                        .setResponseMimeType("text/plain");
+
+	        // Set temperature only if it's provided, or you can use a default check
+	        if (temperature != null) {
+	            configBuilder.setTemperature(temperature.floatValue());
+	        }
+
+	        GenerationConfig generationConfig = configBuilder.build();
+
+	        GenerativeModel model =
+	                new GenerativeModel(
+	                        modelName,
+	                        generationConfig,
+	                        vertexAI);
+
+	        System.out.println(
+	                "Sending system prompt update request to Gemini model...");
+
+	        String completePrompt =
+	                prompt
+	                        + "\n\n"
+	                        + input;
+
+	        System.out.println(
+	                "Complete prompt length: "
+	                        + completePrompt.length());
+
+	        GenerateContentResponse response =
+	                model.generateContent(
+	                        ContentMaker.fromString(completePrompt)
+	                );
+
+	        System.out.println(
+	                "Response received from Gemini model.");
+
+	        String output =
+	                response.getCandidates(0)
+	                        .getContent()
+	                        .getParts(0)
+	                        .getText();
+
+	        return output;
+
+	    } catch (Exception e) {
+
+	        System.out.println(
+	                "ERROR in updateSystemPrompt method: "
+	                        + e.getMessage());
+
+	        e.printStackTrace();
+
+	        return "Error while updating system prompt: "
+	                + e.getMessage();
+	    }
+	}
+	
 
 public String generateTextResponse(String prompt) throws IOException {
 
