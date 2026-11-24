@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -330,6 +331,16 @@ public class AI_Platform_AssessmentMapperWebService {
 	    }
 
 	    return ResponseEntity.ok(generatedLinks);
+	}
+	
+	@PostMapping("/unmap-rolePlay-mapping")
+	public ResponseEntity<AssessmentMapper> unMap(
+			@RequestParam Long mapperId,
+			@RequestParam String token
+			){
+		
+		return ResponseEntity.ok(assessmentMapperService.unMap(mapperId));
+		
 	}
 	
 	@GetMapping("/get tests assigned by a manager")

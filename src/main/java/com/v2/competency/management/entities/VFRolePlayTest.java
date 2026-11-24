@@ -47,7 +47,7 @@ public class VFRolePlayTest extends Base{
 	
 	String parentCompetency;
 	
-	
+	String appliedPrompt;
 	
 	//@ExcelCellName(value = "Evaluation Params")
 	@Column(length = 2500)

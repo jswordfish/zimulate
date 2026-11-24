@@ -15,5 +15,6 @@ public interface WorkflowSessionService {
 	 
 	public Page<WorkflowSession> findAllWorkflowSessionForUserByCompanyId( String companyId,   String email, Pageable pageable);
 
-
+	public WorkflowSession setLockedAndLanguage(String email, String language, Boolean locked, Long workFlowId, String companyId);
+	
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.v2.competency.management.common.util.TokenService2;
 import com.v2.competency.management.dtos.AuthenticationResponse;
+import com.v2.competency.management.dtos.AuthenticationResponseDto;
 import com.v2.competency.management.entities.User;
 import com.v2.competency.management.repos.UserRepo;
 import com.v2.competency.management.service.UserService;
@@ -147,5 +148,67 @@ public class AuthenticationController {
 			}
 		
 	} 
+	
+	@CrossOrigin
+	@RequestMapping(value = "/tokenLong", method = RequestMethod.POST)
+	public ResponseEntity<?> createAuthenticationTokenLong(
+	        @RequestBody User user,
+	        @RequestParam(required = false) String superFlag) throws Exception {
+
+	    Objects.requireNonNull(user);
+	    Objects.requireNonNull(user.getEmail());
+	    Objects.requireNonNull(user.getPassword());
+	    Objects.requireNonNull(user.getCompanyId());
+
+	    User u = userService.findByEmail(user.getEmail(), user.getCompanyId());
+
+	    AuthenticationResponseDto response = new AuthenticationResponseDto();
+
+	    if (superFlag != null && superFlag.equals("yes")) {
+	        if (!user.getEmail().equals("admin@itechseed.com")) {
+	            return ResponseEntity.ok("failure : Not a Super Admin User");
+	        }
+	    } else {
+	        if (user.getEmail().equals("admin@itechseed.com")) {
+	            return ResponseEntity.ok("failure : Not a Super Admin login Page");
+	        }
+	    }
+
+	    if (u == null) {
+
+	        if (user.getEmail().equals("admin@itechseed.com")
+	                && user.getPassword().equals("12345")) {
+
+	            String token = tokenService.generateLongToken(
+	                    "SUPER_ADMIN", user.getEmail());
+
+	            response.setToken(token);
+	            response.setUser(null);
+
+	            return ResponseEntity.ok(response);
+	        }
+
+	        return ResponseEntity.ok("failure");
+
+	    } else {
+
+	        if (user.getPassword().equals(u.getPassword())) {
+
+	            String token = tokenService.generateLongToken(
+	                    u.getOrgHierarchy().getRoleOrDesig(),
+	                    u.getEmail());
+
+	            response.setToken(token);
+	            response.setUser(u);
+
+	            return ResponseEntity.ok(response);
+
+	        } else {
+	            return ResponseEntity.ok("failure : Wrong Password");
+	        }
+	    }
+	}
+	
+	
 
 }

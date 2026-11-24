@@ -27,6 +27,8 @@ public interface VFRolePlayTestService {
 	 
 	 public List<VFRolePlayTest> findPublishedTests(String companyId);
 	 
+	 public VFRolePlayTest setAppliedPrompt(Long id, String prompt);
+	 
 	 PaginatedResponseDto getAllRolePlayTests(int page);
 	 
 	 public PaginatedResponseDto getRolePlayTestsByCompanyAndIndustry(String companyId, String industries, int page);

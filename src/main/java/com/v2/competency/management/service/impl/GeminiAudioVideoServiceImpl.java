@@ -28,6 +28,13 @@ import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.v2.competency.management.service.GeminiAudioVideoService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentConfig;
+
 @Service
 public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 	@Autowired
@@ -278,54 +285,116 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 //        }
 //    }
     
+//    @Override
+//    public String videoInputWithGoogleCloudBucketUrl(String location, String modelName, String prompt, String googleCloudBucketUrl) throws IOException {
+//        String projectId = config.getGeminiProjectId();
+//        //String location = config.getGeminiLocation();
+//        //String modelName = config.getGeminiModelName();
+//            if(location == null) {
+//                location = config.getGeminiLocation();
+//            }
+//            if(modelName ==null) {
+//                modelName = config.getGeminiModelName();
+//            }
+//        System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating anaalysis with "+modelName+" and "+location);
+//
+//        // "global" has no "global-" prefixed host, so the endpoint must be set explicitly
+//        String apiEndpoint = "global".equals(location)
+//                ? "aiplatform.googleapis.com"
+//                        : location + "-aiplatform.googleapis.com";
+//
+//                try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+//                    vertexAI.setApiEndpoint(apiEndpoint);   // must be called before the model sends its first request
+//
+//                    GenerationConfig generationConfig =
+//                            GenerationConfig.newBuilder()
+//                                .setResponseMimeType("application/json") // This is the key line
+//                                .build();                                         
+//            
+//
+//            // Initialize model
+//            GenerativeModel model = new GenerativeModel(modelName, generationConfig, vertexAI);
+//            //System.out.println("Generative model initialized with model name: " + modelName);
+//
+//            // Send request
+//            System.out.println("Sending request to Gemini model...");
+//
+//            // STEP 2: The GCS URI string is passed directly to PartMaker.
+//            // The Vertex AI SDK handles fetching the file from the URI.
+//            GenerateContentResponse response = model.generateContent(
+//                ContentMaker.fromMultiModalData(
+//                    prompt,
+//                    PartMaker.fromMimeTypeAndData("video/mp4", googleCloudBucketUrl)
+//                )
+//            );
+//
+//            System.out.println("Response received from Gemini model.");
+//            String output = response.getCandidates(0).getContent().getParts(0).getText();
+//           // System.out.println("Extracted response text: " + output);
+//            return output;
+//
+//        } catch (Exception e) {
+//            System.out.println("ERROR in videoInputWithGcs method: " + e.getMessage());
+//            e.printStackTrace(); // Full stack trace in logs
+//            return "Error during video analysis: " + e.getMessage();
+//        }
+//    }
+    
     @Override
     public String videoInputWithGoogleCloudBucketUrl(String location, String modelName, String prompt, String googleCloudBucketUrl) throws IOException {
         String projectId = config.getGeminiProjectId();
-        //String location = config.getGeminiLocation();
-        //String modelName = config.getGeminiModelName();
-            if(location == null) {
-                location = config.getGeminiLocation();
+        
+        if (location == null) {
+            location = config.getGeminiLocation();
+        }
+        if (modelName == null) {
+            modelName = config.getGeminiModelName();
+        }
+        
+        System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating analysis with " + modelName + " and " + location);
+
+        try {
+            // Initialize the modern Google GenAI Client with Vertex AI routing enabled
+            try (com.google.genai.Client client = com.google.genai.Client.builder()
+                    .project(projectId)
+                    .location(location)
+                    .vertexAI(true)
+                    .build()) {
+
+                // Configure generation settings using fully qualified type
+                com.google.genai.types.GenerateContentConfig generationConfig = 
+                        com.google.genai.types.GenerateContentConfig.builder()
+                                .responseMimeType("application/json")
+                                .temperature(0.0f)
+                                .seed(42)
+                                .thinkingConfig(
+                                        com.google.genai.types.ThinkingConfig.builder()
+                                            .thinkingLevel("high") // Options for Gemini 4/3: "low", "medium", "high"
+                                            .build()
+                                    )
+                                .build();
+
+                System.out.println("Sending request to Gemini model via Google GenAI SDK...");
+
+                // Wrap the parts into a Content object using Content.fromParts(...)
+                com.google.genai.types.Content content = com.google.genai.types.Content.fromParts(
+                    com.google.genai.types.Part.fromText(prompt),
+                    com.google.genai.types.Part.fromUri(googleCloudBucketUrl, "video/mp4")
+                );
+
+                // Send request passing the Content object
+                com.google.genai.types.GenerateContentResponse response = client.models.generateContent(
+                    modelName,
+                    content,
+                    generationConfig
+                );
+
+                System.out.println("Response received from Gemini model.");
+                
+                // Extract text output via the SDK's text() accessor method
+                String output = response.text();
+                return output != null ? output : "Error: Empty response returned from model.";
             }
-            if(modelName ==null) {
-                modelName = config.getGeminiModelName();
-            }
-        System.out.println("in videoInputWithGoogleCloudBucketUrl ..generating anaalysis with "+modelName+" and "+location);
-
-        // "global" has no "global-" prefixed host, so the endpoint must be set explicitly
-        String apiEndpoint = "global".equals(location)
-                ? "aiplatform.googleapis.com"
-                        : location + "-aiplatform.googleapis.com";
-
-                try (VertexAI vertexAI = new VertexAI(projectId, location)) {
-                    vertexAI.setApiEndpoint(apiEndpoint);   // must be called before the model sends its first request
-
-                    GenerationConfig generationConfig =
-                            GenerationConfig.newBuilder()
-                                .setResponseMimeType("application/json") // This is the key line
-                                .build(); 
-
-            
-
-            // Initialize model
-            GenerativeModel model = new GenerativeModel(modelName, generationConfig, vertexAI);
-            //System.out.println("Generative model initialized with model name: " + modelName);
-
-            // Send request
-            System.out.println("Sending request to Gemini model...");
-
-            // STEP 2: The GCS URI string is passed directly to PartMaker.
-            // The Vertex AI SDK handles fetching the file from the URI.
-            GenerateContentResponse response = model.generateContent(
-                ContentMaker.fromMultiModalData(
-                    prompt,
-                    PartMaker.fromMimeTypeAndData("video/mp4", googleCloudBucketUrl)
-                )
-            );
-
-            System.out.println("Response received from Gemini model.");
-            String output = response.getCandidates(0).getContent().getParts(0).getText();
-           // System.out.println("Extracted response text: " + output);
-            return output;
 
         } catch (Exception e) {
             System.out.println("ERROR in videoInputWithGcs method: " + e.getMessage());
@@ -334,7 +403,7 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
         }
     }
     
-
+    
     @Override
     public String transcriptInput(String location, String modelName, String prompt, String transcript)
             throws IOException {
@@ -604,6 +673,81 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 		} 
     }
 	
+//	@Override
+//	public String updateSystemPrompt(
+//	        String location,
+//	        String modelName,
+//	        String prompt,
+//	        String input) throws IOException {
+//
+//	    String projectId = config.getGeminiProjectId();
+//
+//	    if (location == null) {
+//	        location = config.getGeminiLocation();
+//	    }
+//
+//	    if (modelName == null) {
+//	        modelName = config.getGeminiModelName();
+//	    }
+//
+//	    System.out.println(
+//	            "in updateSystemPrompt ..generating prompt with "
+//	                    + modelName + " and " + location);
+//
+//	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+//
+//	        GenerationConfig generationConfig =
+//	                GenerationConfig.newBuilder()
+//	                        .setResponseMimeType("text/plain")
+//	                        .build();
+//
+//	        GenerativeModel model =
+//	                new GenerativeModel(
+//	                        modelName,
+//	                        generationConfig,
+//	                        vertexAI);
+//
+//	        System.out.println(
+//	                "Sending system prompt update request to Gemini model...");
+//
+//	        String completePrompt =
+//	                prompt
+//	                        + "\n\n"
+//	                        + input;
+//
+//	        System.out.println(
+//	                "Complete prompt length: "
+//	                        + completePrompt.length());
+//
+//	        GenerateContentResponse response =
+//	                model.generateContent(
+//	                        ContentMaker.fromString(completePrompt)
+//	                );
+//
+//	        System.out.println(
+//	                "Response received from Gemini model.");
+//
+//	        String output =
+//	                response.getCandidates(0)
+//	                        .getContent()
+//	                        .getParts(0)
+//	                        .getText();
+//
+//	        return output;
+//
+//	    } catch (Exception e) {
+//
+//	        System.out.println(
+//	                "ERROR in updateSystemPrompt method: "
+//	                        + e.getMessage());
+//
+//	        e.printStackTrace();
+//
+//	        return "Error while updating system prompt: "
+//	                + e.getMessage();
+//	    }
+//	}
+	
 	@Override
 	public String updateSystemPrompt(
 	        String location,
@@ -621,63 +765,139 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 	        modelName = config.getGeminiModelName();
 	    }
 
-	    System.out.println(
-	            "in updateSystemPrompt ..generating prompt with "
-	                    + modelName + " and " + location);
+	    log.info("updateSystemPrompt: generating prompt with model={} location={}", modelName, location);
 
-	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+	    String completePrompt = (input == null || input.isEmpty())
+	            ? prompt
+	            : prompt + "\n\n" + input;
 
-	        GenerationConfig generationConfig =
-	                GenerationConfig.newBuilder()
-	                        .setResponseMimeType("text/plain")
-	                        .build();
+	    log.info("Complete prompt length: {}", completePrompt.length());
 
-	        GenerativeModel model =
-	                new GenerativeModel(
-	                        modelName,
-	                        generationConfig,
-	                        vertexAI);
+	    try (Client client = Client.builder()
+	            .vertexAI(true)
+	            .project(projectId)
+	            .location(location) // "global" works with this SDK
+	            .build()) {
 
-	        System.out.println(
-	                "Sending system prompt update request to Gemini model...");
+	    	com.google.genai.types.GenerateContentConfig generateConfig =
+	    	        com.google.genai.types.GenerateContentConfig.builder()
+	    	                .responseMimeType("text/plain")
+	    	                .temperature(0.0f)
+	    	                .seed(42)
+	    	                .thinkingConfig(
+	    	                        com.google.genai.types.ThinkingConfig.builder()
+	    	                                .thinkingLevel(com.google.genai.types.ThinkingLevel.Known.HIGH)
+	    	                                .build()
+	    	                )
+	    	                .build();
 
-	        String completePrompt =
-	                prompt
-	                        + "\n\n"
-	                        + input;
+	        com.google.genai.types.GenerateContentResponse response =
+	                client.models.generateContent(modelName, completePrompt, generateConfig);
 
-	        System.out.println(
-	                "Complete prompt length: "
-	                        + completePrompt.length());
+	        String output = response.text();
 
-	        GenerateContentResponse response =
-	                model.generateContent(
-	                        ContentMaker.fromString(completePrompt)
-	                );
+	        if (output == null || output.trim().isEmpty()) {
+	            throw new IllegalStateException(
+	                    "Gemini returned an empty response (possibly blocked by safety filters)");
+	        }
 
-	        System.out.println(
-	                "Response received from Gemini model.");
-
-	        String output =
-	                response.getCandidates(0)
-	                        .getContent()
-	                        .getParts(0)
-	                        .getText();
-
+	        log.info("Response received from Gemini model.");
 	        return output;
+	    }
 
-	    } catch (Exception e) {
-
-	        System.out.println(
-	                "ERROR in updateSystemPrompt method: "
-	                        + e.getMessage());
-
-	        e.printStackTrace();
-
-	        return "Error while updating system prompt: "
-	                + e.getMessage();
+	     catch (Exception e) {
+	        log.error("Error in updateSystemPrompt", e);
+	        // Throw instead of returning the error text, so callers never
+	        // treat an error message as a generated prompt.
+	        throw new RuntimeException("Error while updating system prompt: " + e.getMessage(), e);
 	    }
 	}
+	
+	private static final Logger log = LoggerFactory.getLogger(GeminiAudioVideoService.class);
+	
+//	@Override
+//	public String generateFeedbackPrompt(
+//	        String location,
+//	        String modelName,
+//	        Double temperature,
+//	        String prompt,
+//	        String input) throws IOException {
+//
+//	    String projectId = config.getGeminiProjectId();
+//
+//	    if (location == null) {
+//	        location = config.getGeminiLocation();
+//	    }
+//
+//	    if (modelName == null) {
+//	        modelName = config.getGeminiModelName();
+//	    }
+//
+//	    System.out.println(
+//	            "in generateFeedbackPrompt ..generating prompt with "
+//	                    + modelName + ", location: " + location 
+//	                    + ", and temperature: " + temperature);
+//
+//	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+//
+//	        // Build the GenerationConfig with the provided temperature
+//	        GenerationConfig.Builder configBuilder =
+//	                GenerationConfig.newBuilder()
+//	                        .setResponseMimeType("text/plain");
+//
+//	        // Set temperature only if it's provided, or you can use a default check
+//	        if (temperature != null) {
+//	            configBuilder.setTemperature(temperature.floatValue());
+//	        }
+//
+//	        GenerationConfig generationConfig = configBuilder.build();
+//
+//	        GenerativeModel model =
+//	                new GenerativeModel(
+//	                        modelName,
+//	                        generationConfig,
+//	                        vertexAI);
+//
+//	        System.out.println(
+//	                "Sending system prompt update request to Gemini model...");
+//
+//	        String completePrompt =
+//	                prompt
+//	                        + "\n\n"
+//	                        + input;
+//
+//	        System.out.println(
+//	                "Complete prompt length: "
+//	                        + completePrompt.length());
+//
+//	        GenerateContentResponse response =
+//	                model.generateContent(
+//	                        ContentMaker.fromString(completePrompt)
+//	                );
+//
+//	        System.out.println(
+//	                "Response received from Gemini model.");
+//
+//	        String output =
+//	                response.getCandidates(0)
+//	                        .getContent()
+//	                        .getParts(0)
+//	                        .getText();
+//
+//	        return output;
+//
+//	    } catch (Exception e) {
+//
+//	        System.out.println(
+//	                "ERROR in updateSystemPrompt method: "
+//	                        + e.getMessage());
+//
+//	        e.printStackTrace();
+//
+//	        return "Error while updating system prompt: "
+//	                + e.getMessage();
+//	    }
+//	}
 	
 	@Override
 	public String generateFeedbackPrompt(
@@ -697,69 +917,51 @@ public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
 	        modelName = config.getGeminiModelName();
 	    }
 
-	    System.out.println(
-	            "in generateFeedbackPrompt ..generating prompt with "
-	                    + modelName + ", location: " + location 
-	                    + ", and temperature: " + temperature);
+	    log.info("generateFeedbackPrompt: model={} location={} temperature={}",
+	            modelName, location, temperature);
 
-	    try (VertexAI vertexAI = new VertexAI(projectId, location)) {
+	    String completePrompt = (input == null || input.isEmpty())
+	            ? prompt
+	            : prompt + "\n\n" + input;
 
-	        // Build the GenerationConfig with the provided temperature
-	        GenerationConfig.Builder configBuilder =
-	                GenerationConfig.newBuilder()
-	                        .setResponseMimeType("text/plain");
+	    log.info("Complete prompt length: {}", completePrompt.length());
 
-	        // Set temperature only if it's provided, or you can use a default check
-	        if (temperature != null) {
-	            configBuilder.setTemperature(temperature.floatValue());
+	    // Use the caller's temperature if provided, otherwise default to 0.0f
+	    float temp = (temperature != null) ? temperature.floatValue() : 0.0f;
+
+	    try (Client client = Client.builder()
+	            .vertexAI(true)
+	            .project(projectId)
+	            .location(location)
+	            .build()) {
+
+	        com.google.genai.types.GenerateContentConfig generateConfig =
+	                com.google.genai.types.GenerateContentConfig.builder()
+	                        .responseMimeType("text/plain")
+	                        .temperature(temp)
+	                        .seed(42)
+	                        .thinkingConfig(
+	                                com.google.genai.types.ThinkingConfig.builder()
+	                                        .thinkingLevel(com.google.genai.types.ThinkingLevel.Known.HIGH)
+	                                        .build())
+	                        .build();
+
+	        com.google.genai.types.GenerateContentResponse response =
+	                client.models.generateContent(modelName, completePrompt, generateConfig);
+
+	        String output = response.text();
+
+	        if (output == null || output.trim().isEmpty()) {
+	            throw new IllegalStateException(
+	                    "Gemini returned an empty response (possibly blocked by safety filters)");
 	        }
 
-	        GenerationConfig generationConfig = configBuilder.build();
-
-	        GenerativeModel model =
-	                new GenerativeModel(
-	                        modelName,
-	                        generationConfig,
-	                        vertexAI);
-
-	        System.out.println(
-	                "Sending system prompt update request to Gemini model...");
-
-	        String completePrompt =
-	                prompt
-	                        + "\n\n"
-	                        + input;
-
-	        System.out.println(
-	                "Complete prompt length: "
-	                        + completePrompt.length());
-
-	        GenerateContentResponse response =
-	                model.generateContent(
-	                        ContentMaker.fromString(completePrompt)
-	                );
-
-	        System.out.println(
-	                "Response received from Gemini model.");
-
-	        String output =
-	                response.getCandidates(0)
-	                        .getContent()
-	                        .getParts(0)
-	                        .getText();
-
+	        log.info("Response received from Gemini model.");
 	        return output;
 
 	    } catch (Exception e) {
-
-	        System.out.println(
-	                "ERROR in updateSystemPrompt method: "
-	                        + e.getMessage());
-
-	        e.printStackTrace();
-
-	        return "Error while updating system prompt: "
-	                + e.getMessage();
+	        log.error("Error in generateFeedbackPrompt", e);
+	        throw new RuntimeException("Error while generating feedback prompt: " + e.getMessage(), e);
 	    }
 	}
 	

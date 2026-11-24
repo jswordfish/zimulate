@@ -1,7 +1,11 @@
 package com.v2.competency.management.webservices;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,16 +27,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
+import com.v2.competency.management.common.util.EncDecService;
 import com.v2.competency.management.dtos.Dropdown;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
 import com.v2.competency.management.entities.OrgHierarchy;
 import com.v2.competency.management.entities.Tenant;
 import com.v2.competency.management.entities.User;
+import com.v2.competency.management.entities.WorkflowSession;
+import com.v2.competency.management.entities.WorkflowSessionStatus;
+import com.v2.competency.management.entities.ZimulateWorkflow;
+import com.v2.competency.management.repos.ZimulateWorkflowRepo;
 import com.v2.competency.management.service.OrgHierarchyService;
 import com.v2.competency.management.service.TenantService;
 import com.v2.competency.management.service.UserService;
+import com.v2.competency.management.service.WorkflowSessionService;
 import com.v2.competency.management.service.impl.PropertyConfig;
 
 @RestController
@@ -42,18 +54,18 @@ public class AdminController {
 	
 	@Autowired
 	UserService userService;
-	
-	
-	
+		
 	@Autowired
 	TenantService tenantService;
 	
 	@Autowired
 	PropertyConfig propertyConfig;
 	
+	@Autowired
+	WorkflowSessionService workflowSessionService;
 	
-	
-	
+	@Autowired
+	ZimulateWorkflowRepo workflowRepo;
 	
 	@RequestMapping(value = "/all_levels", method = RequestMethod.GET)
 //	@PreAuthorize("hasRole('ADMIN')")
@@ -612,6 +624,249 @@ public class AdminController {
 	         response.put("details", getExceptionMessage(e));
 
 	         return ResponseEntity.badRequest().body(response);
+	     }
+	 }
+	 
+	 private static String sep = "#$#$&&";
+	 
+	 public static String generateLongToken(String role, String user) {
+			
+		    Long time = System.currentTimeMillis() + (10L * 24 * 60 * 60 * 1000);
+			String input = user+sep+time+sep+role;
+			String token = EncDecService.encrypt(input);
+			token = role+"$$$"+token;
+			return token;
+		}
+	 
+//	 @PostMapping("/createDemoUrl")
+//	 public ResponseEntity<String> createDemoUrl(
+//	         @RequestParam String token,
+//	         @RequestParam String companyId,
+//	         @RequestParam String email) {
+//
+//	     try {
+//
+//	         final String CEO_ROLE = "CEO";
+//	         final String TRAINING_MANAGER_ROLE = "Training Manager";
+//
+//	         
+//	         OrgHierarchy ceo = orgHierarchyService.findByRoleOrDesig(CEO_ROLE, companyId);
+//
+//	         if (ceo == null) {
+//	             ceo = new OrgHierarchy();
+//	             ceo.setCompanyId(companyId);
+//	             ceo.setRoleOrDesig(CEO_ROLE);
+//	             ceo.setLevel("Level 1");
+//	             ceo.setParentRoleOrDesig(null);
+//
+//	             ceo = orgHierarchyService.saveOrUpdate(ceo);
+//	         }
+//
+//	         
+//	         OrgHierarchy trainingManager = orgHierarchyService.findByRoleOrDesig(
+//	                 TRAINING_MANAGER_ROLE, companyId);
+//
+//	         if (trainingManager == null) {
+//	             trainingManager = new OrgHierarchy();
+//	             trainingManager.setCompanyId(companyId);
+//	             trainingManager.setRoleOrDesig(TRAINING_MANAGER_ROLE);
+//	             trainingManager.setLevel("Level 2");
+//	             trainingManager.setParentRoleOrDesig(ceo.getRoleOrDesig());
+//
+//	             trainingManager = orgHierarchyService.saveOrUpdate(trainingManager);
+//	         }
+//
+//	         
+//	         User user = new User();
+//	         user.setCompanyId(companyId);
+//	         user.setEmail(email);
+//	         user.setPassword("12345");
+//	         user.setRoleOrDesig(TRAINING_MANAGER_ROLE);
+//	         user.setOrgHierarchy(trainingManager);
+//	         user.setExternal(false);
+//
+//	         user = userService.saveOrUpdate(user);
+//
+//	         
+//	         String generatedToken = generateLongToken(
+//	                 user.getRoleOrDesig(),
+//	                 user.getEmail()
+//	         );
+//
+//	         
+//	         ObjectMapper objectMapper = new ObjectMapper();
+//
+//	         Map<String, String> data = new LinkedHashMap<>();
+//	         data.put("token", generatedToken);
+//	         data.put("emailID", email);
+//	         data.put("companyId", companyId);
+//	         data.put("page", "assigned_workflows");
+//
+//	         String json = objectMapper.writeValueAsString(data);
+//
+//	         
+//	         String encodedData = Base64.getEncoder()
+//	                 .encodeToString(json.getBytes(StandardCharsets.UTF_8));
+//
+//	         String urlEncodedData = URLEncoder.encode(encodedData, "UTF-8");
+//
+//	         
+//	         String demoUrl = "https://zimulate.me/auto-login?data=" + urlEncodedData;
+//
+//	         return ResponseEntity.ok(demoUrl);
+//
+//	     } catch (Exception e) {
+//	         e.printStackTrace();
+//	         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//	                 .body("Failed to create demo URL: " + e.getMessage());
+//	     }
+//	 }
+	 
+	 @PostMapping("/createDemoUrl")
+	 public ResponseEntity<String> createDemoUrl(
+	         @RequestParam String token,
+	         @RequestParam String companyId,
+	         @RequestParam String email,
+	         @RequestParam String firstName,
+	         @RequestParam String lastName) {
+
+	     try {
+
+	         final String CEO_ROLE = "CEO";
+	         final String TRAINING_MANAGER_ROLE = "Training Manager";
+
+	         
+	         OrgHierarchy ceo = orgHierarchyService.findByRoleOrDesig(CEO_ROLE, companyId);
+
+	         if (ceo == null) {
+	             ceo = new OrgHierarchy();
+	             ceo.setCompanyId(companyId);
+	             ceo.setRoleOrDesig(CEO_ROLE);
+	             ceo.setLevel("Level 1");
+	             ceo.setParentRoleOrDesig(null);
+
+	             ceo = orgHierarchyService.saveOrUpdate(ceo);
+	         }
+
+	         
+	         OrgHierarchy trainingManager = orgHierarchyService.findByRoleOrDesig(
+	                 TRAINING_MANAGER_ROLE, companyId);
+
+	         if (trainingManager == null) {
+	             trainingManager = new OrgHierarchy();
+	             trainingManager.setCompanyId(companyId);
+	             trainingManager.setRoleOrDesig(TRAINING_MANAGER_ROLE);
+	             trainingManager.setLevel("Level 2");
+	             trainingManager.setParentRoleOrDesig(ceo.getRoleOrDesig());
+
+	             trainingManager = orgHierarchyService.saveOrUpdate(trainingManager);
+	         }
+
+	         
+	         User user = new User();
+	         user.setCompanyId(companyId);
+	         user.setEmail(email);
+	         user.setFirstName(firstName);
+	         user.setLastName(lastName);
+	         user.setPassword("12345");
+	         user.setRoleOrDesig(TRAINING_MANAGER_ROLE);
+	         user.setOrgHierarchy(trainingManager);
+	         user.setExternal(false);
+
+	         user = userService.saveOrUpdate(user);
+
+	         
+	         String generatedToken = generateLongToken(
+	                 user.getRoleOrDesig(),
+	                 user.getEmail()
+	         );
+
+	         
+	         List<Long> workflowIds = Arrays.asList(
+	                 15745L,
+	                 15775L,
+	                 15636L,
+	                 15655L,
+	                 15706L,
+	                 15693L,
+	                 15674L,
+	                 15719L
+	         );
+
+	         
+	         for (Long workflowId : workflowIds) {
+
+	             WorkflowSession session = workflowSessionService.findUniqueWorkflowSession(
+	                     workflowId, email, companyId);
+
+	             if (session == null) {
+
+	                 ZimulateWorkflow flow = workflowRepo.findById(workflowId)
+	                         .orElseThrow(() -> new RuntimeException(
+	                                 "Workflow not found: " + workflowId));
+
+	                 session = new WorkflowSession();
+	                 session.setCompanyId(companyId);
+	                 session.setEmail(email);
+	                 session.setWorkflow(flow);
+	                 session.setStatus(WorkflowSessionStatus.NOT_STARTED.getStatus());
+	                 session.setPositon(0);
+
+	                 workflowSessionService.saveOrUpdate(session);
+	             }
+	         }
+
+	         
+	         Map<Long, String> workflowLanguages = new LinkedHashMap<>();
+
+	         workflowLanguages.put(15636L, "English");
+	         workflowLanguages.put(15655L, "Hindi");
+	         workflowLanguages.put(15706L, "Hindi");
+	         workflowLanguages.put(15693L, "English");
+	         workflowLanguages.put(15674L, "Gujarati");
+	         workflowLanguages.put(15719L, "Gujarati");
+
+	         for (Map.Entry<Long, String> entry : workflowLanguages.entrySet()) {
+
+	             Long workflowId = entry.getKey();
+	             String language = entry.getValue();
+
+	             workflowSessionService.setLockedAndLanguage(
+	                     email,
+	                     language,
+	                     true,
+	                     workflowId,
+	                     companyId
+	             );
+	         }
+
+	         
+	         ObjectMapper objectMapper = new ObjectMapper();
+
+	         Map<String, String> data = new LinkedHashMap<>();
+	         data.put("token", generatedToken);
+	         data.put("emailID", email);
+	         data.put("companyId", companyId);
+	         data.put("page", "assigned_workflows");
+
+	         String json = objectMapper.writeValueAsString(data);
+
+	         
+	         String encodedData = Base64.getEncoder()
+	                 .encodeToString(json.getBytes(StandardCharsets.UTF_8));
+
+	         String urlEncodedData = URLEncoder.encode(encodedData, "UTF-8");
+
+	         
+	         String demoUrl = "https://zimulate.me/auto-login?data=" + urlEncodedData;
+
+	         return ResponseEntity.ok(demoUrl);
+
+	     } catch (Exception e) {
+	         e.printStackTrace();
+
+	         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                 .body("Failed to create demo URL: " + e.getMessage());
 	     }
 	 }
 	 

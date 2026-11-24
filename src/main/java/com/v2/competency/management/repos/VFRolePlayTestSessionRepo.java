@@ -29,11 +29,22 @@ public interface VFRolePlayTestSessionRepo extends JpaRepository<VFRolePlayTestS
 	@Query("select v from VFRolePlayTestSession v where v.companyId=:companyId and v.testIdentifier=:testIdentifier and LOWER(v.email) LIKE LOWER(CONCAT('%', :containsText, '%'))")
 	public List<VFRolePlayTestSession> seatchEmailUserSessionsForTest(@Param("testIdentifier")  String testIdentifier, @Param("companyId") String companyId, @Param("containsText") String containsText);
 
+//	@Query("select s from VFRolePlayTestSession s " +
+//		       "where coalesce(s.geminiTriesExhausted, false) = false " +
+//		       "  and (s.evaluationFailed = true " +
+//		       "       or (coalesce(s.evaluationFailed, false) = false " +
+//		       "           and s.videoInsightsJson like 'Error%'))")
+//		List<VFRolePlayTestSession> findSessionsNeedingRetry();
+	
 	@Query("select s from VFRolePlayTestSession s " +
 		       "where coalesce(s.geminiTriesExhausted, false) = false " +
 		       "  and (s.evaluationFailed = true " +
 		       "       or (coalesce(s.evaluationFailed, false) = false " +
-		       "           and s.videoInsightsJson like 'Error%'))")
+		       "           and s.videoInsightsJson like 'Error%')) " +
+		       "  and exists (select 1 from VFRolePlayTest t " +
+		       "              where t.companyId = s.companyId " +
+		       "                and t.testName = s.testIdentifier " +
+		       "                and upper(t.reportVersion) = 'V2')")
 		List<VFRolePlayTestSession> findSessionsNeedingRetry();
 	
 	@Query("SELECT s FROM VFRolePlayTestSession s " +

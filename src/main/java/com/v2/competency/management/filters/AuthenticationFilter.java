@@ -55,6 +55,11 @@ public class AuthenticationFilter implements Filter {
 		    		return;
 		    	}
 		    	
+		    	if(url.endsWith("tokenLong") || url.contains("jsp")) {
+		    		chain.doFilter(req, res);
+		    		return;
+		    	}
+		    	
 		    	if(url.contains("swagger") || url.contains("api-docs")) {
 		    		chain.doFilter(req, res);
 		    		return;

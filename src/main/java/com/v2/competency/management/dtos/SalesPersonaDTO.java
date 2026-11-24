@@ -15,5 +15,7 @@ public class SalesPersonaDTO {
 	String voiceId;
 	
 	String googleBucketUrl;
+	
+	String detailDesc;
 
 }

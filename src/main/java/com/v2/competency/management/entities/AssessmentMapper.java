@@ -43,12 +43,10 @@ public class AssessmentMapper extends Base{
 	@Column(length = 2000)
 	String assignmentOverview;
 	
-	
 	String testLink;
 	
 	@Transient
 	String testGivenByUser;
-	
 	
 	String typePath1;
 	
@@ -82,5 +80,7 @@ public class AssessmentMapper extends Base{
 	String aiPersonaType;
 	
 	String rolePlayLabelForUI;
+	
+	Boolean unmapped;
 	
 }

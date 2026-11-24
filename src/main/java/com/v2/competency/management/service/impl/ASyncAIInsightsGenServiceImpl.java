@@ -1109,6 +1109,9 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        System.out.println("B.	Sending video for insights **** ");
 	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
 	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptEasy();
+	        if(test.getAppliedPrompt()!=null) {
+	        	prompt = test.getAppliedPrompt();
+	        }
 	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
 	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
 	        
@@ -1155,6 +1158,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 //	        	else {
 	        		emailService.sendEmail(email, cc, subject, testName, attempt, firstName, lastName, persona, companyId);
 //	        	}
+	        
 	        
 	        
 	        ///Call work flow recomm gen services
@@ -1214,6 +1218,10 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
 
 	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptEasy();
+	        
+	        if(test.getAppliedPrompt()!=null) {
+	        	prompt = test.getAppliedPrompt();
+	        }
 
 	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
 	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
@@ -1276,7 +1284,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 
 	        String subject = firstName + ", Your Pitch Score for "
 	                + testName + " Role Play!!!";
-
+	        
 	        emailService.sendEmail(
 	                email,
 	                cc,
@@ -1287,6 +1295,7 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	                lastName,
 	                persona,
 	                companyId);
+	        
 
 	        if (workflowRecommGenerator.checkIfRecommCanBeGenerated(
 	                session.getId(),
@@ -1357,6 +1366,9 @@ public class ASyncAIInsightsGenServiceImpl implements ASyncAIInsightsGenService{
 	        System.out.println("B.	Sending video for insights **** ");
 	        VFRolePlayTest test = rolePlayTestService.findUniqueRecord(testName, companyId);
 	        String prompt = test.getRoleplayAnalysisStructure().getAnalysisGenPromptEasy();
+	        if(test.getAppliedPrompt()!=null) {
+	        	prompt = test.getAppliedPrompt();
+	        }
 	        prompt = prompt.replace("${SCENARIO}", test.getQuestionText());
 	        prompt = prompt.replace("${PARAMETERS}", test.getCommaSeparatedAnalysisParams());
 	        

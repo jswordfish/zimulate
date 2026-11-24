@@ -12,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
@@ -315,5 +317,20 @@ public class VFRolePlayTestServiceImpl implements VFRolePlayTestService{
 	    dto.setList(tests.getContent());
 
 	    return dto;
+	}
+
+	@Override
+	public VFRolePlayTest setAppliedPrompt(Long id, String prompt) {
+		
+		VFRolePlayTest test = repo.findById(id).orElse(null);
+		
+		if(test==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Test not found with id : "+id);
+		}
+		
+		test.setAppliedPrompt(prompt);
+		
+		return repo.save(test);
+		
 	}
 }

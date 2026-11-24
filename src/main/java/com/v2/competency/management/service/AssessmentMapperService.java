@@ -32,6 +32,7 @@ public interface AssessmentMapperService {
 
 	public AssessmentMapper saveOrUpdate(AssessmentMapper assessmentMapper);
 	
+	public AssessmentMapper unMap(Long mapperId);
 	
 	public AssessmentTraversalPath computeForUser(String email, String companyId);
 	
@@ -71,6 +72,7 @@ public interface AssessmentMapperService {
 	 public Page<AssessmentMapper> findInternalAssessmentTakers(String companyId, Pageable pageable);
 	
 	 public Page<AssessmentMapper> findExternalAndInternalAssessmentTakers(String companyId, Pageable pageable);
+	 
 	 
 	 public Page<UserWithTestDto> getUsersByTestName(String testName, int page);
 	 

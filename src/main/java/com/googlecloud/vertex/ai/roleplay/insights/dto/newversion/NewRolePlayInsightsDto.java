@@ -10,6 +10,8 @@ public class NewRolePlayInsightsDto {
 	String overAllObservation;
 	
 	Integer overAllScore;
+	
+	Object scratchpad;
 
 	public List<SectionResult> getSections() {
 		return sections;
@@ -33,6 +35,14 @@ public class NewRolePlayInsightsDto {
 
 	public void setOverAllScore(Integer overAllScore) {
 		this.overAllScore = overAllScore;
+	}
+
+	public Object getScratchpad() {
+		return scratchpad;
+	}
+
+	public void setScratchpad(Object scratchpad) {
+		this.scratchpad = scratchpad;
 	}
 	
 	

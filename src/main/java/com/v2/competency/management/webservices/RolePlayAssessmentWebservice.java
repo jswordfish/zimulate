@@ -747,6 +747,7 @@ Map<String, List<String>> map = new HashMap<>();
 										.personaDesc(mapping.getPersonaDescription())
 										.voiceId(mapping.getVoiceId())
 										.googleBucketUrl(mapping.getGoogleBucketUrl())
+										.detailDesc(mapping.getDetailDesc())
 										.build();
 				list2.add(dto);
 			}

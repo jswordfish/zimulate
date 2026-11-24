@@ -35,5 +35,9 @@ public class WorkflowSession extends Base{
 	String dynamicTrainingAgentIds;
 	
 	Integer positon;
+	
+	Boolean locked;
+	
+	String language;
 
 }

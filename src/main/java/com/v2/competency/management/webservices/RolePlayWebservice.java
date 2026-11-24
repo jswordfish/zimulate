@@ -39,6 +39,7 @@ import com.googlecloud.vertex.ai.roleplay.insights.dto.newversion.NewRolePlayIns
 import com.v2.competency.management.dtos.GreetingDto;
 import com.v2.competency.management.dtos.InitRolePlayTestDTO;
 import com.v2.competency.management.dtos.PaginatedResponseDto;
+import com.v2.competency.management.dtos.PromptSavingDto;
 import com.v2.competency.management.dtos.RolePlaySessionContainerDto;
 import com.v2.competency.management.dtos.RoleplayTestSessionMetaData;
 import com.v2.competency.management.dtos.SystemPromptGenerationResponse;
@@ -455,6 +456,15 @@ public class RolePlayWebservice {
 		String res = geminiservice.videoInput(prompt, path);
 		
 		return res;
+		
+	}
+	
+	@PostMapping("/set-role-play-report-prompt")
+	public ResponseEntity<VFRolePlayTest> setPropmt(
+			@RequestParam String token,
+			@RequestBody PromptSavingDto dto){
+		
+		return ResponseEntity.ok(rolePlayTestService.setAppliedPrompt(dto.getId(), dto.getPrompt()));
 		
 	}
 	

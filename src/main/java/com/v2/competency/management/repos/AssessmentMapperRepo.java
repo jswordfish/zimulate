@@ -107,52 +107,104 @@ public interface AssessmentMapperRepo extends JpaRepository<AssessmentMapper, Lo
 //		        Pageable pageable);
 	
 	// Natural sort ASC
-		@Query(value = "SELECT * FROM assessment_mapper u " +
-		        "WHERE u.company_id = :companyId " +
-		        "AND u.email = :email " +
-		        "AND (:search IS NULL OR " +
-		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-		        "ORDER BY " +
-		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') ASC, " +
-		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) ASC, " +
-		        "u.test_name ASC",
-		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
-		        "WHERE u.company_id = :companyId " +
-		        "AND u.email = :email " +
-		        "AND (:search IS NULL OR " +
-		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
-		        nativeQuery = true)
-		Page<AssessmentMapper> findAssessmentsNaturalAsc(
-		        @Param("companyId") String companyId,
-		        @Param("email") String email,
-		        @Param("search") String search,
-		        Pageable pageable);
+//		@Query(value = "SELECT * FROM assessment_mapper u " +
+//		        "WHERE u.company_id = :companyId " +
+//		        "AND u.email = :email " +
+//		        "AND (:search IS NULL OR " +
+//		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+//		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+//		        "ORDER BY " +
+//		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') ASC, " +
+//		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) ASC, " +
+//		        "u.test_name ASC",
+//		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+//		        "WHERE u.company_id = :companyId " +
+//		        "AND u.email = :email " +
+//		        "AND (:search IS NULL OR " +
+//		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+//		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+//		        nativeQuery = true)
+//		Page<AssessmentMapper> findAssessmentsNaturalAsc(
+//		        @Param("companyId") String companyId,
+//		        @Param("email") String email,
+//		        @Param("search") String search,
+//		        Pageable pageable);
+//
+//		// Natural sort DESC
+//		@Query(value = "SELECT * FROM assessment_mapper u " +
+//		        "WHERE u.company_id = :companyId " +
+//		        "AND u.email = :email " +
+//		        "AND (:search IS NULL OR " +
+//		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+//		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+//		        "ORDER BY " +
+//		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') DESC, " +
+//		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) DESC, " +
+//		        "u.test_name DESC",
+//		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+//		        "WHERE u.company_id = :companyId " +
+//		        "AND u.email = :email " +
+//		        "AND (:search IS NULL OR " +
+//		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+//		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+//		        nativeQuery = true)
+//		Page<AssessmentMapper> findAssessmentsNaturalDesc(
+//		        @Param("companyId") String companyId,
+//		        @Param("email") String email,
+//		        @Param("search") String search,
+//		        Pageable pageable);
+	
+	// Natural sort ASC
+    @Query(value = "SELECT * FROM assessment_mapper u " +
+            "WHERE u.company_id = :companyId " +
+            "AND u.email = :email " +
+            "AND (u.unmapped IS NULL OR u.unmapped = 0) " +
+            "AND (:search IS NULL OR " +
+            "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "ORDER BY " +
+            "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') ASC, " +
+            "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) ASC, " +
+            "u.test_name ASC",
+            countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+            "WHERE u.company_id = :companyId " +
+            "AND u.email = :email " +
+            "AND (u.unmapped IS NULL OR u.unmapped = 0) " +
+            "AND (:search IS NULL OR " +
+            "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+            nativeQuery = true)
+    Page<AssessmentMapper> findAssessmentsNaturalAsc(
+            @Param("companyId") String companyId,
+            @Param("email") String email,
+            @Param("search") String search,
+            Pageable pageable);
 
-		// Natural sort DESC
-		@Query(value = "SELECT * FROM assessment_mapper u " +
-		        "WHERE u.company_id = :companyId " +
-		        "AND u.email = :email " +
-		        "AND (:search IS NULL OR " +
-		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-		        "ORDER BY " +
-		        "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') DESC, " +
-		        "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) DESC, " +
-		        "u.test_name DESC",
-		        countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
-		        "WHERE u.company_id = :companyId " +
-		        "AND u.email = :email " +
-		        "AND (:search IS NULL OR " +
-		        "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-		        "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
-		        nativeQuery = true)
-		Page<AssessmentMapper> findAssessmentsNaturalDesc(
-		        @Param("companyId") String companyId,
-		        @Param("email") String email,
-		        @Param("search") String search,
-		        Pageable pageable);
+    // Natural sort DESC
+    @Query(value = "SELECT * FROM assessment_mapper u " +
+            "WHERE u.company_id = :companyId " +
+            "AND u.email = :email " +
+            "AND (u.unmapped IS NULL OR u.unmapped = 0) " +
+            "AND (:search IS NULL OR " +
+            "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "ORDER BY " +
+            "REGEXP_REPLACE(u.test_name, '[0-9].*$', '') DESC, " +
+            "CAST(REGEXP_SUBSTR(u.test_name, '[0-9]+') AS UNSIGNED) DESC, " +
+            "u.test_name DESC",
+            countQuery = "SELECT COUNT(*) FROM assessment_mapper u " +
+            "WHERE u.company_id = :companyId " +
+            "AND u.email = :email " +
+            "AND (u.unmapped IS NULL OR u.unmapped = 0) " +
+            "AND (:search IS NULL OR " +
+            "LOWER(u.test_name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.role_play_label_forui) LIKE LOWER(CONCAT('%', :search, '%')))",
+            nativeQuery = true)
+    Page<AssessmentMapper> findAssessmentsNaturalDesc(
+            @Param("companyId") String companyId,
+            @Param("email") String email,
+            @Param("search") String search,
+            Pageable pageable);
 
 		// Original JPQL query, used for sorting by any OTHER field
 		@Query("SELECT u FROM AssessmentMapper u " +

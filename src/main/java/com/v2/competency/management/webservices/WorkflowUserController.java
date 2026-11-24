@@ -3,6 +3,7 @@ package com.v2.competency.management.webservices;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpSession;
 
@@ -10,14 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.v2.competency.management.common.util.EncDecService;
+import com.v2.competency.management.common.util.TokenService2;
 import com.v2.competency.management.dtos.WorkflowAssignmentDto;
 import com.v2.competency.management.dtos.WorkflowAssignmentToUserStatusDesc;
 import com.v2.competency.management.dtos.WorkflowNodeType;
@@ -82,6 +87,8 @@ public class WorkflowUserController {
 	
 	@Autowired
 	WorkflowSessionRepo workflowSessionRepo;
+	
+	
 	
 	@RequestMapping(value="assignWorkflowToUser",method=RequestMethod.POST) 
 	@CrossOrigin
@@ -424,15 +431,110 @@ public class WorkflowUserController {
 		
 	}
 	
-	@RequestMapping(value="fetchWorkflowsAssignedToUser",method=RequestMethod.GET) 
+	@RequestMapping(value="fetchWorkflowsAssignedToUser", method=RequestMethod.GET) 
 	@CrossOrigin
-    public ResponseEntity<?> fetchWorkflowsAssignedToUser( @RequestParam String token, @RequestParam String companyId, 
-    		@RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size, 
-	        @RequestParam String email){
-		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-		List<WorkflowSession> sessions =  workflowSessionService.findAllWorkflowSessionForUserByCompanyId(companyId, email, pageable).getContent();
-		return ResponseEntity.ok(sessions);
+	public ResponseEntity<?> fetchWorkflowsAssignedToUser(
+	        @RequestParam String token,
+	        @RequestParam String companyId,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam String email) {
+		
+		String userInfo = validateTokenAndReturnUserInfo2(token);
+
+	    if (userInfo == null || userInfo.startsWith("TOKEN_")) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                .body("Invalid or expired token");
+	    }
+
+	    Sort sort = Sort.by(
+	            Sort.Order.asc("locked").nullsFirst(),
+	            Sort.Order.desc("id")
+	    );
+
+	    Pageable pageable = PageRequest.of(page, size, sort);
+
+	    List<WorkflowSession> sessions = workflowSessionService
+	            .findAllWorkflowSessionForUserByCompanyId(companyId, email, pageable)
+	            .getContent();
+
+	    return ResponseEntity.ok(sessions);
+	}
+	
+	private static String sep = "#$#$&&";
+	private static String sepPattern = "[\\#][\\$][\\#][\\$][\\&][\\&]";
+	
+	private static Long sessionTimeOutInDays = 1l;
+	
+	public static String validateTokenAndReturnUserInfo2(String token) {
+	    try {
+	        token = token.substring(token.indexOf("$$$") + 3);
+
+	        String decrypted = EncDecService.decrypt(token);
+	        String dat[] = decrypted.split(sepPattern);
+
+	        if (dat.length != 3) {
+	            return "TOKEN_INVALID";
+	        }
+
+	        String user = dat[0];
+	        String time = dat[1];
+
+	        Long timeInL = Long.parseLong(time);
+	        Long now = System.currentTimeMillis();
+
+	        Long days = TimeUnit.MILLISECONDS.toDays(now - timeInL);
+
+	        // Calculate remaining token validity
+	        Long expiryTime = timeInL +
+	                TimeUnit.DAYS.toMillis(sessionTimeOutInDays + 1L);
+
+	        Long remainingTime = expiryTime - now;
+
+	        if (remainingTime > 0) {
+
+	            long remainingDays = TimeUnit.MILLISECONDS.toDays(remainingTime);
+
+	            long remainingHours = TimeUnit.MILLISECONDS.toHours(remainingTime)
+	                    % 24;
+
+	            long remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(remainingTime)
+	                    % 60;
+
+	            System.out.println("========== TOKEN EXPIRY INFO ==========");
+	            System.out.println("User: " + user);
+	            System.out.println("Remaining Days: " + remainingDays);
+	            System.out.println("Remaining Hours: " + remainingHours);
+	            System.out.println("Remaining Minutes: " + remainingMinutes);
+	            System.out.println("=======================================");
+
+	        } else {
+	            System.out.println("TOKEN HAS EXPIRED");
+	        }
+
+	        if (days > sessionTimeOutInDays) {
+	            return "TOKEN_EXPIRED";
+	        } else {
+	            String uT = dat[2];
+	            return user + sep + uT;
+	        }
+
+	    } catch (Exception e) {
+	        System.out.println("in validateTokenAndReturnUserType " + e.getMessage());
+	        return "TOKEN_INVALID_(" + e.getMessage() + ")";
+	    }
+	}
+	
+	@PostMapping("/set-locked-and-language")
+	public ResponseEntity<WorkflowSession> setLockedAndLanguage(
+			@RequestParam String token,
+			@RequestParam Long workFlowId,
+			@RequestParam String email,
+			@RequestParam String companyId,
+			@RequestParam Boolean locked,
+			@RequestParam String language)
+	{
+		return ResponseEntity.ok(workflowSessionService.setLockedAndLanguage(email, language, locked, workFlowId, companyId));
 	}
 	
 	@RequestMapping(value="fetchWorkflowsSessionById",method=RequestMethod.GET) 

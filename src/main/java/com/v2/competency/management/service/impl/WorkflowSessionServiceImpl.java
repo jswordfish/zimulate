@@ -7,7 +7,9 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.github.dozermapper.core.DozerBeanMapper;
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
@@ -65,6 +67,23 @@ public class WorkflowSessionServiceImpl implements WorkflowSessionService{
 	public Page<WorkflowSession> findAllWorkflowSessionForUserByCompanyId(String companyId, String email,
 			Pageable pageable) {
 		return repo.findAllWorkflowSessionForUserByCompanyId(companyId, email, pageable);
+	}
+
+	@Override
+	public WorkflowSession setLockedAndLanguage(String email, String language, Boolean locked, Long workFlowId,
+			String companyId) {
+		
+		WorkflowSession session = repo.findUniqueWorkflowSession(workFlowId, email, companyId);
+		
+		if(session==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Session not found");
+		}
+		
+		session.setLocked(locked);
+		session.setLanguage(language);
+		
+		return repo.save(session);
+		
 	}
 
 }

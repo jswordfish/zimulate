@@ -25,5 +25,7 @@ public class RolePlayPersonaMapping extends Base{
 	String type;
 	
 	String googleBucketUrl;
+	
+	String detailDesc;
 
 }

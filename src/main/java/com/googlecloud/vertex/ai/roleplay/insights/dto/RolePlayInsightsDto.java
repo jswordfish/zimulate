@@ -17,9 +17,7 @@ public class RolePlayInsightsDto {
 	
 	Integer overAllScoreInPercent =50;
 	
-	
-
-	
+	Object scratchpad;
 
 	public Map<String, RoleplayInsightsDetail> getMapCompetenciesInsights() {
 		return mapCompetenciesInsights;
@@ -79,6 +77,22 @@ public class RolePlayInsightsDto {
 
 	public void setOverAllScoreInPercent(Integer overAllScoreInPercent) {
 		this.overAllScoreInPercent = overAllScoreInPercent;
+	}
+
+
+	
+
+
+	public Object getScratchpad() {
+		return scratchpad;
+	}
+
+
+
+
+
+	public void setScratchpad(Object scratchpad) {
+		this.scratchpad = scratchpad;
 	}
 
 

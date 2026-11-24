@@ -9,7 +9,7 @@ public class RoleplayInsightsDetail {
 	String improvementAreas = "NA";
 	
 	Integer scoreInPercent = 20;
-
+	
 	public String getObservation() {
 		return observation;
 	}
@@ -41,7 +41,6 @@ public class RoleplayInsightsDetail {
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	
-	
 
+	
 }
