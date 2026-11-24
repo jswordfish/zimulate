@@ -190,8 +190,30 @@ public class WorkflowUserController {
 				workflowSessionService.saveOrUpdate(workflowSession);
 			}
 			
-		
+		markCompleteStatusForWorkflowSession(workflowSession, position, workflow);
 		return ResponseEntity.ok("ok");
+	}
+	
+	private void markCompleteStatusForWorkflowSession(WorkflowSession session, Integer position, ZimulateWorkflow workflow) {
+		List<WorkflowNode> nodes =  workflowNodeService.findAllWorkflowNodes(session.getCompanyId(), session.getWorkflow().getId());
+		if(nodes.size() == position) {
+			session.setStatus(WorkflowSessionStatus.COMPLETE.getStatus());
+			workflowSessionService.saveOrUpdate(session);
+			if(workflow.getUnlockAnotherWorkflowOnCompletion() != null) {
+				ZimulateWorkflow nextWorkflow = workflowRepo.findById(workflow.getUnlockAnotherWorkflowOnCompletion()).get();
+					if(nextWorkflow == null) {
+						System.out.println("problem "+workflow.getUnlockAnotherWorkflowOnCompletion());
+					}
+				WorkflowSession triggerNextWorkflowSession =  workflowSessionService.findUniqueWorkflowSession(nextWorkflow.getId(), session.getEmail(), session.getCompanyId());
+				if(triggerNextWorkflowSession != null) {
+					System.out.println("Triggering next workflow "+triggerNextWorkflowSession.getId());
+					triggerNextWorkflowSession.setLocked(false);
+					workflowSessionService.saveOrUpdate(triggerNextWorkflowSession);
+				}
+			}
+			
+		}
+		
 	}
     
 
@@ -255,7 +277,7 @@ public class WorkflowUserController {
 			}
 			workflowSession.setPositon(position);
 			workflowSessionService.saveOrUpdate(workflowSession);
-		
+			markCompleteStatusForWorkflowSession(workflowSession, position, workflow);
 		return ResponseEntity.ok("ok");
 		
 	}
@@ -321,7 +343,7 @@ public class WorkflowUserController {
 			}
 			workflowSession.setPositon(position);
 			workflowSessionService.saveOrUpdate(workflowSession);
-		
+			markCompleteStatusForWorkflowSession(workflowSession, position, workflow);
 		return ResponseEntity.ok("ok");
 		
 	}
@@ -373,7 +395,7 @@ public class WorkflowUserController {
 			}
 			workflowSession.setPositon(position);
 			workflowSessionService.saveOrUpdate(workflowSession);
-		
+			markCompleteStatusForWorkflowSession(workflowSession, position, workflow);
 		return ResponseEntity.ok("ok");
 		
 	}
@@ -426,7 +448,7 @@ public class WorkflowUserController {
 			}
 			workflowSession.setPositon(position);
 			workflowSessionService.saveOrUpdate(workflowSession);
-		
+			markCompleteStatusForWorkflowSession(workflowSession, position, workflow);
 		return ResponseEntity.ok("ok");
 		
 	}

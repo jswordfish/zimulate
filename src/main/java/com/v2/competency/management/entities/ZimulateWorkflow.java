@@ -27,4 +27,6 @@ public class ZimulateWorkflow extends Base{
 	Boolean complete;
 	
 	Boolean navigationBack;
+	
+	Long unlockAnotherWorkflowOnCompletion;
 }
