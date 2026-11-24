@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,13 +29,8 @@ import com.google.cloud.vertexai.api.SafetySetting;
 import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
-import com.v2.competency.management.service.GeminiAudioVideoService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.genai.Client;
-import com.google.genai.types.GenerateContentConfig;
+import com.v2.competency.management.service.GeminiAudioVideoService;
 
 @Service
 public class GeminiAudioVideoServiceImpl implements GeminiAudioVideoService{
